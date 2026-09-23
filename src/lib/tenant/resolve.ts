@@ -22,6 +22,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export type TenantContext =
   | { kind: "dashboard" }
   | { kind: "marketplace" }
+  | { kind: "preview" }
   | { kind: "tenant"; agencyId: string; agencySlug: string; hostname: string };
 
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? "godnd.co";
@@ -45,6 +46,16 @@ const RESERVED = new Set([
   "support",
 ]);
 
+/**
+ * True only on a non-production Vercel deployment. VERCEL_ENV is set by the
+ * platform, so this cannot be spoofed by a Host header alone: both the env
+ * and the hostname must agree.
+ */
+function isPreviewHost(host: string): boolean {
+  if (process.env.VERCEL_ENV === "production") return false;
+  return host.endsWith(".vercel.app");
+}
+
 function normalise(host: string): string {
   // Host headers carry a port in local dev, and are case-insensitive per RFC.
   return host.toLowerCase().split(":")[0].replace(/\.$/, "");
@@ -62,6 +73,13 @@ function devSubdomain(host: string): string | null {
 
 export async function resolveTenant(rawHost: string): Promise<TenantContext> {
   const host = normalise(rawHost);
+
+  // Vercel preview deployments are served from a generated *.vercel.app host
+  // that matches none of the configured domains. Without this branch every
+  // preview would resolve to the marketplace and 404 the whole portal, which
+  // is precisely what reviewers open a preview to look at. Previews therefore
+  // expose all three surfaces by path; production never takes this branch.
+  if (isPreviewHost(host)) return { kind: "preview" };
 
   // The handoff file's browser chrome reads portal.godnd.com, so `portal` is
   // the canonical dashboard host; `app` is kept as an alias.

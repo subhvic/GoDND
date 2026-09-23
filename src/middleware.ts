@@ -26,6 +26,10 @@ export async function middleware(request: NextRequest) {
 
   const tenant = await resolveTenant(host);
 
+  // On a preview deployment every surface is reachable by path, so a reviewer
+  // can open /dashboard and /sites/<slug> from one generated URL.
+  if (tenant.kind === "preview") return NextResponse.next();
+
   if (tenant.kind === "tenant") {
     // A tenant must never reach the portal or another tenant's tree.
     if (url.pathname.startsWith("/dashboard") || url.pathname.startsWith("/sites")) {
