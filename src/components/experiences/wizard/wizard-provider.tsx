@@ -22,6 +22,7 @@ export function useWizard() {
   return {
     ...snapshot,
     setSection: store.setSection,
+    stashSection: store.stashSection,
     markComplete: store.markComplete,
     setSaving: store.setSaving,
     markSaved: store.markSaved,

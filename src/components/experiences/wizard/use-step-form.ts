@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import {
   useForm,
   type DefaultValues,
@@ -35,7 +36,7 @@ export function useStepForm<K extends keyof ExperienceDraft, TValues extends Fie
   /** Final step only: runs instead of navigating to a next step. */
   onComplete?: (values: TValues) => void | Promise<void>;
 }) {
-  const { draft, setSection, markComplete } = useWizard();
+  const { draft, setSection, stashSection, markComplete } = useWizard();
   const router = useRouter();
   const { next } = adjacentSteps(slug);
 
@@ -51,6 +52,35 @@ export function useStepForm<K extends keyof ExperienceDraft, TValues extends Fie
     mode: "onSubmit",
     reValidateMode: "onChange",
   });
+
+  /**
+   * Autosave.
+   *
+   * Without this the draft only reached the store on a successful submit, so a
+   * refresh — or a closed tab, or a stray back-navigation — silently discarded
+   * everything typed on the current step. Operators fill these seven steps on
+   * patchy connections, and a part-built itinerary is precisely what must not
+   * be lost.
+   *
+   * Every change is written straight through; see stashSection for why that is
+   * cheaper than it sounds, and why debouncing it was the wrong trade.
+   *
+   * `subscribe` rather than `watch`: watch() returns a function React Compiler
+   * cannot memoize, so using it here silently opts this whole hook out of
+   * compilation.
+   */
+  const subscribe = form.subscribe;
+
+  useEffect(() => {
+    const unsubscribe = subscribe({
+      formState: { values: true },
+      callback: ({ values }) => {
+        stashSection(sectionKey, values as unknown as ExperienceDraft[K]);
+      },
+    });
+
+    return unsubscribe;
+  }, [subscribe, sectionKey, stashSection]);
 
   const handleSubmit = form.handleSubmit(async (values) => {
     setSection(sectionKey, values as unknown as ExperienceDraft[K]);

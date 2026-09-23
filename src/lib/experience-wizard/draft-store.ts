@@ -118,6 +118,29 @@ export function setSection<K extends keyof ExperienceDraft>(
   update({ draft: { ...snapshot.draft, [key]: values } });
 }
 
+/**
+ * Autosave write: persists immediately but does NOT notify subscribers.
+ *
+ * Persisting on every change rather than on a timer removes a whole class of
+ * bug — anything still inside a debounce window is lost to a refresh, a closed
+ * tab, or a quick step change, and an unload-time flush is not reliable enough
+ * to depend on. The draft is a few KB, so a synchronous write per change costs
+ * nothing measurable.
+ *
+ * Skipping the notify is what keeps that affordable: no component renders the
+ * section currently being edited from this store (the form owns those values
+ * while it is mounted), so waking every subscriber on each keystroke would be
+ * re-render churn for no visible change. Readers pick the values up on their
+ * next render, and `setSection` on submit notifies properly.
+ */
+export function stashSection<K extends keyof ExperienceDraft>(
+  key: K,
+  values: ExperienceDraft[K],
+) {
+  snapshot = { ...snapshot, draft: { ...snapshot.draft, [key]: values } };
+  persist();
+}
+
 export function markComplete(slug: WizardStepSlug, complete: boolean) {
   update({ completed: { ...snapshot.completed, [slug]: complete } });
 }

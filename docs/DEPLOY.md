@@ -90,3 +90,41 @@ Once you're ready to point real domains at it:
 
 A wildcard domain on Vercel requires the domain's nameservers to point at
 Vercel, not just a CNAME. Worth knowing before you move `godnd.site`.
+
+## Running the end-to-end tests
+
+```bash
+npm run test:e2e
+```
+
+Playwright builds the app and starts it on port 3210 with `VERCEL_ENV=production`
+and **no Supabase keys**. That combination is deliberate: it is exactly the
+configuration that once shipped broken, and `next dev` on `portal.localhost`
+hides the failure.
+
+Two suites:
+
+- `tests/deploy-smoke.spec.ts` sends real `Host` headers at the running server
+  and asserts each surface resolves — including that an unrecognised domain
+  degrades instead of returning 500, and that the marketplace domain still
+  cannot reach `/dashboard`.
+- `tests/wizard.spec.ts` covers the Add New Experience wizard: validation
+  gates, draft persistence, and the consent regression (reading a policy must
+  never agree to it).
+
+**If tests fail in ways that make no sense**, check for a stale server first:
+
+```bash
+pgrep -fa next-server        # should be empty before a run
+```
+
+`reuseExistingServer` is on outside CI, so a server left running from an
+earlier build will be reused and serve stale chunks — which looks like a code
+failure and is not one.
+
+In CI, install the browser first:
+
+```bash
+npx playwright install --with-deps chromium
+npm run test:e2e
+```
