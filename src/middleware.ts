@@ -27,8 +27,13 @@ export async function middleware(request: NextRequest) {
   const tenant = await resolveTenant(host);
 
   if (tenant.kind === "tenant") {
+    // A tenant must never reach the portal or another tenant's tree.
+    if (url.pathname.startsWith("/dashboard") || url.pathname.startsWith("/sites")) {
+      return new NextResponse(null, { status: 404 });
+    }
+
     const rewritten = new URL(
-      `/_sites/${tenant.agencySlug}${url.pathname}${url.search}`,
+      `/sites/${tenant.agencySlug}${url.pathname}${url.search}`,
       request.url,
     );
     const response = NextResponse.rewrite(rewritten);
@@ -39,9 +44,15 @@ export async function middleware(request: NextRequest) {
   }
 
   if (tenant.kind === "dashboard") {
-    return NextResponse.rewrite(
-      new URL(`/_dashboard${url.pathname}${url.search}`, request.url),
-    );
+    if (url.pathname === "/") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // Marketplace host: the portal and tenant trees are not addressable here.
+  if (url.pathname.startsWith("/dashboard") || url.pathname.startsWith("/sites")) {
+    return new NextResponse(null, { status: 404 });
   }
 
   return NextResponse.next();

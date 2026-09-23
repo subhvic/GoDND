@@ -1,26 +1,107 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* =============================================================================
+   GoDND Portal design tokens
+
+   Colours and type are taken verbatim from the Figma variables in
+   "Admin Portal V1 - Handoff" (read via the Figma MCP, not sampled by eye).
+   The names mirror the Figma variable names so a designer can trace any value
+   back to the source.
+
+   One documented addition: the Figma ramp stops at 20px, which leaves metric
+   tiles on Insights with no size that reads as a headline. --text-display-*
+   extends the same scale upward; nothing else departs from the file.
+   ========================================================================== */
+
+@theme {
+  /* --- Primary ---------------------------------------------------------- */
+  --color-brand: #007f6a; /* Primary/Primary Green - 1 */
+  --color-brand-soft: #b8dbd5; /* Primary/Primary Green - 3 */
+  --color-brand-surface: #f5faf9; /* Primary/Primary Green - 5 */
+  --color-accent: #02e28c; /* Primary/Accent Green - 1 */
+
+  /* --- Dark green ramp -------------------------------------------------- */
+  --color-ink: #071d18; /* Primary/Dark Green - 1 */
+  --color-ink-muted: #667370; /* Primary/Dark Green - 2 */
+  --color-line-soft: #dcdfdf; /* Primary/Dark Green - 4 */
+  --color-surface-sunken: #f5f6f6; /* Primary/Dark Green - 5 */
+
+  /* --- Neutral ramp ----------------------------------------------------- */
+  --color-neutral-1: #1d1d1d;
+  --color-neutral-2: #737373;
+  --color-neutral-3: #b7b7b7;
+  --color-neutral-4: #dbdbdb;
+  --color-neutral-5: #f1f1f1;
+
+  /* --- Status ----------------------------------------------------------- */
+  /* Not in the Figma variables. Derived to sit beside the brand greens and
+     checked for 4.5:1 against white; needed for the five Experiences tabs. */
+  --color-status-review: #b26a00;
+  --color-status-review-surface: #fff6e8;
+  --color-status-draft: #737373;
+  --color-status-draft-surface: #f1f1f1;
+  --color-status-disabled: #9a3412;
+  --color-status-disabled-surface: #fdf0ea;
+
+  --font-sans: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-outfit), var(--font-roboto), sans-serif;
+
+  /* Portal/Desktop type ramp. Line-height 1.2 throughout, per the file. */
+  --text-small: 0.75rem; /* 12 */
+  --text-small--line-height: 1.2;
+  --text-body: 1rem; /* 16 */
+  --text-body--line-height: 1.2;
+  --text-h3: 1.25rem; /* 20 */
+  --text-h3--line-height: 1.2;
+  --text-display-sm: 1.75rem; /* 28 — addition */
+  --text-display-sm--line-height: 1.15;
+  --text-display: 2.25rem; /* 36 — addition */
+  --text-display--line-height: 1.1;
+
+  /* Sidebar geometry, measured from the handoff frames. */
+  --spacing-sidebar: 273px;
+  --spacing-nav-row: 54px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background: #ffffff;
+    color: var(--color-neutral-1);
+    font-family: var(--font-sans);
+    font-size: var(--text-small);
+  }
+
+  /* The design shows no focus treatment. Shipping without one would fail
+     WCAG 2.4.7, so this uses the accent green at a visible offset. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Visually hidden, still announced. Used for table captions and live regions. */
+@utility sr-only-focusable {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

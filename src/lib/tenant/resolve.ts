@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *
  * Three host shapes reach this app:
  *
- *   app.godnd.co          -> the operator dashboard (SaaS). No tenant from the
+ *   portal.godnd.co       -> the operator dashboard (SaaS). No tenant from the
  *                            host; the tenant comes from the session.
  *   godnd.co              -> the GoDND marketplace. Cross-tenant by design.
  *   goarunachal.godnd.site-> a tenant's free subdomain site.
@@ -30,6 +30,7 @@ const TENANT_DOMAIN = process.env.NEXT_PUBLIC_TENANT_DOMAIN ?? "godnd.site";
 /** Reserved slugs that must never resolve to a tenant site. */
 const RESERVED = new Set([
   "app",
+  "portal",
   "www",
   "api",
   "admin",
@@ -62,7 +63,14 @@ function devSubdomain(host: string): string | null {
 export async function resolveTenant(rawHost: string): Promise<TenantContext> {
   const host = normalise(rawHost);
 
-  if (host === `app.${ROOT_DOMAIN}` || host === "app.localhost") {
+  // The handoff file's browser chrome reads portal.godnd.com, so `portal` is
+  // the canonical dashboard host; `app` is kept as an alias.
+  if (
+    host === `portal.${ROOT_DOMAIN}` ||
+    host === `app.${ROOT_DOMAIN}` ||
+    host === "portal.localhost" ||
+    host === "app.localhost"
+  ) {
     return { kind: "dashboard" };
   }
 
