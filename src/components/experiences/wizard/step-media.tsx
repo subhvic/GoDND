@@ -19,20 +19,39 @@ const FORM_ID = "step-media";
 
 /** Step 7 of 7 — Media & Overview, ending in "Send for Approval". */
 export function StepMedia() {
-  const { draft, reset } = useWizard();
+  const { draft, experienceId, reset, markSaveFailed } = useWizard();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const { form, handleSubmit, errorSummary } = useStepForm<"media", MediaValues>({
     sectionKey: "media",
     slug: "media",
     schema: mediaSchema,
-    onComplete: async () => {
+    onComplete: async (values) => {
       setSubmitting(true);
+      setError(null);
+
       const { submitExperienceForApproval } = await import(
         "@/app/dashboard/experiences/new/actions"
       );
-      await submitExperienceForApproval(draft);
+      // The section's own values are passed explicitly: the store write from
+      // this submit has not been read back yet, so `draft.media` may still hold
+      // the previous summary.
+      const result = await submitExperienceForApproval(
+        { ...draft, media: values },
+        experienceId,
+      );
+
+      if (!result.ok) {
+        // Keep the draft and stay put. Clearing it here would destroy seven
+        // steps of work over a transient network failure.
+        setSubmitting(false);
+        setError(result.message);
+        markSaveFailed(result.message);
+        return;
+      }
+
       reset();
       // Lands on Under Review, where the newly submitted experience now sits —
       // rather than Active, where it would be conspicuously absent.
@@ -54,6 +73,15 @@ export function StepMedia() {
       submitting={submitting}
       aside={<GuestCardPreview summary={summary} thumbnailId={thumbnailId} />}
     >
+      {error ? (
+        <p
+          role="alert"
+          className="border border-[#d92d20] bg-[#fdf0ea] px-[12px] py-[10px] text-small text-[#d92d20]"
+        >
+          {error}
+        </p>
+      ) : null}
+
       <section aria-labelledby="thumbnail">
         <div className="flex flex-wrap items-baseline justify-between gap-[8px]">
           <h3 id="thumbnail" className="text-body font-medium text-neutral-1">

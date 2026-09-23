@@ -26,18 +26,28 @@ export type CompletedMap = Partial<Record<WizardStepSlug, boolean>>;
 export type DraftSnapshot = {
   draft: ExperienceDraft;
   completed: CompletedMap;
+  /**
+   * The row this draft became on the server, once saved. Persisted with the
+   * draft so a refresh mid-wizard keeps updating the same experience instead
+   * of creating a second one on the next save.
+   */
+  experienceId: string | null;
   /** False until the stored draft has been read back. */
   hydrated: boolean;
   saving: boolean;
   lastSavedAt: Date | null;
+  /** Set when a save fails, so the failure is visible rather than silent. */
+  saveError: string | null;
 };
 
 const serverSnapshot: DraftSnapshot = {
   draft: emptyDraft,
   completed: {},
+  experienceId: null,
   hydrated: false,
   saving: false,
   lastSavedAt: null,
+  saveError: null,
 };
 
 let snapshot: DraftSnapshot = serverSnapshot;
@@ -48,9 +58,10 @@ function load() {
   if (loaded) return;
   loaded = true;
 
-  let restored: Pick<DraftSnapshot, "draft" | "completed"> = {
+  let restored: Pick<DraftSnapshot, "draft" | "completed" | "experienceId"> = {
     draft: emptyDraft,
     completed: {},
+    experienceId: null,
   };
 
   try {
@@ -59,12 +70,14 @@ function load() {
       const parsed = JSON.parse(stored) as {
         draft?: Partial<ExperienceDraft>;
         completed?: CompletedMap;
+        experienceId?: string | null;
       };
       restored = {
         // Merged, not replaced: a draft saved before a field existed must not
         // render undefined into a controlled input.
         draft: { ...emptyDraft, ...parsed.draft },
         completed: parsed.completed ?? {},
+        experienceId: parsed.experienceId ?? null,
       };
     }
   } catch {
@@ -78,7 +91,11 @@ function persist() {
   try {
     window.sessionStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ draft: snapshot.draft, completed: snapshot.completed }),
+      JSON.stringify({
+        draft: snapshot.draft,
+        completed: snapshot.completed,
+        experienceId: snapshot.experienceId,
+      }),
     );
   } catch {
     // Storage full or blocked; the in-memory draft still works.
@@ -146,11 +163,27 @@ export function markComplete(slug: WizardStepSlug, complete: boolean) {
 }
 
 export function setSaving(saving: boolean) {
-  update({ saving }, false);
+  update({ saving, saveError: null }, false);
 }
 
-export function markSaved() {
-  update({ saving: false, lastSavedAt: new Date() }, false);
+/**
+ * Records a successful save. The server id is persisted so the next save
+ * updates this experience rather than creating another one.
+ */
+export function markSaved(experienceId: string | null) {
+  snapshot = {
+    ...snapshot,
+    saving: false,
+    lastSavedAt: new Date(),
+    saveError: null,
+    experienceId: experienceId ?? snapshot.experienceId,
+  };
+  persist();
+  emit();
+}
+
+export function markSaveFailed(message: string) {
+  update({ saving: false, saveError: message }, false);
 }
 
 export function resetDraft() {

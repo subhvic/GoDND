@@ -1,26 +1,28 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
+import { createServerSupabase } from "@/lib/supabase/server";
 import type { ExperienceDraft } from "@/lib/experience-wizard/schema";
 
 /**
  * Draft persistence.
  *
- * The wizard keeps its own copy in sessionStorage, so these calls are the
- * durable write rather than the source of truth. Once Supabase is provisioned
- * each maps onto the tables in 0002_experiences.sql:
+ * The whole draft goes to Postgres as one jsonb document and
+ * `save_experience_draft` fans it out across ten tables (see
+ * 0005_experience_drafts.sql). Doing that fan-out from here would mean ten
+ * round trips with no transaction around them, and an interrupted save would
+ * leave an experience with days but no pricing.
  *
- *   saveExperienceDraft        -> upsert experiences (status 'draft') and its
- *                                 child rows, keyed by the draft's id
- *   submitExperienceForApproval-> status 'under_review', submitted_at = now(),
- *                                 plus an experience_reviews row for the
- *                                 Approval History timeline
- *
- * They are deliberately not stubbed silently: each returns a result the caller
- * can act on, so wiring the database later changes no call site.
+ * The functions are SECURITY INVOKER, so they run under the caller's session
+ * and RLS decides what may be written — these actions grant no authority of
+ * their own.
  */
 
 export type DraftSaveResult = {
   ok: boolean;
+  /** Null when Supabase is not configured, so nothing left this device. */
+  experienceId: string | null;
   persisted: boolean;
   message: string;
 };
@@ -31,35 +33,122 @@ const isSupabaseConfigured = () =>
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   );
 
+const NOT_CONFIGURED: DraftSaveResult = {
+  ok: true,
+  experienceId: null,
+  persisted: false,
+  message: "Saved on this device. Connect Supabase to sync it to your account.",
+};
+
 export async function saveExperienceDraft(
   draft: ExperienceDraft,
+  experienceId: string | null = null,
 ): Promise<DraftSaveResult> {
-  if (!isSupabaseConfigured()) {
+  if (!isSupabaseConfigured()) return NOT_CONFIGURED;
+
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
     return {
-      ok: true,
+      ok: false,
+      experienceId,
       persisted: false,
-      message: "Saved on this device. Connect Supabase to sync it to your account.",
+      message: "Sign in to save this experience to your account.",
     };
   }
 
-  // TODO(experience-persistence): upsert into experiences + child tables.
-  // Deliberately not half-implemented: a partial write would leave an
-  // experience with days but no pricing, which is worse than no write at all.
-  void draft;
+  const { data, error } = await supabase.rpc("save_experience_draft", {
+    p_experience_id: experienceId,
+    p_draft: draft,
+  });
+
+  if (error) {
+    // Surfaced rather than swallowed: an operator who believes a save
+    // succeeded will close the tab.
+    return {
+      ok: false,
+      experienceId,
+      persisted: false,
+      message: `Could not save: ${error.message}`,
+    };
+  }
+
+  revalidatePath("/dashboard/experiences");
+
   return {
     ok: true,
-    persisted: false,
-    message: "Draft saving to Supabase lands with the edit flow.",
+    experienceId: data as string,
+    persisted: true,
+    message: "Draft saved.",
   };
 }
 
 export async function submitExperienceForApproval(
   draft: ExperienceDraft,
+  experienceId: string | null = null,
 ): Promise<DraftSaveResult> {
-  void draft;
+  if (!isSupabaseConfigured()) {
+    return {
+      ...NOT_CONFIGURED,
+      message:
+        "Submitted on this device only. Connect Supabase to send it for review.",
+    };
+  }
+
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      ok: false,
+      experienceId,
+      persisted: false,
+      message: "Sign in to submit this experience for review.",
+    };
+  }
+
+  // Saves and submits in one transaction, so an experience can never end up
+  // under review carrying a stale draft.
+  const { data, error } = await supabase.rpc("submit_experience_for_approval", {
+    p_experience_id: experienceId,
+    p_draft: draft,
+  });
+
+  if (error) {
+    return {
+      ok: false,
+      experienceId,
+      persisted: false,
+      message: `Could not submit: ${error.message}`,
+    };
+  }
+
+  revalidatePath("/dashboard/experiences");
+
   return {
     ok: true,
-    persisted: false,
-    message: "Submitted for review.",
+    experienceId: data as string,
+    persisted: true,
+    message: "Sent for approval.",
   };
+}
+
+/** Reopens a saved draft in the wizard. */
+export async function loadExperienceDraft(
+  experienceId: string,
+): Promise<ExperienceDraft | null> {
+  if (!isSupabaseConfigured()) return null;
+
+  const supabase = await createServerSupabase();
+  const { data, error } = await supabase.rpc("load_experience_draft", {
+    p_experience_id: experienceId,
+  });
+
+  if (error || !data) return null;
+  return data as ExperienceDraft;
 }

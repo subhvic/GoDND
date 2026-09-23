@@ -128,3 +128,23 @@ In CI, install the browser first:
 npx playwright install --with-deps chromium
 npm run test:e2e
 ```
+
+## Verifying the database layer
+
+The wizard's persistence is a Postgres function, so it is tested in Postgres
+rather than through the app — no Supabase project required:
+
+```bash
+createdb godnd_verify
+psql -d godnd_verify -f supabase/tests/00_auth_stub.sql
+for f in supabase/migrations/*.sql; do
+  psql -v ON_ERROR_STOP=1 -d godnd_verify -f "$f"
+done
+psql -d godnd_verify -f supabase/tests/draft-persistence.sql
+```
+
+The test runs in a transaction and rolls back, so it is safe to re-run. It
+pins the properties that matter: the fan-out across ten tables is atomic,
+rupees become paise exactly once, re-saving replaces child rows instead of
+duplicating them, submitting writes the approval-history row, and another
+agency can neither read nor write the draft.

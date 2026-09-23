@@ -158,7 +158,7 @@ export function WizardProgress({ current }: { current: WizardStepSlug }) {
  * "Preview" action appears only on the final step, as drawn.
  */
 export function WizardHeader({ current }: { current: WizardStepSlug }) {
-  const { saving, lastSavedAt } = useWizard();
+  const { saving, lastSavedAt, saveError } = useWizard();
   const isFinalStep = current === "media";
 
   return (
@@ -169,15 +169,23 @@ export function WizardHeader({ current }: { current: WizardStepSlug }) {
       </h1>
 
       <div className="flex items-center gap-[16px]">
-        <p aria-live="polite" className="hidden text-small text-neutral-2 sm:block">
-          {saving
-            ? "Saving…"
-            : lastSavedAt
-              ? `Saved ${lastSavedAt.toLocaleTimeString("en-IN", {
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}`
-              : ""}
+        <p
+          aria-live="polite"
+          className={cn(
+            "hidden text-small sm:block",
+            saveError ? "text-[#d92d20]" : "text-neutral-2",
+          )}
+        >
+          {saveError
+            ? saveError
+            : saving
+              ? "Saving…"
+              : lastSavedAt
+                ? `Saved ${lastSavedAt.toLocaleTimeString("en-IN", {
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}`
+                : ""}
         </p>
         <SaveDraftButton />
         {isFinalStep ? (
@@ -195,7 +203,14 @@ export function WizardHeader({ current }: { current: WizardStepSlug }) {
 }
 
 function SaveDraftButton() {
-  const { draft, setSaving, markSaved, saving } = useWizard();
+  const {
+    draft,
+    experienceId,
+    setSaving,
+    markSaved,
+    markSaveFailed,
+    saving,
+  } = useWizard();
   const [pending, startTransition] = useTransition();
 
   return (
@@ -208,8 +223,11 @@ function SaveDraftButton() {
           const { saveExperienceDraft } = await import(
             "@/app/dashboard/experiences/new/actions"
           );
-          await saveExperienceDraft(draft);
-          markSaved();
+          const result = await saveExperienceDraft(draft, experienceId);
+          // A failed save must never read as a success: an operator who
+          // believes their work is stored will close the tab.
+          if (result.ok) markSaved(result.experienceId);
+          else markSaveFailed(result.message);
         });
       }}
       className="flex items-center gap-[6px] text-small font-medium text-neutral-1 hover:text-brand disabled:opacity-60"

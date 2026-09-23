@@ -26,6 +26,7 @@ export function useWizard() {
     markComplete: store.markComplete,
     setSaving: store.setSaving,
     markSaved: store.markSaved,
+    markSaveFailed: store.markSaveFailed,
     reset: store.resetDraft,
   };
 }
