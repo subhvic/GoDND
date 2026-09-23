@@ -155,12 +155,9 @@ export function StepPolicies() {
           label={
             <>
               We abide by the{" "}
-              <a
-                href="/legal/cancellation-policy"
-                className="text-brand underline underline-offset-2"
-              >
+              <PolicyLink href="/legal/cancellation-policy">
                 General Cancellation Policy of GoDND
-              </a>{" "}
+              </PolicyLink>{" "}
               and agree to imply the same on this experience&rsquo;s booking.
             </>
           }
@@ -186,12 +183,9 @@ export function StepPolicies() {
           label={
             <>
               We abide by the{" "}
-              <a
-                href="/legal/support-standards"
-                className="text-brand underline underline-offset-2"
-              >
+              <PolicyLink href="/legal/support-standards">
                 Customer Support Standards of GoDND
-              </a>{" "}
+              </PolicyLink>{" "}
               and agree to follow the same on this experience&rsquo;s booking.
             </>
           }
@@ -203,6 +197,36 @@ export function StepPolicies() {
         ) : null}
       </section>
     </StepShell>
+  );
+}
+
+/**
+ * A policy link inside a consent label.
+ *
+ * A link nested in a <label> inherits the label's activation behaviour, so
+ * clicking through to read the policy would ALSO tick the consent box — the
+ * operator agrees to a document they were only trying to open. Stopping
+ * propagation prevents that, and opening in a new tab means reading the policy
+ * never costs them the half-finished draft behind this form.
+ */
+function PolicyLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      onClick={(event) => event.stopPropagation()}
+      className="text-brand underline underline-offset-2"
+    >
+      {children}
+      <span className="sr-only-focusable"> (opens in a new tab)</span>
+    </a>
   );
 }
 

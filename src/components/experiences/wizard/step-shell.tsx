@@ -65,14 +65,14 @@ export function StepShell({
             id={formId}
             onSubmit={onSubmit}
             noValidate
-            className="mt-[20px] flex flex-col gap-[20px] pb-[24px]"
+            className="mt-[20px] flex flex-col gap-[20px] pb-[96px]"
           >
             {children}
           </form>
         </div>
 
         {aside ? (
-          <aside className="border-t border-neutral-5 bg-brand-surface px-[16px] py-[20px] lg:w-[320px] lg:shrink-0 lg:border-l lg:border-t-0 lg:px-[24px]">
+          <aside className="border-t border-neutral-5 bg-brand-surface px-[16px] pb-[96px] pt-[20px] lg:w-[320px] lg:shrink-0 lg:border-l lg:border-t-0 lg:px-[24px] lg:pb-[40px]">
             {aside}
           </aside>
         ) : null}
