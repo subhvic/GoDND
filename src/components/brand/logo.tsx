@@ -12,7 +12,14 @@ import { cn } from "@/lib/utils";
  *
  * Replace `<BrandGlyph />` with the exported SVG and nothing else changes.
  */
-export function Logo({ className }: { className?: string }) {
+export function Logo({
+  className,
+  /** The "Portal" suffix belongs to the operator app, not the marketplace. */
+  suffix = "Portal",
+}: {
+  className?: string;
+  suffix?: "Portal" | null;
+}) {
   return (
     <span className={cn("flex items-center gap-[7px]", className)}>
       <BrandGlyph />
@@ -20,18 +27,20 @@ export function Logo({ className }: { className?: string }) {
         <span className="text-ink">Go</span>
         <span className="tracking-[-0.4175px] text-brand">DND</span>
       </span>
-      <span className="flex items-center border-l border-neutral-4 pl-[10px]">
-        <span
-          className="inline-block bg-clip-text pr-[2px] text-[18px] font-medium italic leading-[1.3] tracking-[-0.18px] text-transparent"
-          style={{
-            backgroundImage:
-              "linear-gradient(105.59deg, rgba(0,127,106,0.6) 22.8%, rgba(66,198,177,0.6) 65.8%, rgba(1,73,61,0.6) 110.49%)",
-          }}
-        >
-          Portal
+      {suffix ? (
+        <span className="flex items-center border-l border-neutral-4 pl-[10px]">
+          <span
+            className="inline-block bg-clip-text pr-[2px] text-[18px] font-medium italic leading-[1.3] tracking-[-0.18px] text-transparent"
+            style={{
+              backgroundImage:
+                "linear-gradient(105.59deg, rgba(0,127,106,0.6) 22.8%, rgba(66,198,177,0.6) 65.8%, rgba(1,73,61,0.6) 110.49%)",
+            }}
+          >
+            {suffix}
+          </span>
         </span>
-      </span>
-      <span className="sr-only-focusable">GoDND Portal</span>
+      ) : null}
+      <span className="sr-only-focusable">{suffix ? `GoDND ${suffix}` : "GoDND"}</span>
     </span>
   );
 }

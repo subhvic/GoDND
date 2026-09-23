@@ -47,13 +47,34 @@ const RESERVED = new Set([
 ]);
 
 /**
- * True only on a non-production Vercel deployment. VERCEL_ENV is set by the
- * platform, so this cannot be spoofed by a Host header alone: both the env
- * and the hostname must agree.
+ * A Vercel-generated deployment host (`*.vercel.app`).
+ *
+ * These are never customer-facing: an operator's travellers reach a real
+ * domain, and the marketplace runs on godnd.co. So a .vercel.app host is
+ * always a deployment being reviewed, and exposes all three surfaces by path
+ * rather than by host — including on the production deployment, whose
+ * generated alias is the only way to open the app before DNS is pointed.
+ *
+ * This is scoped to the hostname alone. Configured domains never take this
+ * branch, so host-based isolation still holds everywhere it matters.
  */
-function isPreviewHost(host: string): boolean {
-  if (process.env.VERCEL_ENV === "production") return false;
-  return host.endsWith(".vercel.app");
+function isDeploymentHost(host: string): boolean {
+  if (host === "vercel.app" || host.endsWith(".vercel.app")) return true;
+  // Bare localhost is the same situation: no real hostnames to route by, so
+  // every surface is reachable by path. `portal.localhost` and
+  // `{slug}.localhost` still exercise host-based routing in development.
+  return host === "localhost" || host === "127.0.0.1";
+}
+
+/**
+ * Custom-domain lookups need the service role. Without it there is nothing to
+ * look up, and throwing here would 500 every request on an unrecognised host
+ * — which is exactly what happened the first time this shipped.
+ */
+function canQueryDomains(): boolean {
+  return Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY,
+  );
 }
 
 function normalise(host: string): string {
@@ -74,12 +95,7 @@ function devSubdomain(host: string): string | null {
 export async function resolveTenant(rawHost: string): Promise<TenantContext> {
   const host = normalise(rawHost);
 
-  // Vercel preview deployments are served from a generated *.vercel.app host
-  // that matches none of the configured domains. Without this branch every
-  // preview would resolve to the marketplace and 404 the whole portal, which
-  // is precisely what reviewers open a preview to look at. Previews therefore
-  // expose all three surfaces by path; production never takes this branch.
-  if (isPreviewHost(host)) return { kind: "preview" };
+  if (isDeploymentHost(host)) return { kind: "preview" };
 
   // The handoff file's browser chrome reads portal.godnd.com, so `portal` is
   // the canonical dashboard host; `app` is kept as an alias.
@@ -92,7 +108,7 @@ export async function resolveTenant(rawHost: string): Promise<TenantContext> {
     return { kind: "dashboard" };
   }
 
-  if (host === ROOT_DOMAIN || host === `www.${ROOT_DOMAIN}` || host === "localhost") {
+  if (host === ROOT_DOMAIN || host === `www.${ROOT_DOMAIN}`) {
     return { kind: "marketplace" };
   }
 
@@ -100,6 +116,8 @@ export async function resolveTenant(rawHost: string): Promise<TenantContext> {
     host.endsWith(`.${TENANT_DOMAIN}`)
       ? host.slice(0, -(TENANT_DOMAIN.length + 1))
       : devSubdomain(host);
+
+  if (!canQueryDomains()) return { kind: "marketplace" };
 
   if (slug && !slug.includes(".") && !RESERVED.has(slug)) {
     const agency = await lookupBySlug(slug);
@@ -118,30 +136,40 @@ export async function resolveTenant(rawHost: string): Promise<TenantContext> {
 type AgencyRef = { agencyId: string; agencySlug: string };
 
 const lookupBySlug = cached(async (slug: string): Promise<AgencyRef | null> => {
-  const supabase = createAdminClient();
-  const { data } = await supabase
-    .from("agencies")
-    .select("id, slug")
-    .eq("slug", slug)
-    .eq("status", "active")
-    .maybeSingle();
+  try {
+    const supabase = createAdminClient();
+    const { data } = await supabase
+      .from("agencies")
+      .select("id, slug")
+      .eq("slug", slug)
+      .eq("status", "active")
+      .maybeSingle();
 
-  return data ? { agencyId: data.id, agencySlug: data.slug } : null;
+    return data ? { agencyId: data.id, agencySlug: data.slug } : null;
+  } catch {
+    // Degrade to "not a tenant" rather than failing the request: middleware
+    // runs on every route, so a throw here takes the whole site down.
+    return null;
+  }
 });
 
 const lookupByHostname = cached(async (hostname: string): Promise<AgencyRef | null> => {
-  const supabase = createAdminClient();
-  const { data } = await supabase
-    .from("agency_domains")
-    .select("agency_id, agencies!inner(slug, status)")
-    .eq("hostname", hostname)
-    .eq("status", "active")
-    .maybeSingle();
+  try {
+    const supabase = createAdminClient();
+    const { data } = await supabase
+      .from("agency_domains")
+      .select("agency_id, agencies!inner(slug, status)")
+      .eq("hostname", hostname)
+      .eq("status", "active")
+      .maybeSingle();
 
-  const agency = data?.agencies as unknown as { slug: string; status: string } | undefined;
-  if (!data || !agency || agency.status !== "active") return null;
+    const agency = data?.agencies as unknown as { slug: string; status: string } | undefined;
+    if (!data || !agency || agency.status !== "active") return null;
 
-  return { agencyId: data.agency_id, agencySlug: agency.slug };
+    return { agencyId: data.agency_id, agencySlug: agency.slug };
+  } catch {
+    return null;
+  }
 });
 
 /**
