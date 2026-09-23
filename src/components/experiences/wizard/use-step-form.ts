@@ -2,7 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useForm, type DefaultValues, type FieldValues } from "react-hook-form";
+import {
+  useForm,
+  type DefaultValues,
+  type FieldValues,
+  type Resolver,
+} from "react-hook-form";
 import type { ZodType } from "zod";
 
 import { useWizard } from "@/components/experiences/wizard/wizard-provider";
@@ -35,10 +40,13 @@ export function useStepForm<K extends keyof ExperienceDraft, TValues extends Fie
   const { next } = adjacentSteps(slug);
 
   const form = useForm<TValues>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- the schema
-    // and the section are matched by construction at each call site; the
-    // resolver's generics cannot express that link.
-    resolver: zodResolver(schema as any),
+    // z.coerce fields make a schema's INPUT type `unknown`, which zodResolver's
+    // overloads reject even though the OUTPUT is exactly TValues. The cast is
+    // confined to this one boundary and asserts only what each call site
+    // already guarantees: schema output matches the draft section.
+    resolver: zodResolver(
+      schema as unknown as Parameters<typeof zodResolver>[0],
+    ) as unknown as Resolver<TValues>,
     defaultValues: draft[sectionKey] as unknown as DefaultValues<TValues>,
     mode: "onSubmit",
     reValidateMode: "onChange",
