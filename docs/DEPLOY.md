@@ -35,6 +35,26 @@ Production never takes that branch: `VERCEL_ENV=production` disables it, so the
 real deployment still enforces host-based routing and `/dashboard` stays
 unreachable from the marketplace domain.
 
+## If the deploy fails with "Environment variable … is invalid"
+
+Vercel reserves the **`VERCEL_` prefix** for the system variables it injects
+itself (`VERCEL_ENV`, `VERCEL_URL`, `VERCEL_PROJECT_ID` and friends). Creating
+your own variable with that prefix is rejected.
+
+If you copied `.env.example` into the Vercel dashboard wholesale, delete these
+three from **Project → Settings → Environment Variables** and redeploy:
+
+- `VERCEL_PROJECT_ID`
+- `VERCEL_TEAM_ID`
+- `VERCEL_API_TOKEN`
+
+They are only needed much later, for attaching operator custom domains, and
+are now named `DOMAINS_VERCEL_*` in `.env.example` so they no longer collide.
+
+**Nothing in `.env.example` is required for the first deploy.** The simplest
+fix is to remove every variable and deploy with none — the app runs on sample
+data and tells you so.
+
 ## Connecting real data (optional)
 
 The UI renders without any of this. Add them when you want live experiences:
