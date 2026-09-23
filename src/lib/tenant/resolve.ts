@@ -147,7 +147,7 @@ const lookupBySlug = cached(async (slug: string): Promise<AgencyRef | null> => {
 
     return data ? { agencyId: data.id, agencySlug: data.slug } : null;
   } catch {
-    // Degrade to "not a tenant" rather than failing the request: middleware
+    // Degrade to "not a tenant" rather than failing the request: the proxy
     // runs on every route, so a throw here takes the whole site down.
     return null;
   }

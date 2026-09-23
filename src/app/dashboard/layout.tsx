@@ -2,7 +2,7 @@ import { Sidebar, type SidebarUser } from "@/components/dashboard/sidebar";
 import { createServerSupabase } from "@/lib/supabase/server";
 
 /**
- * Operator portal shell. Reached as portal.godnd.co/dashboard/* — middleware
+ * Operator portal shell. Reached as portal.godnd.co/dashboard/* — the proxy
  * strips the visible /dashboard prefix before this tree sees the request.
  */
 export default async function DashboardLayout({

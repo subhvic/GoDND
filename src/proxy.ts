@@ -5,6 +5,10 @@ import { resolveTenant } from "@/lib/tenant/resolve";
 /**
  * Host-based routing.
  *
+ * This is Next's proxy (formerly the middleware convention): one function that
+ * sees every request before routing, which is where a tenant has to be decided
+ * because the answer lives in the Host header rather than the path.
+ *
  * Rather than putting the tenant in the URL path (/sites/goarunachal/...), the
  * host is rewritten into a route group the visitor never sees. The operator's
  * customers get clean URLs on their own domain — wanderbeyond.in/trips/meghalaya
@@ -15,7 +19,7 @@ import { resolveTenant } from "@/lib/tenant/resolve";
  *   src/app/(marketplace)/... -> godnd.co
  *   src/app/(site)/[agency]/... -> every tenant host
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const host = request.headers.get("host") ?? "";
   const url = request.nextUrl;
 

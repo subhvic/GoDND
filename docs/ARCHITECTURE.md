@@ -27,7 +27,7 @@ tenant lives in the Host header rather than the path.
 | `{slug}.godnd.site` | `/_sites/{slug}/*` | That operator's customers |
 | `theirdomain.com` | `/_sites/{slug}/*` | Same, on their own domain |
 
-`src/middleware.ts` does the resolution; `src/lib/tenant/resolve.ts` holds the
+`src/proxy.ts` does the resolution; `src/lib/tenant/resolve.ts` holds the
 logic and a 60-second cache, because a custom-domain lookup is a database round
 trip on every single request and must not sit on the critical path uncached.
 
@@ -61,7 +61,7 @@ domain at us and we attach it:
 3. A verification job resolves the TXT record. On success → `status = 'active'`,
    and we call the Vercel Domains API to attach the host to the project, which
    provisions a Let's Encrypt certificate automatically.
-4. Middleware now resolves that host to the agency, and the site is live.
+4. The proxy now resolves that host to the agency, and the site is live.
 
 The ownership check is not optional. Without it, anyone could claim a domain
 they don't control and have our edge serve content on it.
@@ -143,7 +143,7 @@ customer.
 | Marketplace star-marking | **No — gap 1** | Schema ready, needs design |
 | Enquiries + realtime chat | **No — gap 2** | Schema ready, needs design |
 | White-label site + theming | **No — gap 3** | Schema ready, needs design |
-| Custom domains | **No — gap 3** | Schema + middleware done |
+| Custom domains | **No — gap 3** | Schema + proxy done |
 | GST invoices | **No — gap 4** | Schema ready, needs design |
 | Subscriptions & entitlements | **No — gap 5** | Schema ready, needs design |
 

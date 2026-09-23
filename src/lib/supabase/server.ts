@@ -23,7 +23,7 @@ export async function createServerSupabase() {
             );
           } catch {
             // Called from a Server Component, where cookies are read-only.
-            // Session refresh is handled in middleware, so this is safe to skip.
+            // Session refresh is handled in the proxy, so this is safe to skip.
           }
         },
       },

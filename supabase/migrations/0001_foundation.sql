@@ -145,7 +145,7 @@ create unique index subscriptions_one_live_per_agency on subscriptions(agency_id
 -- agency_domains — white-label hosting.
 --   subdomain rows:  {slug}.godnd.site, created automatically, always verified
 --   custom rows:     operator's own domain, verified by DNS TXT then CNAME
--- Next.js middleware resolves an incoming Host header against this table.
+-- The Next.js proxy resolves an incoming Host header against this table.
 -- -----------------------------------------------------------------------------
 create table agency_domains (
   id                 uuid primary key default gen_random_uuid(),
@@ -307,7 +307,7 @@ create policy members_manage on agency_members for all
 create policy subscriptions_read on subscriptions for select
   using (is_agency_member(agency_id) or is_platform_admin());
 
--- domains: tenant-managed. Public read is needed so the edge middleware can
+-- domains: tenant-managed. Public read is needed so the edge proxy can
 -- resolve a hostname before any session exists.
 create policy domains_public_read on agency_domains for select
   using (status = 'active' or is_agency_member(agency_id) or is_platform_admin());
