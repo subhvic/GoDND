@@ -309,7 +309,7 @@ export function ReviewScreen() {
         {/* Pinned footer, matching the wizard's own footer shape so the flow
             feels continuous. The primary action is the terminal action of the
             whole seven-step flow. */}
-        <div className="sticky bottom-0 z-10 mx-[-16px] flex items-center justify-between gap-[12px] border-t border-border-subtle bg-card px-[16px] py-[12px]">
+        <div className="sticky bottom-0 z-10 ml-[-12px] mr-[-16px] flex items-center justify-between gap-[12px] border-t border-border-subtle bg-card py-[12px] pl-[12px] pr-[16px]">
           <span className="text-[11.5px] text-text-muted">
             {wizard.isEditing
               ? `Reviewing your changes to this experience`

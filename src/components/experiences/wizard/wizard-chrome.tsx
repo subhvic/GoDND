@@ -201,7 +201,7 @@ export function WizardFooter({
   const finalLabel = isEditing ? "Review updates" : "Review & send";
 
   return (
-    <div className="sticky bottom-0 z-10 mx-[-16px] mt-auto flex items-center justify-between gap-[12px] border-t border-border-subtle bg-card px-[16px] py-[12px]">
+    <div className="sticky bottom-0 z-10 ml-[-12px] mr-[-16px] mt-auto flex items-center justify-between gap-[12px] border-t border-border-subtle bg-card py-[12px] pl-[12px] pr-[16px]">
       <span className="text-[11.5px] text-text-muted">
         Step {index + 1} of {WIZARD_STEPS.length}
       </span>

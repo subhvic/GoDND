@@ -17,8 +17,8 @@
     display: flex; flex-direction: column; transition: width .16s ease; overflow: hidden;
   }
   .app.nav-collapsed .nav { width: var(--nav-w-collapsed); }
-  .nav-top { display: flex; align-items: center; gap: 12px; padding: 16px; height: 72px; flex-shrink: 0; }
-  .app.nav-collapsed .nav-top { justify-content: center; padding: 16px 0; }
+  .nav-top { display: flex; align-items: center; gap: 12px; padding: 8px 16px 16px; height: 64px; flex-shrink: 0; }
+  .app.nav-collapsed .nav-top { justify-content: center; padding: 8px 0 16px; }
   .nav-wordmark { display: block; line-height: 0; }
   .app.nav-collapsed .nav-wordmark { display: none; }
   .nav-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 6px 10px 8px; }
@@ -52,7 +52,7 @@
      a keyboard user tabbing down the collapsed rail met unlabeled icons.
      :focus-within gives them the same labels a mouse user gets. */
   .app.nav-collapsed .nav:is(:hover, :focus-within) { width: var(--nav-w); }
-  .app.nav-collapsed .nav:is(:hover, :focus-within) .nav-top { justify-content: flex-start; padding: 16px; }
+  .app.nav-collapsed .nav:is(:hover, :focus-within) .nav-top { justify-content: flex-start; padding: 8px 16px 16px; }
   .app.nav-collapsed .nav:is(:hover, :focus-within) .nav-wordmark { display: block; }
   .app.nav-collapsed .nav:is(:hover, :focus-within) .nav-group-label { text-align: left; padding: 14px 10px 6px; }
   .app.nav-collapsed .nav:is(:hover, :focus-within) .nav-group-label span { display: inline; }
@@ -97,7 +97,7 @@
   /* ============ MAIN ============ */
   .main {
     flex: 1; display: flex; flex-direction: column; min-width: 0;
-    padding: 18px var(--gutter) 0 12px; gap: 10px; background: var(--canvas);
+    padding: 10px var(--gutter) 0 12px; gap: 10px; background: var(--canvas);
   }
   /* The one floating surface card everything lives inside. Flush to the
      bottom of the viewport, rounded only at the top. */
@@ -108,7 +108,7 @@
     position: relative;
   }
   .surface-card.has-rail { flex-direction: row; }
-  .card-scroll { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; padding: 12px 16px 24px; display: flex; flex-direction: column; }
+  .card-scroll { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; padding: 12px 16px 24px 12px; display: flex; flex-direction: column; }
 
   /* Page bar: breadcrumb trail left, page controls right — floats on canvas */
   .card-crumbs {
