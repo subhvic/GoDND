@@ -18,7 +18,10 @@ Storage, Realtime) · Razorpay.
 cp .env.example .env.local     # fill in Supabase + Razorpay keys
 npm install
 npm run dev
+npm run supabase:check         # verify Postgres is reachable
 ```
+
+To connect a Supabase project end-to-end, see the runbook: [`docs/SUPABASE_SETUP.md`](docs/SUPABASE_SETUP.md).
 
 Local multi-tenancy uses `*.localhost`, so the three surfaces are reachable as:
 
