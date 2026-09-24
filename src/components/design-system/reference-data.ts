@@ -17,8 +17,13 @@ export const PRIMITIVES = [
     ],
   },
   {
-    group: "Blue · brand",
-    desc: "Focus, active state and the primary action. 700–800 are its hover and pressed steps.",
+    group: "Emerald · brand",
+    desc: "GoDND green. 600 is the base for dots and rails; 700 is the AA-safe step for brand text and for fills that carry a white label; 800 is the hover / pressed step.",
+    tokens: ["--emerald-50", "--emerald-600", "--emerald-700", "--emerald-800"],
+  },
+  {
+    group: "Blue · info",
+    desc: "Informational only — notices, the info status, links inside prose. Kept separate from brand so an info toast never reads as a brand action.",
     tokens: ["--blue-50", "--blue-600", "--blue-700", "--blue-800"],
   },
   {
@@ -46,8 +51,8 @@ export const SEMANTIC: [string, string, string][] = [
   ["--text-primary", "--slate-900", "Headings, values, primary copy"],
   ["--text-secondary", "--slate-600", "Labels, secondary copy"],
   ["--text-muted", "--slate-550", "Captions, hints, meta — clears AA on every surface"],
-  ["--brand", "--blue-600", "Focus, active rail, brand text and icons"],
-  ["--brand-muted", "--blue-50", "Active nav / tab / row background"],
+  ["--brand", "--emerald-700", "Focus, active rail, brand text and icons"],
+  ["--brand-muted", "--emerald-50", "Active nav / tab / row background"],
   ["--accent", "--violet-600", "Onboarding & walkthrough accent"],
   ["--accent-muted", "--violet-50", "Accent surface"],
   ["--healthy", "--green-600", "Live and bookable — nothing to do"],
@@ -59,10 +64,10 @@ export const SEMANTIC: [string, string, string][] = [
 
 /** [token, resolves to, usage] */
 export const COMPONENT_TOKENS: [string, string, string][] = [
-  ["--brand-solid", "--blue-600", "Primary button, avatar, selected calendar day"],
-  ["--brand-hover", "--blue-700", "Primary fill hover"],
-  ["--brand-active", "--blue-800", "Primary fill pressed"],
-  ["--brand-on-muted", "--blue-700", "Text / icon on a --brand-muted surface"],
+  ["--brand-solid", "--emerald-700", "Primary button, avatar, selected calendar day"],
+  ["--brand-hover", "--emerald-800", "Primary fill hover"],
+  ["--brand-active", "--emerald-800", "Primary fill pressed"],
+  ["--brand-on-muted", "--emerald-700", "Text / icon on a --brand-muted surface"],
   ["--on-brand", "--white", "Text on any solid fill"],
   ["--healthy-solid", "--green-700", "Status badge fill · healthy"],
   ["--warning-solid", "--amber-700", "Status badge fill · warning"],
@@ -78,7 +83,7 @@ export const COMPONENT_TOKENS: [string, string, string][] = [
   ["--warning-tint", "amber-600 · 12%", "Badge / notice warning fill"],
   ["--healthy-tint", "green-600 · 12%", "Badge / notice healthy fill"],
   ["--info-tint", "blue-600 · 10%", "Info surface fill"],
-  ["--focus-ring", "0 0 0 3px · blue-600 · 16%", "Text input / select focus glow"],
+  ["--focus-ring", "0 0 0 3px · emerald-700 · 18%", "Text input / select focus glow"],
 ];
 
 /**

@@ -35,11 +35,20 @@
   --slate-550: #5F687B;
   --slate-600: #4A5468;
   --slate-900: #10182B;
-  /* Blue (brand) */
+  /* Blue — informational only. Notices and the info status resolve here;
+     the brand hue is emerald, kept separate so an info toast never reads as
+     a brand action. */
   --blue-50: #E5EDFD;
   --blue-600: #2563EB;
   --blue-700: #1D4ED8;
   --blue-800: #1E40AF;
+  /* Emerald (brand) — GoDND green. 700 is the AA-safe step for text on
+     white and for fills carrying a white label; 600 stays for dots, rails
+     and 3:1 non-text UI. */
+  --emerald-50: #ECFDF5;
+  --emerald-600: #059669;
+  --emerald-700: #047857;
+  --emerald-800: #065F46;
   /* Violet (accent) */
   --violet-50: #EDE9FE;
   --violet-600: #7C3AED;
@@ -79,8 +88,8 @@
   /* One step darker than the source's #6B7488, which is 4.3:1 on a panel. */
   --text-muted: var(--slate-550);
   /* Brand / accent */
-  --brand: var(--blue-600);
-  --brand-muted: var(--blue-50);
+  --brand: var(--emerald-700);
+  --brand-muted: var(--emerald-50);
   --accent: var(--violet-600);
   --accent-muted: var(--violet-50);
   /* Status */
@@ -101,10 +110,10 @@
 
   /* ---------- Layer 3 · COMPONENT ---------------------------------------- */
   /* Brand fill and its interaction steps (primary button, avatar) */
-  --brand-solid: var(--blue-600);
-  --brand-hover: var(--blue-700);
-  --brand-active: var(--blue-800);
-  --brand-on-muted: var(--blue-700);
+  --brand-solid: var(--emerald-700);
+  --brand-hover: var(--emerald-800);
+  --brand-active: var(--emerald-800);
+  --brand-on-muted: var(--emerald-700);
   --on-brand: var(--white);
   /* Status fills that carry white text. The base hues are tuned for dots and
      rails; under an 11px white label green and amber fall to ~3.2:1. */
@@ -126,7 +135,7 @@
   --healthy-tint: rgba(22, 163, 74, .12);
   --info-tint: rgba(37, 99, 235, .10);
   /* Focus ring shared by every text input / select */
-  --focus-ring: 0 0 0 3px rgba(37, 99, 235, .16);
+  --focus-ring: 0 0 0 3px rgba(4, 120, 87, .18);
 
   /* Overlay elevation and helpers */
   --shadow-pop: 0 12px 32px rgba(15, 23, 42, .14), 0 2px 6px rgba(15, 23, 42, .06);

@@ -171,7 +171,7 @@ function AccountMenu({ user }: { user: SidebarUser }) {
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent side="right" align="end" className="w-[250px]">
+      <DropdownMenuContent side="right" align="end" collisionPadding={12} className="w-[250px]">
         <div className="pop-head">
           <div className="pop-name">
             {user.name}

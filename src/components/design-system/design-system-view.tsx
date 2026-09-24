@@ -436,7 +436,7 @@ function Architecture() {
           layer="Layer 1"
           name="Primitive"
           desc="Raw, context-free values. The only place a hex or px is written."
-          example="--blue-600: #2563EB"
+          example="--emerald-700: #047857"
           className="ds-tier--1"
         />
         <div className="ds-tier-arrow" aria-hidden>
@@ -446,7 +446,7 @@ function Architecture() {
           layer="Layer 2"
           name="Semantic"
           desc="Role-based aliases the platform consumes. Says what, not which."
-          example="--brand: var(--blue-600)"
+          example="--brand: var(--emerald-700)"
           className="ds-tier--2"
         />
         <div className="ds-tier-arrow" aria-hidden>
@@ -456,7 +456,7 @@ function Architecture() {
           layer="Layer 3"
           name="Component"
           desc="Element-specific decisions built on the tiers below."
-          example="--brand-solid: var(--blue-600)"
+          example="--brand-solid: var(--emerald-700)"
           className="ds-tier--3"
         />
       </div>

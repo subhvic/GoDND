@@ -168,10 +168,14 @@
   .seg-toggle .seg:hover:not(.active) { color: var(--text-primary); }
 
   /* ============ POPOVER (account menu) ============ */
+  /* Positioning is Radix's job — [data-radix-popper-content-wrapper] is the
+     fixed-position container that flips the popup off a viewport edge. Setting
+     position on .pop breaks that, so the popup only styles surface, border,
+     radius and elevation. */
   .pop {
-    position: fixed; z-index: 40; background: var(--raised);
-    border: 1px solid var(--border-panel); border-radius: var(--radius-md);
-    min-width: 250px; box-shadow: var(--shadow-pop); overflow: hidden;
+    background: var(--raised); border: 1px solid var(--border-panel);
+    border-radius: var(--radius-md); min-width: 250px;
+    box-shadow: var(--shadow-pop); overflow: hidden;
   }
   .pop-head { padding: 14px 15px; border-bottom: 1px solid var(--border-subtle); }
   .pop-name { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13.5px; color: var(--text-primary); }
@@ -272,7 +276,6 @@
   .data-table tr.empty-row td { padding: 28px 16px; text-align: center; color: var(--text-muted); font-size: 12px; white-space: normal; }
   .row-name { display: flex; align-items: center; gap: 11px; text-align: left; font-weight: 500; color: var(--text-primary); }
   .row-name-btn { background: none; border: none; padding: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; }
-  .row-name-btn:hover { text-decoration: underline; text-underline-offset: 2px; }
 
   /* ============ STATUS ============ */
   .status-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
