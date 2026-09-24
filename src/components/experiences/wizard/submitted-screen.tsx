@@ -36,6 +36,9 @@ type SubmissionFlash = {
   ref: string | null;
   /** Unix millis of the submit. */
   submittedAt: number;
+  /** True when the submit updated an existing experience rather than
+   * creating a new one; drives the "You updated" hero copy. */
+  isUpdate?: boolean;
 };
 
 /** Shorten a UUID for display; leave a short id as-is. */
@@ -81,6 +84,7 @@ function readFlash(): SubmissionFlash | null {
       title: parsed.title,
       ref: parsed.ref ?? null,
       submittedAt: parsed.submittedAt,
+      isUpdate: parsed.isUpdate ?? false,
     };
   } catch {
     return null;
@@ -143,13 +147,17 @@ function Confirmation({ flash }: { flash: SubmissionFlash | null }) {
           <CheckCircle2 className="size-[26px]" />
         </span>
         <p className="m-0 text-[10.5px] font-bold uppercase tracking-[1px] text-brand">
-          Sent for approval
+          {flash?.isUpdate ? "Updates queued for review" : "Sent for approval"}
         </p>
         <h2
           id="submitted-title"
           className="m-0 max-w-[28ch] text-[22px] font-semibold leading-[1.2] tracking-[-0.3px] text-text-primary"
         >
-          &ldquo;{title}&rdquo; is on its way to the review team.
+          {flash?.isUpdate ? (
+            <>Your changes to &ldquo;{title}&rdquo; are on their way.</>
+          ) : (
+            <>&ldquo;{title}&rdquo; is on its way to the review team.</>
+          )}
         </h2>
         <p className="m-0 max-w-[64ch] text-[13px] leading-[1.6] text-text-secondary">
           Submitted{" "}
@@ -188,9 +196,13 @@ function Confirmation({ flash }: { flash: SubmissionFlash | null }) {
           <StageRow
             n={1}
             icon={Clock}
-            title="Under review"
+            title={flash?.isUpdate ? "Changes under review" : "Under review"}
             time="Typically within 1 working day"
-            body="A reviewer checks the itinerary, policies and price for anything a guest could reasonably dispute. If they need a change, they'll leave notes on the experience and it comes back here as Changes requested."
+            body={
+              flash?.isUpdate
+                ? "A reviewer checks the changes against the version that's already live. If they need adjustments, they'll leave notes on the experience and it comes back here as Changes requested — the live listing is not affected in the meantime."
+                : "A reviewer checks the itinerary, policies and price for anything a guest could reasonably dispute. If they need a change, they'll leave notes on the experience and it comes back here as Changes requested."
+            }
             active
           />
           <StageRow
@@ -203,9 +215,13 @@ function Confirmation({ flash }: { flash: SubmissionFlash | null }) {
           <StageRow
             n={3}
             icon={Rocket}
-            title="Live on the marketplace"
+            title={flash?.isUpdate ? "Changes go live" : "Live on the marketplace"}
             time="Immediately on approval"
-            body="Once approved, the experience appears on godnd.co and on your own site under Active. Availability windows you set apply from that moment."
+            body={
+              flash?.isUpdate
+                ? "Once approved, the updated version replaces the current listing on godnd.co and on your own site. Nothing else about the experience changes."
+                : "Once approved, the experience appears on godnd.co and on your own site under Active. Availability windows you set apply from that moment."
+            }
           />
         </ol>
       </section>

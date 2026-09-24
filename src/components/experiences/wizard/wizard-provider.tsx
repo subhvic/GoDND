@@ -28,6 +28,8 @@ export function useWizard() {
     markSaved: store.markSaved,
     markSaveFailed: store.markSaveFailed,
     reset: store.resetDraft,
+    loadForEdit: store.loadForEdit,
+    isEditing: snapshot.experienceId != null && snapshot.originalStatus != null,
   };
 }
 

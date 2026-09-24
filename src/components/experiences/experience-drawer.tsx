@@ -78,7 +78,7 @@ function DrawerContent({
       }
       actions={
         <>
-          <Link href="/dashboard/experiences/new/basic-info" className={buttonClass()}>
+          <Link href={`/dashboard/experiences/${detail.id}/edit`} className={buttonClass()}>
             <Pencil aria-hidden />
             Edit
           </Link>

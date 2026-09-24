@@ -1,5 +1,6 @@
 "use client";
 
+import { EditStateBanner } from "@/components/experiences/wizard/edit-state-banner";
 import { WizardFooter } from "@/components/experiences/wizard/wizard-chrome";
 import { getStep, stepIndex, WIZARD_STEPS, type WizardStepSlug } from "@/lib/experience-wizard/steps";
 
@@ -33,6 +34,8 @@ export function StepShell({
 
   return (
     <>
+      <EditStateBanner />
+
       <div className="mb-[16px] flex flex-col gap-[2px]">
         <p className="m-0 text-[10.5px] font-bold uppercase tracking-[1px] text-brand">
           Step {index + 1} of {WIZARD_STEPS.length}

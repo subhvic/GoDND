@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { useWizard } from "@/components/experiences/wizard/wizard-provider";
+import { EditStateBanner } from "@/components/experiences/wizard/edit-state-banner";
 import { SUBMISSION_FLASH_KEY } from "@/components/experiences/wizard/submitted-screen";
 import { Button, buttonClass } from "@/components/ui/button";
 import { Notice } from "@/components/ui/notice";
@@ -201,6 +202,7 @@ export function ReviewScreen() {
           title: wizard.draft.basicInfo.title,
           ref: result.experienceId,
           submittedAt: Date.now(),
+          isUpdate: wizard.isEditing,
         }),
       );
     } catch {
@@ -225,15 +227,20 @@ export function ReviewScreen() {
         />
 
         <div className="mx-auto max-w-[860px] pb-[100px]">
+          <EditStateBanner />
+
           <p className="m-0 text-[10.5px] font-bold uppercase tracking-[1px] text-brand">
-            Final look
+            {wizard.isEditing ? "Review changes" : "Final look"}
           </p>
           <h2 className="m-0 mt-[8px] max-w-[24ch] text-[22px] font-semibold leading-[1.2] tracking-[-0.3px] text-text-primary">
-            One last look before it goes to review.
+            {wizard.isEditing
+              ? "Confirm the changes before they queue for review."
+              : "One last look before it goes to review."}
           </h2>
           <p className="m-0 mt-[10px] max-w-[64ch] text-[13px] leading-[1.6] text-text-secondary">
-            This is exactly what a reviewer will see. Anything below can be
-            edited &mdash; the wizard will bring you back here when you&rsquo;re done.
+            {wizard.isEditing
+              ? "The version currently on the marketplace doesn’t change until a reviewer approves these. Every section below can still be edited — the wizard will bring you back here when you’re done."
+              : "This is exactly what a reviewer will see. Anything below can be edited — the wizard will bring you back here when you’re done."}
           </p>
 
           {problems.length > 0 ? (
@@ -302,7 +309,9 @@ export function ReviewScreen() {
             whole seven-step flow. */}
         <div className="sticky bottom-0 z-10 mx-[-16px] flex items-center justify-between gap-[12px] border-t border-border-subtle bg-card px-[16px] py-[12px]">
           <span className="text-[11.5px] text-text-muted">
-            Final check &middot; step 7 of {WIZARD_STEPS.length} completed
+            {wizard.isEditing
+              ? `Reviewing your changes to this experience`
+              : `Final check · step 7 of ${WIZARD_STEPS.length} completed`}
           </span>
           <div className="flex items-center gap-[8px]">
             <Link
@@ -323,7 +332,7 @@ export function ReviewScreen() {
               }
             >
               <Send aria-hidden />
-              {submitting ? "Sending…" : "Send for approval"}
+              {submitting ? "Sending…" : wizard.isEditing ? "Send changes for review" : "Send for approval"}
             </Button>
           </div>
         </div>

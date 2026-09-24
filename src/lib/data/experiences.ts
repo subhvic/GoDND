@@ -308,6 +308,26 @@ const DEMO: ExperienceRow[] = [
     basePriceMinor: 2100000,
     currency: "INR",
   },
+  {
+    // Rejected is one of the six states the drawer’s Edit action supports.
+    // A fixture row lets the "Changes requested" banner render against real
+    // data instead of being demonstrable only through a schema fake.
+    id: "demo-9",
+    publicRef: "0045843",
+    title: "Bomdila Bird Trail",
+    kind: "general",
+    status: "rejected",
+    listOnMarketplace: false,
+    groupSize: 6,
+    groupSizing: "fixed",
+    maxParallelGroups: null,
+    durationDays: 5,
+    durationNights: 4,
+    location: ["Arunachal Pradesh"],
+    nextAvailableOn: null,
+    basePriceMinor: 3200000,
+    currency: "INR",
+  },
 ];
 
 function demoList({

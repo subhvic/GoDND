@@ -32,6 +32,13 @@ export type DraftSnapshot = {
    * of creating a second one on the next save.
    */
   experienceId: string | null;
+  /**
+   * The status the row had when the operator opened it to edit. Null in the
+   * new-experience flow; set when an existing experience is loaded, so the
+   * wizard can render a state-appropriate banner (“Editing withdraws the
+   * submission” for under-review, “Changes requested” for rejected, etc.).
+   */
+  originalStatus: import("@/lib/types").ExperienceStatus | null;
   /** False until the stored draft has been read back. */
   hydrated: boolean;
   saving: boolean;
@@ -44,6 +51,7 @@ const serverSnapshot: DraftSnapshot = {
   draft: emptyDraft,
   completed: {},
   experienceId: null,
+  originalStatus: null,
   hydrated: false,
   saving: false,
   lastSavedAt: null,
@@ -58,10 +66,14 @@ function load() {
   if (loaded) return;
   loaded = true;
 
-  let restored: Pick<DraftSnapshot, "draft" | "completed" | "experienceId"> = {
+  let restored: Pick<
+    DraftSnapshot,
+    "draft" | "completed" | "experienceId" | "originalStatus"
+  > = {
     draft: emptyDraft,
     completed: {},
     experienceId: null,
+    originalStatus: null,
   };
 
   try {
@@ -71,6 +83,7 @@ function load() {
         draft?: Partial<ExperienceDraft>;
         completed?: CompletedMap;
         experienceId?: string | null;
+        originalStatus?: DraftSnapshot["originalStatus"];
       };
       restored = {
         // Merged, not replaced: a draft saved before a field existed must not
@@ -78,6 +91,7 @@ function load() {
         draft: { ...emptyDraft, ...parsed.draft },
         completed: parsed.completed ?? {},
         experienceId: parsed.experienceId ?? null,
+        originalStatus: parsed.originalStatus ?? null,
       };
     }
   } catch {
@@ -95,6 +109,7 @@ function persist() {
         draft: snapshot.draft,
         completed: snapshot.completed,
         experienceId: snapshot.experienceId,
+        originalStatus: snapshot.originalStatus,
       }),
     );
   } catch {
@@ -193,5 +208,43 @@ export function resetDraft() {
   } catch {
     // Nothing to clear.
   }
+  emit();
+}
+
+/**
+ * Replace the entire draft with an existing experience the operator is now
+ * editing. The experienceId + originalStatus pair is what marks the wizard as
+ * being in edit mode. Every step is marked complete on the way in, because
+ * every step already has real data from the row — the operator is refining,
+ * not filling for the first time.
+ */
+export function loadForEdit({
+  draft,
+  experienceId,
+  originalStatus,
+}: {
+  draft: ExperienceDraft;
+  experienceId: string;
+  originalStatus: import("@/lib/types").ExperienceStatus;
+}) {
+  const allComplete: CompletedMap = {
+    "basic-info": true,
+    itinerary: true,
+    crew: true,
+    pricing: true,
+    availability: true,
+    policies: true,
+    media: true,
+  };
+  snapshot = {
+    ...snapshot,
+    draft,
+    completed: allComplete,
+    experienceId,
+    originalStatus,
+    hydrated: true,
+    saveError: null,
+  };
+  persist();
   emit();
 }

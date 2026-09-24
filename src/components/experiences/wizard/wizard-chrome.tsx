@@ -105,15 +105,23 @@ export function WizardRail({ current }: { current: WizardStepSlug }) {
  * handoff file, with the save state beside it so a failure is never silent.
  */
 export function WizardPageBar({ current }: { current: WizardStepSlug }) {
-  const { saving, lastSavedAt, saveError } = useWizard();
+  const { saving, lastSavedAt, saveError, isEditing } = useWizard();
 
   return (
     <PageBar
-      crumbs={[
-        { label: "GoDND", href: "/dashboard" },
-        { label: "Experiences", href: "/dashboard/experiences" },
-        { label: "New experience", href: "/dashboard/experiences/new" },
-      ]}
+      crumbs={
+        isEditing
+          ? [
+              { label: "GoDND", href: "/dashboard" },
+              { label: "Experiences", href: "/dashboard/experiences" },
+              { label: "Edit experience" },
+            ]
+          : [
+              { label: "GoDND", href: "/dashboard" },
+              { label: "Experiences", href: "/dashboard/experiences" },
+              { label: "New experience", href: "/dashboard/experiences/new" },
+            ]
+      }
       actions={
         <>
           <p
@@ -184,6 +192,13 @@ export function WizardFooter({
   const { previous, next } = adjacentSteps(current);
   const router = useRouter();
   const index = stepIndex(current);
+  const { isEditing } = useWizard();
+  // "Review updates" reads more truthfully when the operator is editing a
+  // live or under-review experience: they are not submitting a new listing,
+  // they are queueing changes. "Review & send" fits the create flow. Cancel
+  // is likewise the wrong verb in edit mode, where the wizard was entered
+  // from a specific row.
+  const finalLabel = isEditing ? "Review updates" : "Review & send";
 
   return (
     <div className="sticky bottom-0 z-10 mx-[-16px] mt-auto flex items-center justify-between gap-[12px] border-t border-border-subtle bg-card px-[16px] py-[12px]">
@@ -197,12 +212,19 @@ export function WizardFooter({
             Previous
           </Button>
         ) : (
-          <Link href="/dashboard/experiences" className={buttonClass()}>
-            Cancel
+          <Link
+            href={
+              isEditing
+                ? "/dashboard/experiences"
+                : "/dashboard/experiences/new"
+            }
+            className={buttonClass()}
+          >
+            {isEditing ? "Discard changes" : "Back to overview"}
           </Link>
         )}
         <Button type="submit" form={formId} variant="primary" disabled={submitting}>
-          {next ? "Next step" : "Review & send"}
+          {next ? "Next step" : finalLabel}
           <ArrowRight aria-hidden />
         </Button>
       </div>
