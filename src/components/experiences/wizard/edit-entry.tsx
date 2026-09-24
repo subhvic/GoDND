@@ -70,7 +70,7 @@ export function EditEntry({
   // in and out) the page reads as a purposeful hand-off: title, "opening
   // editor", nothing to interact with.
   return (
-    <main className="surface-card">
+    <>
       <PageBar
         crumbs={[
           { label: "GoDND", href: "/dashboard" },
@@ -79,20 +79,22 @@ export function EditEntry({
           { label: "Edit" },
         ]}
       />
-      <div className="card-scroll">
-        <div className="mx-auto max-w-[560px] pb-[40px] pt-[40px] text-center">
-          <p className="m-0 text-[10.5px] font-bold uppercase tracking-[1px] text-brand">
-            Opening editor
-          </p>
-          <h2 className="m-0 mt-[8px] text-[20px] font-semibold text-text-primary">
-            {title}
-          </h2>
-          <p className="m-0 mt-[8px] text-[12px] text-text-muted">
-            Loading your existing data into the seven-step editor…
-          </p>
+      <main className="surface-card">
+        <div className="card-scroll">
+          <div className="mx-auto max-w-[560px] pb-[40px] pt-[40px] text-center">
+            <p className="m-0 text-[10.5px] font-bold uppercase tracking-[1px] text-brand">
+              Opening editor
+            </p>
+            <h2 className="m-0 mt-[8px] text-[20px] font-semibold text-text-primary">
+              {title}
+            </h2>
+            <p className="m-0 mt-[8px] text-[12px] text-text-muted">
+              Loading your existing data into the seven-step editor…
+            </p>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
 
@@ -113,7 +115,7 @@ function ArchivedBlock({
   publicRef: string;
 }) {
   return (
-    <main className="surface-card">
+    <>
       <PageBar
         crumbs={[
           { label: "GoDND", href: "/dashboard" },
@@ -122,6 +124,7 @@ function ArchivedBlock({
           { label: "Edit" },
         ]}
       />
+      <main className="surface-card">
       <div className="card-scroll">
         <div className="mx-auto max-w-[640px] pb-[40px]">
           <span
@@ -186,6 +189,7 @@ function ArchivedBlock({
           </div>
         </div>
       </div>
-    </main>
+      </main>
+    </>
   );
 }

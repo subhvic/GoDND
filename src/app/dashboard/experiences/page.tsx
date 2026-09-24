@@ -32,7 +32,7 @@ export default async function ExperiencesPage(
   };
 
   return (
-    <div className="surface-card">
+    <>
       <PageBar
         crumbs={[{ label: "GoDND", href: "/dashboard" }, { label: "Experiences" }]}
         actions={
@@ -54,6 +54,7 @@ export default async function ExperiencesPage(
         }
       />
 
+      <div className="surface-card">
       <div className="card-scroll">
         {/* Search stays reachable on phones, where the page bar has no room. */}
         <SearchInput
@@ -86,7 +87,8 @@ export default async function ExperiencesPage(
           </div>
         ) : null}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

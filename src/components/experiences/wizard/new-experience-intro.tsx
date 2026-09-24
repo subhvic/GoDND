@@ -136,7 +136,7 @@ export function NewExperienceIntro() {
   }, [hasDraft, router, wizard]);
 
   return (
-    <main className="surface-card">
+    <>
       <PageBar
         crumbs={[
           { label: "GoDND", href: "/dashboard" },
@@ -144,6 +144,7 @@ export function NewExperienceIntro() {
           { label: "New experience" },
         ]}
       />
+      <main className="surface-card">
       <div className="card-scroll">
         <div className="mx-auto max-w-[820px] pb-[40px]">
           {/* Hero */}
@@ -290,6 +291,7 @@ export function NewExperienceIntro() {
           </section>
         </div>
       </div>
-    </main>
+      </main>
+    </>
   );
 }

@@ -135,7 +135,7 @@ export function ReviewScreen() {
   // the store has hydrated from sessionStorage.
   if (!wizard.hydrated) {
     return (
-      <main className="surface-card">
+      <>
         <PageBar
           crumbs={[
             { label: "GoDND", href: "/dashboard" },
@@ -144,18 +144,20 @@ export function ReviewScreen() {
             { label: "Review" },
           ]}
         />
-        <div className="card-scroll">
-          <div className="mx-auto max-w-[860px] pb-[40px]">
-            <div className="skeleton h-[24px] w-[60%]" />
-            <div className="skeleton mt-[10px] h-[14px] w-[80%]" />
-            <div className="mt-[24px] space-y-[10px]">
-              {[1, 2, 3, 4].map((n) => (
-                <div key={n} className="skeleton h-[100px]" />
-              ))}
+        <main className="surface-card">
+          <div className="card-scroll">
+            <div className="mx-auto max-w-[860px] pb-[40px]">
+              <div className="skeleton h-[24px] w-[60%]" />
+              <div className="skeleton mt-[10px] h-[14px] w-[80%]" />
+              <div className="mt-[24px] space-y-[10px]">
+                {[1, 2, 3, 4].map((n) => (
+                  <div key={n} className="skeleton h-[100px]" />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </>
     );
   }
 
@@ -215,7 +217,7 @@ export function ReviewScreen() {
   };
 
   return (
-    <main className="surface-card">
+    <>
       <PageBar
         crumbs={[
           { label: "GoDND", href: "/dashboard" },
@@ -224,6 +226,7 @@ export function ReviewScreen() {
           { label: "Review" },
         ]}
       />
+      <main className="surface-card">
       <div className="card-scroll">
         <div className="mx-auto max-w-[860px] pb-[100px]">
           <EditStateBanner />
@@ -336,7 +339,8 @@ export function ReviewScreen() {
           </div>
         </div>
       </div>
-    </main>
+      </main>
+    </>
   );
 }
 

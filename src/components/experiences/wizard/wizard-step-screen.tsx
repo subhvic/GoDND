@@ -30,10 +30,10 @@ export function WizardStepScreen({ slug }: { slug: WizardStepSlug }) {
   const Step = STEP_COMPONENTS[slug];
 
   return (
-    <div className="surface-card has-rail">
-      <WizardRail current={slug} />
-      <div className="card-col">
-        <WizardPageBar current={slug} />
+    <>
+      <WizardPageBar current={slug} />
+      <div className="surface-card has-rail">
+        <WizardRail current={slug} />
         <div className="card-scroll pb-0">
           {/* Held until the saved draft has been read back, so each form's
               defaultValues are right on first render. Mounting early and
@@ -41,7 +41,7 @@ export function WizardStepScreen({ slug }: { slug: WizardStepSlug }) {
           {hydrated ? <Step /> : <StepSkeleton />}
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

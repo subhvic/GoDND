@@ -28,7 +28,7 @@ export default async function BookingsPage(
   };
 
   return (
-    <div className="surface-card">
+    <>
       <PageBar
         crumbs={[{ label: "GoDND", href: "/dashboard" }, { label: "Bookings" }]}
         actions={
@@ -40,6 +40,7 @@ export default async function BookingsPage(
         }
       />
 
+      <div className="surface-card">
       <div className="card-scroll">
         <SearchInput
           label="Search bookings"
@@ -69,7 +70,8 @@ export default async function BookingsPage(
           <Pagination page={current} pageCount={pageCount} />
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

@@ -100,7 +100,7 @@ export function SubmittedScreen() {
   const state = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
 
   return (
-    <main className="surface-card">
+    <>
       <PageBar
         crumbs={[
           { label: "GoDND", href: "/dashboard" },
@@ -108,16 +108,18 @@ export function SubmittedScreen() {
           { label: "Sent for approval" },
         ]}
       />
-      <div className="card-scroll">
-        <div className="mx-auto max-w-[820px] pb-[40px]">
-          {state === null || state.flash ? (
-            <Confirmation flash={state?.flash ?? null} />
-          ) : (
-            <StaleAccess />
-          )}
+      <main className="surface-card">
+        <div className="card-scroll">
+          <div className="mx-auto max-w-[820px] pb-[40px]">
+            {state === null || state.flash ? (
+              <Confirmation flash={state?.flash ?? null} />
+            ) : (
+              <StaleAccess />
+            )}
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
 
