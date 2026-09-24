@@ -1,170 +1,221 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
-  ChevronDown,
+  BookOpen,
+  CalendarCheck,
+  ChevronLeft,
+  ChevronRight,
+  Compass,
+  Globe,
+  HelpCircle,
   Home,
-  Inbox,
-  LayoutGrid,
-  ListChecks,
+  MessagesSquare,
+  Receipt,
   Settings,
   type LucideIcon,
 } from "lucide-react";
 
-import { Logo } from "@/components/brand/logo";
+import { LogoIcon, LogoWordmark } from "@/components/brand/logo";
+import { useTheme } from "@/components/theme/use-theme";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSection,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { THEME_OPTIONS, type ThemePreference } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 /**
- * Sidebar — 273px, matching the handoff frames.
+ * Primary navigation (source: Sidebar / .nav).
  *
- * NOTE on icons: the file uses Material Symbols (move_to_inbox, view_module,
- * view_list, list_alt, tab). Those assets could not be downloaded because this
- * environment blocks figma.com, so these are the nearest lucide equivalents.
- * Swap in the real set before launch; sizes (24px) and positions are correct.
- *
- * The file draws only a 1440px desktop frame. Below `lg` the rail collapses to
- * icons, because an operator checking a booking on a phone is a real case the
- * design doesn't cover — flagged rather than invented silently.
+ * Modules that are not built yet are shown disabled rather than hidden, as
+ * the reference does for Service Graph and SLOs: an operator sees the whole
+ * shape of the product, and nothing pretends to work when it does not.
  */
+type NavItem = { id: string; label: string; icon: LucideIcon; href?: string };
 
-type NavItem = {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  /** The file shows a chevron on every row except Settings. */
-  expandable?: boolean;
-};
-
-const NAV: NavItem[] = [
-  { href: "/dashboard", label: "Home", icon: Home, expandable: true },
-  { href: "/dashboard/experiences", label: "Experiences", icon: Inbox, expandable: true },
-  { href: "/dashboard/bookings", label: "Bookings", icon: LayoutGrid, expandable: true },
-  { href: "/dashboard/insights", label: "Insights", icon: BarChart3, expandable: true },
-  { href: "/dashboard/transactions", label: "Transactions", icon: ListChecks, expandable: true },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
+  {
+    label: "Workspace",
+    items: [
+      { id: "home", label: "Home", icon: Home },
+      { id: "experiences", label: "Experiences", icon: Compass, href: "/dashboard/experiences" },
+      { id: "bookings", label: "Bookings", icon: CalendarCheck },
+      { id: "enquiries", label: "Enquiries", icon: MessagesSquare },
+    ],
+  },
+  {
+    label: "Analyze",
+    items: [
+      { id: "insights", label: "Insights", icon: BarChart3 },
+      { id: "transactions", label: "Transactions", icon: Receipt },
+    ],
+  },
+  {
+    label: "Manage",
+    items: [
+      { id: "website", label: "Website", icon: Globe },
+      { id: "settings", label: "Settings", icon: Settings },
+    ],
+  },
 ];
 
 export type SidebarUser = {
   name: string;
   role: string;
-  avatarUrl: string | null;
+  email?: string | null;
+  plan?: string | null;
 };
 
-export function Sidebar({ user }: { user: SidebarUser }) {
+export function Sidebar({
+  user,
+  collapsed,
+  onToggleCollapsed,
+  onOpenHelp,
+}: {
+  user: SidebarUser;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
+  onOpenHelp: () => void;
+}) {
   const pathname = usePathname();
 
   return (
-    <nav
-      aria-label="Main"
-      className="flex h-full w-[72px] shrink-0 flex-col gap-[13px] overflow-hidden border-r border-neutral-5 bg-white lg:w-sidebar"
-    >
-      <div className="flex flex-col pt-[20px]">
-        <div className="hidden items-center pb-[30px] pl-[25px] lg:flex">
-          <Link href="/dashboard" aria-label="GoDND Portal home">
-            <Logo />
-          </Link>
-        </div>
-
-        <div className="flex items-start gap-0 pb-[10px] pl-[16px] lg:pl-[25px]">
-          <span className="relative size-[40px] shrink-0 overflow-hidden rounded-full bg-neutral-5 lg:size-[56px]">
-            {user.avatarUrl ? (
-              <Image
-                src={user.avatarUrl}
-                alt=""
-                fill
-                sizes="56px"
-                className="object-cover"
-              />
-            ) : (
-              <span className="flex size-full items-center justify-center text-body font-medium text-ink-muted">
-                {user.name.charAt(0)}
-              </span>
-            )}
+    <nav className="nav" aria-label="Main">
+      <div className="nav-top">
+        <Link href="/dashboard/experiences" aria-label="GoDND home" className="flex items-center gap-[12px]">
+          <LogoIcon size={34} />
+          <span className="nav-wordmark">
+            <LogoWordmark />
           </span>
-
-          <span className="hidden h-[54px] w-[192px] items-center py-[15px] pl-[14px] pr-[25px] lg:flex">
-            <span className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate text-body font-medium text-neutral-1">
-                {user.name}
-              </span>
-              <span className="truncate text-small text-ink-muted">{user.role}</span>
-            </span>
-            <ChevronDown aria-hidden className="size-[24px] shrink-0 text-ink-muted" />
-          </span>
-        </div>
+        </Link>
       </div>
 
-      <ul className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
-        {NAV.map((item) => (
-          <NavRow
-            key={item.href}
-            item={item}
-            active={isActive(pathname, item.href)}
-          />
+      <div className="nav-scroll">
+        {NAV_GROUPS.map((group) => (
+          <div key={group.label} role="group" aria-label={group.label}>
+            <div className="nav-group-label" aria-hidden>
+              <span>{group.label}</span>
+            </div>
+            {group.items.map((item) => {
+              const Icon = item.icon;
+              if (!item.href) {
+                return (
+                  <span
+                    key={item.id}
+                    className="nav-item disabled"
+                    aria-disabled="true"
+                    title={`${item.label} — coming in a later phase`}
+                  >
+                    <Icon aria-hidden />
+                    <span className="nav-text">{item.label}</span>
+                  </span>
+                );
+              }
+              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn("nav-item", active && "active")}
+                >
+                  <Icon aria-hidden />
+                  <span className="nav-text">{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
         ))}
-      </ul>
+      </div>
+
+      <div className="nav-bottom">
+        <div className="nav-user-row">
+          <button type="button" className="nav-user-btn" onClick={onOpenHelp} aria-label="Help and documentation">
+            <HelpCircle aria-hidden />
+            <span className="nav-text">Help</span>
+          </button>
+          <AccountMenu user={user} />
+        </div>
+        <button
+          type="button"
+          className="nav-collapse"
+          onClick={onToggleCollapsed}
+          aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+          aria-expanded={!collapsed}
+        >
+          {collapsed ? <ChevronRight aria-hidden /> : <ChevronLeft aria-hidden />}
+          <span className="nav-text">{collapsed ? "Expand" : "Collapse"}</span>
+        </button>
+      </div>
     </nav>
   );
 }
 
-/**
- * /dashboard must not light up for /dashboard/experiences, but
- * /dashboard/experiences must stay lit on its child routes.
- */
-function isActive(pathname: string, href: string) {
-  if (href === "/dashboard") return pathname === "/dashboard";
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-function NavRow({ item, active }: { item: NavItem; active: boolean }) {
-  const Icon = item.icon;
+function AccountMenu({ user }: { user: SidebarUser }) {
+  const { theme, setTheme } = useTheme();
 
   return (
-    <li className="w-full">
-      <Link
-        href={item.href}
-        aria-current={active ? "page" : undefined}
-        className={cn(
-          "flex w-full items-stretch transition-colors",
-          active ? "bg-brand-surface" : "hover:bg-surface-sunken",
-        )}
-      >
-        {/* 3px accent rail, full row height; transparent when inactive so the
-            label never shifts between states. */}
-        <span
-          aria-hidden
-          className={cn(
-            "w-[3px] shrink-0 rounded-r-[5px]",
-            active ? "bg-brand" : "bg-transparent",
-          )}
-        />
-        <span className="flex h-nav-row flex-1 items-center px-[24px] py-[15px] lg:px-[25px]">
-          <Icon
-            aria-hidden
-            className={cn(
-              "size-[24px] shrink-0 lg:mr-[31px]",
-              active ? "text-ink" : "text-ink-muted",
-            )}
-          />
-          <span
-            className={cn(
-              "hidden min-w-0 flex-1 truncate text-left text-body lg:block",
-              active ? "font-medium text-ink" : "text-ink-muted",
-            )}
-          >
-            {item.label}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="nav-user-btn data-[state=open]:bg-panel data-[state=open]:text-text-primary"
+          aria-label="Account menu"
+        >
+          <span className="nav-avatar" aria-hidden>
+            {user.name.charAt(0).toUpperCase()}
           </span>
-          {item.expandable ? (
-            <ChevronDown
-              aria-hidden
-              className="hidden size-[24px] shrink-0 text-ink-muted lg:block"
-            />
-          ) : null}
-        </span>
-      </Link>
-    </li>
+          <span className="nav-text">{user.name}</span>
+        </button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent side="right" align="end" className="w-[250px]">
+        <div className="pop-head">
+          <div className="pop-name">
+            {user.name}
+            {user.plan ? <span className="pop-plan">{user.plan}</span> : null}
+          </div>
+          <div className="pop-email">{user.email ?? user.role}</div>
+        </div>
+
+        <DropdownMenuSection label="Theme">
+          <DropdownMenuRadioGroup
+            value={theme}
+            onValueChange={(value) => setTheme(value as ThemePreference)}
+          >
+            {THEME_OPTIONS.map((option) => (
+              <DropdownMenuRadioItem key={option} value={option}>
+                {option}
+              </DropdownMenuRadioItem>
+            ))}
+          </DropdownMenuRadioGroup>
+        </DropdownMenuSection>
+
+        <DropdownMenuSection label="Reference">
+          <DropdownMenuItem asChild>
+            <Link href="/design-system">
+              Design system
+              <BookOpen aria-hidden className="size-[14px] text-text-muted" />
+            </Link>
+          </DropdownMenuItem>
+        </DropdownMenuSection>
+
+        <DropdownMenuSection>
+          {/* Sign-in is not wired yet; the item is present but inert rather
+              than missing, so its place in the menu is settled. */}
+          <DropdownMenuItem danger disabled>
+            Log out
+          </DropdownMenuItem>
+        </DropdownMenuSection>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

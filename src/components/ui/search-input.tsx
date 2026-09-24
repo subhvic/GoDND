@@ -7,12 +7,11 @@ import { useEffect, useState, useTransition } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Search is a URL parameter, not component state: it survives a refresh, is
- * shareable, and lets the table stay a server component.
+ * Search field (source: .search-wrap / .search-input).
  *
- * Typing is debounced by 300ms so a five-character query is one round trip
- * rather than five — perceived speed is part of the design, not an
- * optimisation to revisit later.
+ * The query is a URL parameter, not component state: it survives a refresh,
+ * is shareable, and lets the list stay a server component. Typing is
+ * debounced by 300ms so a five-character query is one round trip, not five.
  */
 export function SearchInput({
   placeholder = "Search",
@@ -49,20 +48,15 @@ export function SearchInput({
   }, [value, params, pathname, router]);
 
   return (
-    <div
-      className={cn(
-        "flex items-center gap-[10px] border border-neutral-5 bg-white pl-[15.75px] pr-[24.75px] py-[11px] focus-within:border-brand",
-        className,
-      )}
-    >
-      <Search aria-hidden className="size-[18px] shrink-0 text-neutral-2" />
+    <div className={cn("search-wrap", className)}>
+      <Search aria-hidden />
       <input
         type="search"
         aria-label={label}
         value={value}
         onChange={(event) => setValue(event.target.value)}
         placeholder={placeholder}
-        className="w-full bg-transparent text-small font-medium text-neutral-1 outline-none placeholder:text-neutral-2"
+        className="search-input"
       />
     </div>
   );

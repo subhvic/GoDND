@@ -1,0 +1,232 @@
+/* ============================================================================
+   GoDND DESIGN TOKENS — three-tier cascade
+   Layer 1 Primitive  → raw, context-free values (the only place hex/px live)
+   Layer 2 Semantic   → role-based aliases the platform actually consumes
+   Layer 3 Component  → element-specific decisions built on the semantic layer
+
+   Values are carried over verbatim from the CubeAPM platform system this one
+   is modelled on, so the two products read as one family. A living reference
+   renders at /design-system.
+
+   Three deliberate differences from the source:
+   - Rubik only. The source pairs Rubik with JetBrains Mono for numerals;
+     here numerals stay in Rubik and take tabular figures, set globally below.
+   - No R G B channel mirrors (--c-canvas and friends). They existed so
+     Tailwind 3 could apply opacity modifiers to a CSS variable. Tailwind 4
+     does that with color-mix(), so `bg-card/50` works on the variable itself
+     and a second, hand-synced copy of every color would only be a way to drift.
+   - WCAG AA everywhere. The source's --text-muted and its white-on-fill
+     pairs (primary button, status badge) measure 2.2–3.8:1. Muted moves one
+     step lighter, and fills that carry white text read from a -solid token.
+     Everything else is the source's value.
+   ============================================================================ */
+/* [data-theme] on any element opens a theme scope, so a subtree can render
+   in the other theme — the design-system page previews both side by side. */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* ---------- Layer 1 · PRIMITIVES ---------------------------------------- */
+  /* Neutral ramp (blue-tinted slate) — surfaces, borders, text */
+  --slate-950: #080B11;
+  --slate-925: #14161E;
+  --slate-900: #151820;
+  --slate-880: #171C28;
+  --slate-870: #1A2130;
+  --slate-860: #1B2130;
+  --slate-840: #1E2431;
+  --slate-800: #232B3B;
+  --slate-750: #2A3346;
+  --slate-700: #39445C;
+  --slate-600: #616C86;
+  --slate-500: #838DA5;
+  --slate-400: #9CA6BF;
+  --slate-100: #F1F3F9;
+  /* Blue (brand) */
+  --blue-200: #CFE0FF;
+  --blue-400: #60A5FA;
+  --blue-500: #3B82F6;
+  --blue-600: #2563EB;
+  --blue-700: #1D4ED8;
+  --blue-800: #1E40AF;
+  --blue-950: #182A4E;
+  /* Violet (accent) */
+  --violet-500: #8B5CF6;
+  --violet-950: #2D1B69;
+  /* Green · Amber · Red (status hues + on-tint foregrounds) */
+  --green-500: #22C55E;
+  --green-300: #6EE7A5;
+  --green-700: #15803D;
+  --amber-500: #F59E0B;
+  --amber-300: #FFD079;
+  --amber-700: #B45309;
+  --red-500: #EF4444;
+  --red-300: #FF9C9C;
+  --red-700: #B42318;
+  /* The one foreground that never themes: text on a solid brand or status
+     fill. The source writes it as a bare `#fff` in several places. */
+  --white: #FFFFFF;
+  /* Type primitive — Rubik is loaded by next/font as --font-rubik */
+  --font-sans: var(--font-rubik), -apple-system, 'Segoe UI', sans-serif;
+  /* Radius primitives */
+  --radius-1: 6px;
+  --radius-2: 9px;
+  --radius-3: 10px;
+  --radius-4: 12px;
+
+  /* ---------- Layer 2 · SEMANTIC ----------------------------------------- */
+  /* Surfaces */
+  --canvas: var(--slate-900);
+  --card: var(--slate-950);
+  --panel: var(--slate-880);
+  --panel-2: var(--slate-860);
+  --raised: var(--slate-840);
+  /* Borders */
+  --border-subtle: var(--slate-800);
+  --border-panel: var(--slate-750);
+  --border-strong: var(--slate-700);
+  /* Text */
+  --text-primary: var(--slate-100);
+  --text-secondary: var(--slate-400);
+  /* Muted is one step lighter than the source's slate-600 (3.2:1 on a
+     panel), which fails WCAG AA for the captions and hints it carries.
+     slate-500 clears 4.5:1 on every surface from canvas to raised. */
+  --text-muted: var(--slate-500);
+  /* Brand / accent */
+  --brand: var(--blue-500);
+  --brand-muted: var(--blue-950);
+  --accent: var(--violet-500);
+  --accent-muted: var(--violet-950);
+  /* Status */
+  --healthy: var(--green-500);
+  --warning: var(--amber-500);
+  --critical: var(--red-500);
+  --info: var(--blue-400);
+  --neutral: var(--slate-600);
+  /* Radius (semantic aliases) */
+  --radius-sm: var(--radius-1);
+  --radius-md: var(--radius-2);
+  --radius-lg: var(--radius-3);
+  --radius-card: var(--radius-4);
+  /* Layout */
+  --nav-w: 222px;
+  --nav-w-collapsed: 66px;
+  --gutter: 14px;
+
+  /* ---------- Layer 3 · COMPONENT ---------------------------------------- */
+  /* Brand interaction states — the primary fill's hover and pressed steps.
+     The source lightens on hover (blue-450); here the fill starts at the
+     AA-safe --brand-solid and darkens, so white text passes in every state. */
+  --brand-hover: var(--blue-700);
+  --brand-active: var(--blue-800);
+  --brand-on-muted: var(--blue-200);
+  --on-brand: var(--white);
+  /* Solid fills that carry white text. The base hues above are tuned for
+     dots, rails and text on dark surfaces; under white 11–12px text they
+     fall to 2.2–3.8:1. Every "solid" is the darkest step that keeps its hue
+     and clears 4.5:1 against --on-brand, in both themes. */
+  --brand-solid: var(--blue-600);
+  --healthy-solid: var(--green-700);
+  --warning-solid: var(--amber-700);
+  --critical-solid: var(--red-700);
+  --info-solid: var(--blue-600);
+  --neutral-solid: var(--slate-600);
+  /* Hairline border used by every card/panel/chart surface */
+  --card-border: var(--slate-870);
+  --card-shadow: 0 4px 20px 0 var(--slate-925);
+  /* Status foregrounds — text/icon color when sitting on a status tint */
+  --critical-fg: var(--red-300);
+  --warning-fg: var(--amber-300);
+  --healthy-fg: var(--green-300);
+  /* Status tints — translucent fills behind badges, chips, banners */
+  --critical-tint: rgba(239, 68, 68, .15);
+  --warning-tint: rgba(245, 158, 11, .15);
+  --healthy-tint: rgba(34, 197, 94, .14);
+  --info-tint: rgba(96, 165, 250, .12);
+  /* Focus ring shared by every text input / select */
+  --focus-ring: 0 0 0 3px rgba(59, 130, 246, .14);
+
+  /* Overlay helpers (overridden per theme below) */
+  --shadow-pop: 0 16px 40px rgba(0, 0, 0, .55);
+  --shadow-dropdown: 0 8px 28px rgba(0, 0, 0, .5);
+  --shadow-drawer: -16px 0 48px rgba(0, 0, 0, .55);
+  --shadow-toast: 0 12px 40px rgba(0, 0, 0, .45);
+  --shadow-tooltip: 0 24px 60px rgba(0, 0, 0, .5);
+  --overlay-hover: rgba(255, 255, 255, .03);
+  --scrim: rgba(0, 0, 0, .56);
+  --swatch-edge: rgba(255, 255, 255, .07);
+  --topbar-bg: rgba(21, 24, 32, .82);
+}
+
+/* ============================================================================
+   LIGHT THEME — overrides only the semantic + component tiers.
+   The primitive palette and every component's CSS stay untouched: because
+   nothing hardcodes a raw value, re-pointing the tokens re-skins the whole
+   platform. document.documentElement[data-theme] selects the theme
+   (default / unset = dark, so a first visit never flashes the wrong way).
+   ============================================================================ */
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* ---- Semantic ---- */
+  /* Surfaces — relationship inverts: the card is now LIGHTER than the canvas,
+     so the single floating surface still reads as raised. */
+  --canvas: #F5F7FB;
+  --card: #FFFFFF;
+  --panel: #F2F4F9;
+  --panel-2: #E7EBF2;
+  --raised: #FFFFFF;
+  /* Borders */
+  --border-subtle: #EAEEF4;
+  --border-panel: #DBE1EC;
+  --border-strong: #C4CCDA;
+  /* Text */
+  --text-primary: #10182B;
+  --text-secondary: #4A5468;
+  --text-muted: #5F687B;
+  /* Brand / accent */
+  --brand: #2563EB;
+  --brand-muted: #E5EDFD;
+  --accent: #7C3AED;
+  --accent-muted: #EDE9FE;
+  /* Status — base hues darkened a step for legible text/values on white */
+  --healthy: #16A34A;
+  --warning: #D97706;
+  --critical: #DC2626;
+  --info: #2563EB;
+  --neutral: #64748B;
+
+  /* ---- Component ---- */
+  --brand-hover: #1D4ED8;
+  --brand-active: #1E40AF;
+  --brand-on-muted: #1D4ED8;
+  --brand-solid: #2563EB;
+  --healthy-solid: #15803D;
+  --warning-solid: #B45309;
+  --critical-solid: #B42318;
+  --info-solid: #2563EB;
+  --neutral-solid: #64748B;
+  --card-border: #E2E7F0;
+  --card-shadow: 0 1px 2px rgba(15, 23, 42, .05), 0 10px 30px rgba(15, 23, 42, .10);
+  /* Foregrounds on status tints — now dark ink on a light pastel */
+  --critical-fg: #B42318;
+  --warning-fg: #B45309;
+  --healthy-fg: #15803D;
+  /* Tints unchanged in hue but read as light pastels over a white surface */
+  --critical-tint: rgba(220, 38, 38, .10);
+  --warning-tint: rgba(217, 119, 6, .12);
+  --healthy-tint: rgba(22, 163, 74, .12);
+  --info-tint: rgba(37, 99, 235, .10);
+  --focus-ring: 0 0 0 3px rgba(37, 99, 235, .16);
+
+  /* Overlay shadows softened to gray; helpers re-pointed for light */
+  --shadow-pop: 0 12px 32px rgba(15, 23, 42, .14), 0 2px 6px rgba(15, 23, 42, .06);
+  --shadow-dropdown: 0 8px 24px rgba(15, 23, 42, .12), 0 1px 3px rgba(15, 23, 42, .06);
+  --shadow-drawer: -16px 0 44px rgba(15, 23, 42, .14);
+  --shadow-toast: 0 12px 32px rgba(15, 23, 42, .16);
+  --shadow-tooltip: 0 20px 48px rgba(15, 23, 42, .20);
+  --overlay-hover: rgba(15, 23, 42, .05);
+  --scrim: rgba(15, 23, 42, .32);
+  --swatch-edge: rgba(15, 23, 42, .12);
+  --topbar-bg: rgba(255, 255, 255, .82);
+}

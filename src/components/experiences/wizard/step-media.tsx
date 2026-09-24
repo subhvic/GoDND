@@ -76,7 +76,7 @@ export function StepMedia() {
       {error ? (
         <p
           role="alert"
-          className="border border-[#d92d20] bg-[#fdf0ea] px-[12px] py-[10px] text-small text-[#d92d20]"
+          className="notice critical text-[12.5px] text-critical-fg"
         >
           {error}
         </p>
@@ -84,17 +84,17 @@ export function StepMedia() {
 
       <section aria-labelledby="thumbnail">
         <div className="flex flex-wrap items-baseline justify-between gap-[8px]">
-          <h3 id="thumbnail" className="text-body font-medium text-neutral-1">
+          <h3 id="thumbnail" className="form-section-title">
             Set a Thumbnail Image
           </h3>
           <button
             type="button"
-            className="text-small font-medium text-neutral-1 underline underline-offset-2"
+            className="hbtn small"
           >
             See all {SAMPLE_MEDIA.length} images →
           </button>
         </div>
-        <p className="mt-[4px] text-small text-neutral-2">
+        <p className="mt-[4px] field-hint">
           Select from one of your uploaded images in the itinerary
         </p>
 
@@ -124,8 +124,8 @@ export function StepMedia() {
                   })
                 }
                 className={cn(
-                  "relative h-[74px] w-[112px] overflow-hidden border-2 transition-colors",
-                  isSelected ? "border-brand" : "border-transparent hover:border-neutral-4",
+                  "relative h-[74px] w-[112px] overflow-hidden rounded-sm border-2 transition-colors",
+                  isSelected ? "border-brand" : "border-border-subtle hover:border-border-strong",
                 )}
               >
                 {/*
@@ -135,7 +135,7 @@ export function StepMedia() {
                 */}
                 <span
                   aria-hidden
-                  className="flex size-full items-center justify-center bg-gradient-to-br from-brand-soft to-brand-surface text-small text-ink-muted"
+                  className="flex size-full items-center justify-center bg-gradient-to-br from-brand-muted to-panel text-[12px] text-text-secondary"
                 >
                   {media.id.replace("media-", "")}
                 </span>
@@ -145,19 +145,19 @@ export function StepMedia() {
         </div>
 
         {errors.thumbnailId ? (
-          <p id="thumbnail-error" role="alert" className="mt-[8px] text-small text-[#d92d20]">
+          <p id="thumbnail-error" role="alert" className="mt-[8px] field-error">
             {errors.thumbnailId.message}
           </p>
         ) : null}
 
-        <p className="mt-[16px] text-small text-neutral-2">
+        <p className="mt-[16px] field-hint">
           Or, you can upload a custom thumbnail
         </p>
         <button
           type="button"
-          className="mt-[8px] flex items-center gap-[6px] text-small font-medium text-brand underline underline-offset-2"
+          className="hbtn brand-lit mt-[8px]"
         >
-          <Upload aria-hidden className="size-[16px]" />
+          <Upload aria-hidden />
           Upload
         </button>
       </section>
@@ -165,7 +165,7 @@ export function StepMedia() {
       <section aria-labelledby="overview" className="mt-[10px]">
         <h3
           id="overview"
-          className="border-b border-neutral-5 pb-[12px] text-h3 font-semibold text-neutral-1"
+          className="m-0 border-b border-border-subtle pb-[12px] text-[15px] font-semibold tracking-[-0.2px] text-text-primary"
         >
           {draft.basicInfo.title || "Untitled experience"}
         </h3>
@@ -213,71 +213,73 @@ function GuestCardPreview({
 
   return (
     <div>
-      <h3 className="text-body font-medium text-neutral-1">
+      <h3 className="form-section-title">
         Experience Preview for Your Guests
       </h3>
-      <p className="mt-[2px] text-small text-brand">Experience Cards</p>
+      <p className="m-0 mt-[2px] text-[11px] text-text-muted">How it appears on the marketplace</p>
 
-      <article className="mt-[16px] bg-white shadow-[0_2px_12px_rgba(7,29,24,0.08)]">
+      <article className="mt-[16px] overflow-hidden rounded-lg border border-card-border bg-card shadow-[var(--card-shadow)]">
         <div
           aria-hidden
           className={cn(
-            "flex h-[140px] items-center justify-center bg-gradient-to-br from-brand-soft to-brand-surface text-small text-ink-muted",
-            !thumbnailId && "border-b border-dashed border-neutral-4",
+            "flex h-[140px] items-center justify-center bg-gradient-to-br from-brand-muted to-panel text-[12px] text-text-secondary",
+            !thumbnailId && "border-b border-dashed border-border-panel",
           )}
         >
           {thumbnailId ? "" : "No thumbnail chosen"}
         </div>
 
         <div className="p-[14px]">
-          <h4 className="text-small font-medium text-neutral-1">
+          <h4 className="m-0 text-[13.5px] font-semibold text-text-primary">
             {basicInfo.title || "Untitled experience"}
           </h4>
-          <p className="mt-[4px] text-small text-neutral-2">
+          <p className="mt-[4px] field-hint">
             {formatDuration(basicInfo.durationDays, basicInfo.durationNights)} ·{" "}
             {regionLabels(basicInfo.regions) || "No region set"}
           </p>
 
-          <div className="mt-[10px] flex flex-wrap items-center gap-[10px] text-small">
+          {/* Tier and trust labels are information, not severity, so they use
+              the neutral badges — green, amber and red stay reserved. */}
+          <div className="mt-[10px] flex flex-wrap items-center gap-[6px]">
             {basicInfo.kind === "super" ? (
-              <span className="flex items-center gap-[4px] text-[#7C3AED]">
-                <Sparkles aria-hidden className="size-[12px]" />
-                Super Experience
+              <span className="badge info gap-[4px]">
+                <Sparkles aria-hidden className="size-[10px]" />
+                Super experience
               </span>
             ) : null}
-            <span className="flex items-center gap-[4px] text-brand">
-              <BadgeCheck aria-hidden className="size-[12px]" />
-              Certified Provider
+            <span className="badge neutral gap-[4px]">
+              <BadgeCheck aria-hidden className="size-[10px]" />
+              Certified provider
             </span>
           </div>
 
-          <p className="mt-[10px] flex items-center gap-[6px] text-small">
-            <span className="font-medium text-neutral-1">New</span>
+          <p className="mt-[10px] flex items-center gap-[6px] text-[12px]">
+            <span className="font-medium text-text-primary">New</span>
             <span aria-hidden className="flex">
               {[1, 2, 3, 4, 5].map((index) => (
-                <Star key={index} className="size-[12px] text-neutral-3" />
+                <Star key={index} className="size-[12px] text-text-muted" />
               ))}
             </span>
-            <span className="text-neutral-2">(no reviews yet)</span>
+            <span className="text-text-muted">(no reviews yet)</span>
           </p>
 
-          <p className="mt-[10px] line-clamp-3 text-small text-neutral-2">
+          <p className="mt-[10px] line-clamp-3 field-hint">
             {summary || "Your summary appears here as guests will read it."}
           </p>
 
           <div className="mt-[14px] flex items-end justify-between gap-[10px]">
             <p>
-              <span className="text-h3 font-semibold text-neutral-1">
+              <span className="text-[20px] font-bold leading-none text-text-primary">
                 {formatMoney(perPerson * 100)}
               </span>
-              <span className="block text-small text-neutral-2">per person</span>
+              <span className="block field-hint">per person</span>
             </p>
-            <span className="text-small font-medium text-brand">Book Now →</span>
+            <span className="hbtn primary small" aria-hidden>Book now</span>
           </div>
         </div>
       </article>
 
-      <p className="mt-[12px] text-small text-neutral-2">
+      <p className="mt-[12px] field-hint">
         Ratings and review counts appear once this experience has completed
         bookings.
       </p>

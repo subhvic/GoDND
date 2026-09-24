@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { headers } from "next/headers";
-import { ArrowRight, Compass, LayoutDashboard, Store } from "lucide-react";
+import { ArrowRight, BookOpen, Compass, Globe, LayoutDashboard, Store } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
+import { buttonClass } from "@/components/ui/button";
+import { Notice } from "@/components/ui/notice";
 
 export const metadata = {
   title: "GoDND",
@@ -13,86 +15,96 @@ export const metadata = {
 /**
  * The marketplace root.
  *
- * The consumer marketplace is not built yet, so rather than leave the
- * create-next-app placeholder here, this states plainly what exists and
- * routes to it. On a *.vercel.app deployment it also surfaces the operator
- * portal, which is otherwise only reachable on portal.godnd.co — without this
- * there is no way to open the portal from a deployment URL.
+ * The consumer marketplace is not built yet, so this states plainly what
+ * exists and routes to it. The operator portal is only linked on hosts where
+ * it is reachable by path (a deployment URL or local dev) — on godnd.co the
+ * proxy 404s /dashboard, and a link that 404s is worse than no link.
  */
 export default async function HomePage() {
   const host = (await headers()).get("host") ?? "";
-  // A deployment URL or a local dev server — anywhere the surfaces are not
-  // yet separated by real hostnames.
   const isDeployment =
     host.endsWith(".vercel.app") ||
     host.includes("localhost") ||
     host.startsWith("127.0.0.1");
 
   return (
-    <main className="min-h-dvh bg-white">
-      <header className="border-b border-neutral-5 px-[20px] py-[18px] lg:px-[48px]">
-        <Logo suffix={null} />
+    <main className="min-h-dvh bg-canvas">
+      <header className="flex items-center justify-between gap-[16px] border-b border-border-subtle px-[20px] py-[14px] lg:px-[40px]">
+        <Logo />
+        <Link href="/design-system" className={buttonClass()}>
+          <BookOpen aria-hidden />
+          Design system
+        </Link>
       </header>
 
-      <div className="mx-auto max-w-[880px] px-[20px] py-[56px] lg:px-[48px] lg:py-[88px]">
-        <p className="text-small font-medium text-brand">Northeast India</p>
-        <h1 className="mt-[12px] max-w-[18ch] text-display-sm font-semibold leading-[1.15] text-ink lg:text-display">
+      <div className="mx-auto max-w-[920px] px-[20px] py-[56px] lg:px-[40px] lg:py-[80px]">
+        <p className="m-0 text-[10.5px] font-bold uppercase tracking-[1px] text-brand">
+          Northeast India
+        </p>
+        <h1 className="m-0 mt-[10px] max-w-[20ch] text-[30px] font-bold leading-[1.15] tracking-[-0.5px] text-text-primary lg:text-[36px]">
           Experiences worth the journey, run by the people who live there.
         </h1>
-        <p className="mt-[18px] max-w-[60ch] text-body text-ink-muted">
+        <p className="m-0 mt-[14px] max-w-[60ch] text-[13.5px] leading-[1.65] text-text-secondary">
           GoDND gives travel companies the tools to build, sell and manage their
           trips — and gives travellers one place to find them.
         </p>
 
-        <section className="mt-[48px]" aria-labelledby="whats-live">
+        <section className="mt-[44px]" aria-labelledby="whats-live">
           <h2
             id="whats-live"
-            className="text-small font-semibold uppercase tracking-[0.08em] text-neutral-2"
+            className="m-0 text-[10px] font-bold uppercase tracking-[.9px] text-text-muted"
           >
             What&rsquo;s built so far
           </h2>
 
-          <ul className="mt-[16px] grid gap-[12px] sm:grid-cols-2">
+          <ul className="m-0 mt-[12px] grid list-none gap-[12px] p-0 sm:grid-cols-2">
             <EntryCard
               href="/dashboard/experiences"
-              icon={<LayoutDashboard aria-hidden className="size-[20px]" />}
+              icon={LayoutDashboard}
               title="Operator portal"
-              body="Experiences table with five status tabs, detail drawer, and the seven-step builder."
+              body="Experiences list with status tabs, search, and a record drawer."
               available={isDeployment}
-              unavailableNote="Live on portal.godnd.co"
+              unavailableNote="On portal.godnd.co"
             />
             <EntryCard
               href="/dashboard/experiences/new/basic-info"
-              icon={<Compass aria-hidden className="size-[20px]" />}
-              title="Add New Experience"
-              body="The full wizard: itinerary, crew, pricing, availability, policies and media."
+              icon={Compass}
+              title="Add new experience"
+              body="The seven-step builder: itinerary, crew, pricing, availability, policies, media."
               available={isDeployment}
-              unavailableNote="Live on portal.godnd.co"
+              unavailableNote="On portal.godnd.co"
             />
             <EntryCard
-              icon={<Store aria-hidden className="size-[20px]" />}
+              href="/design-system"
+              icon={BookOpen}
+              title="Design system"
+              body="Tokens, foundations and every component, rendered live in both themes."
+              available
+              unavailableNote=""
+            />
+            <EntryCard
+              icon={Store}
               title="Marketplace"
               body="Browse and book listed experiences across the Northeast."
               available={false}
               unavailableNote="Not built yet"
             />
             <EntryCard
-              icon={<Store aria-hidden className="size-[20px]" />}
+              icon={Globe}
               title="Operator websites"
-              body="Each company's own branded site, on their own domain."
+              body="Each company's own branded site, on its own domain."
               available={false}
-              unavailableNote="Schema and routing ready; editor not built"
+              unavailableNote="Editor not built"
             />
           </ul>
         </section>
 
         {isDeployment ? (
-          <p className="mt-[36px] border border-line-soft bg-brand-surface px-[14px] py-[12px] text-small text-ink">
-            You&rsquo;re on a deployment URL, so every surface is reachable by
-            path here. On the real domains they are separated by host:
-            the portal on <strong>portal.godnd.co</strong>, the marketplace on{" "}
-            <strong>godnd.co</strong>, and each operator on their own domain.
-          </p>
+          <Notice status="info" title="You're on a deployment URL" className="mt-[28px]">
+            Every surface is reachable by path here. On the real domains they are
+            separated by host — the portal on portal.godnd.co, the marketplace on
+            godnd.co, and each operator on their own domain.
+          </Notice>
         ) : null}
       </div>
     </main>
@@ -101,14 +113,14 @@ export default async function HomePage() {
 
 function EntryCard({
   href,
-  icon,
+  icon: Icon,
   title,
   body,
   available,
   unavailableNote,
 }: {
   href?: string;
-  icon: React.ReactNode;
+  icon: typeof Store;
   title: string;
   body: string;
   available: boolean;
@@ -116,34 +128,30 @@ function EntryCard({
 }) {
   const inner = (
     <>
-      <span className="flex items-center gap-[10px] text-ink">
-        {icon}
-        <span className="text-body font-medium">{title}</span>
+      <span className="flex items-center gap-[10px]">
+        <span className="flex size-[30px] shrink-0 items-center justify-center rounded-md bg-panel text-text-secondary">
+          <Icon aria-hidden className="size-[16px]" />
+        </span>
+        <span className="text-[13.5px] font-semibold text-text-primary">{title}</span>
         {available ? (
-          <ArrowRight aria-hidden className="ml-auto size-[16px] text-brand" />
+          <ArrowRight aria-hidden className="ml-auto size-[15px] text-brand" />
         ) : (
-          <span className="ml-auto text-small text-neutral-2">
-            {unavailableNote}
-          </span>
+          <span className="badge neutral ml-auto">{unavailableNote}</span>
         )}
       </span>
-      <span className="mt-[8px] block text-small text-ink-muted">{body}</span>
+      <span className="mt-[8px] block text-[12px] leading-[1.55] text-text-secondary">{body}</span>
     </>
   );
 
   if (!available || !href) {
-    return (
-      <li className="border border-neutral-5 bg-surface-sunken p-[18px] opacity-80">
-        {inner}
-      </li>
-    );
+    return <li className="panel p-[16px] opacity-60">{inner}</li>;
   }
 
   return (
     <li>
       <Link
         href={href}
-        className="block h-full border border-line-soft bg-white p-[18px] transition-colors hover:border-brand hover:bg-brand-surface"
+        className="panel block h-full p-[16px] no-underline transition-colors hover:border-border-strong hover:bg-panel-2"
       >
         {inner}
       </Link>

@@ -1,10 +1,12 @@
 import Link from "next/link";
-import { Inbox, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 
-import { ExperienceTabs } from "@/components/experiences/experience-tabs";
 import { ExperiencesTable } from "@/components/experiences/experiences-table";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
+import { Notice } from "@/components/ui/notice";
+import { PageBar } from "@/components/ui/page-bar";
 import { Pagination } from "@/components/ui/pagination";
+import { PillTabs } from "@/components/ui/pill-tabs";
 import { SearchInput } from "@/components/ui/search-input";
 import { listExperiences } from "@/lib/data/experiences";
 import { EXPERIENCE_TABS, type ExperienceTabKey } from "@/lib/types";
@@ -23,48 +25,73 @@ export default async function ExperiencesPage(
   const { rows, counts, page: current, pageCount, total, isDemoData } =
     await listExperiences({ tab, search, page });
 
+  const tabHref = (key: ExperienceTabKey) => {
+    const next = new URLSearchParams();
+    next.set("tab", key);
+    if (search) next.set("q", search);
+    return `/dashboard/experiences?${next.toString()}`;
+  };
+
   return (
-    <div className="flex flex-col gap-[24px] pb-[40px]">
-      <header className="flex flex-col gap-[16px] px-[16px] py-[12px] lg:flex-row lg:items-center lg:justify-between lg:pl-[32px] lg:pr-[36px]">
-        <h1 className="flex items-end gap-[7px] text-h3 font-semibold text-neutral-1">
-          <Inbox aria-hidden className="size-[24px]" />
-          Experiences
-        </h1>
+    <div className="surface-card">
+      <div className="card-scroll">
+        <PageBar
+          crumbs={[{ label: "GoDND", href: "/dashboard" }, { label: "Experiences" }]}
+          actions={
+            <>
+              <SearchInput
+                label="Search experiences"
+                placeholder="Search experiences…"
+                className="hidden w-[280px] md:block"
+              />
+              <Link
+                href="/dashboard/experiences/new"
+                className={buttonClass({ variant: "primary" })}
+              >
+                <Plus aria-hidden />
+                <span className="hidden sm:inline">Add experience</span>
+                <span className="sm:hidden">Add</span>
+              </Link>
+            </>
+          }
+        />
 
-        <div className="flex items-center gap-[18px]">
-          <SearchInput
-            label="Search experiences"
-            placeholder="Search Experience"
-            className="w-full lg:w-[613px]"
+        {/* Search stays reachable on phones, where the page bar has no room. */}
+        <SearchInput
+          label="Search experiences"
+          placeholder="Search experiences…"
+          className="mb-[14px] w-full md:hidden"
+        />
+
+        {isDemoData ? (
+          <Notice status="info" title="Showing sample data" className="mb-[16px]">
+            Add your Supabase keys to <code>.env.local</code> to see your own experiences.
+          </Notice>
+        ) : null}
+
+        <div className="mb-[14px] flex flex-wrap items-center justify-between gap-[10px]">
+          <PillTabs
+            label="Experience status"
+            active={tab}
+            tabs={EXPERIENCE_TABS.map((item) => ({
+              id: item.key,
+              label: item.label,
+              count: counts[item.key] ?? 0,
+              href: tabHref(item.key),
+            }))}
           />
-          <Link
-            href="/dashboard/experiences/new"
-            className={buttonVariants({ variant: "primary", size: "md" })}
-          >
-            <Plus aria-hidden className="size-[20px]" />
-            <span className="hidden sm:inline">Add New Experience</span>
-            <span className="sm:hidden">Add</span>
-          </Link>
+          <p className="text-[11.5px] text-text-muted" aria-live="polite">
+            {total === 0 ? "No experiences" : `Showing ${rows.length} of ${total}`}
+          </p>
         </div>
-      </header>
 
-      <div className="flex flex-col gap-px">
-        <ExperienceTabs active={tab} counts={counts} />
+        <ExperiencesTable rows={rows} tab={tab} search={search} />
 
-        <div className="flex flex-col gap-[16px] px-[16px] py-[18px] lg:px-[32px]">
-          {isDemoData ? <DemoNotice /> : null}
-
-          <ExperiencesTable rows={rows} tab={tab} search={search} />
-
-          {total > 0 ? (
-            <div className="flex flex-col items-center justify-between gap-[12px] sm:flex-row">
-              <p className="text-small text-neutral-2" aria-live="polite">
-                Showing {rows.length} of {total}
-              </p>
-              <Pagination page={current} pageCount={pageCount} />
-            </div>
-          ) : null}
-        </div>
+        {pageCount > 1 ? (
+          <div className="mt-[14px] flex justify-end">
+            <Pagination page={current} pageCount={pageCount} />
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -80,17 +107,4 @@ function parseTab(value: unknown): ExperienceTabKey {
 function parsePage(value: unknown): number {
   const parsed = Number.parseInt(String(value ?? "1"), 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
-}
-
-/**
- * Shown only when Supabase is unconfigured. Better an explicit banner than an
- * operator mistaking fixture rows for their own data.
- */
-function DemoNotice() {
-  return (
-    <p className="border border-line-soft bg-brand-surface px-[12px] py-[8px] text-small text-ink">
-      Showing sample data — add your Supabase keys to{" "}
-      <code className="font-mono">.env.local</code> to connect real experiences.
-    </p>
-  );
 }

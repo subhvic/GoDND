@@ -2,15 +2,14 @@
 
 import { WizardFooter } from "@/components/experiences/wizard/wizard-chrome";
 import { getStep, stepIndex, WIZARD_STEPS, type WizardStepSlug } from "@/lib/experience-wizard/steps";
-import { cn } from "@/lib/utils";
 
 /**
- * Common frame for every step: the "Basic Info / Step 1 of 7" heading, the
- * form, an error summary, and the footer buttons.
+ * Common frame for every step: its heading, the form, a live error summary,
+ * an optional preview panel, and the pinned footer.
  *
- * `aside` renders the right-hand preview panel that steps 4, 5 and 7 have. It
- * sits after the form in source order so keyboard and screen reader users
- * reach the inputs first, and is repositioned with CSS on wide viewports.
+ * The preview panel (`aside`) follows the form in source order so keyboard
+ * and screen-reader users reach the inputs first; it moves beside the form on
+ * wide screens.
  */
 export function StepShell({
   slug,
@@ -33,52 +32,40 @@ export function StepShell({
   const index = stepIndex(slug);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div
-        className={cn(
-          "flex min-h-0 flex-1 flex-col",
-          aside && "lg:flex-row lg:items-stretch",
-        )}
-      >
-        <div className="flex-1 px-[16px] py-[20px] lg:px-[32px]">
-          <h2 className="text-body font-medium text-neutral-1">{step?.title}</h2>
-          <p className="mt-[2px] text-small font-medium text-brand">
-            Step {index + 1} of {WIZARD_STEPS.length}
-          </p>
+    <>
+      <div className="mb-[16px] flex flex-col gap-[2px]">
+        <p className="m-0 text-[10.5px] font-bold uppercase tracking-[1px] text-brand">
+          Step {index + 1} of {WIZARD_STEPS.length}
+        </p>
+        <h2 className="m-0 text-[15px] font-semibold tracking-[-0.2px] text-text-primary">
+          {step?.title}
+        </h2>
+      </div>
 
-          {/*
-            A single live region for the whole step. Without it a failed submit
-            is silent for screen reader users, because the errors appear far
-            down the form and focus has not moved.
-          */}
-          <p
-            aria-live="assertive"
-            className={cn(
-              "mt-[12px] text-small text-[#d92d20]",
-              !errorSummary && "sr-only-focusable",
-            )}
-          >
-            {errorSummary}
-          </p>
+      {/* One live region for the whole step: a failed submit is otherwise
+          silent for screen-reader users, since errors land far down the form
+          and focus has not moved. */}
+      <p aria-live="assertive" className={errorSummary ? "field-error mb-[12px]" : "sr-only"}>
+        {errorSummary}
+      </p>
 
-          <form
-            id={formId}
-            onSubmit={onSubmit}
-            noValidate
-            className="mt-[20px] flex flex-col gap-[20px] pb-[96px]"
-          >
-            {children}
-          </form>
-        </div>
+      <div className={aside ? "grid items-start gap-[16px] xl:grid-cols-[minmax(0,1fr)_320px]" : ""}>
+        <form
+          id={formId}
+          onSubmit={onSubmit}
+          noValidate
+          className="panel flex min-w-0 flex-col gap-[20px] p-[18px]"
+        >
+          {children}
+        </form>
 
         {aside ? (
-          <aside className="border-t border-neutral-5 bg-brand-surface px-[16px] pb-[96px] pt-[20px] lg:w-[320px] lg:shrink-0 lg:border-l lg:border-t-0 lg:px-[24px] lg:pb-[40px]">
-            {aside}
-          </aside>
+          <aside className="panel p-[16px] xl:sticky xl:top-0">{aside}</aside>
         ) : null}
       </div>
 
+      <div className="h-[20px] shrink-0" aria-hidden />
       <WizardFooter current={slug} formId={formId} submitting={submitting} />
-    </div>
+    </>
   );
 }

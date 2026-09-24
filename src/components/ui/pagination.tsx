@@ -4,12 +4,12 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { buttonClass } from "@/components/ui/button";
 
 /**
- * Page numbers with an ellipsis, as drawn in the handoff file (1 2 3 4 6 … 22).
- * Prev/next are rendered as disabled spans at the ends rather than dead links,
- * so keyboard users aren't sent to a link that does nothing.
+ * Page numbers with an ellipsis. Prev/next render as disabled buttons at the
+ * ends rather than dead links, so a keyboard user is never sent to a link
+ * that goes nowhere.
  */
 export function Pagination({ page, pageCount }: { page: number; pageCount: number }) {
   const pathname = usePathname();
@@ -25,21 +25,20 @@ export function Pagination({ page, pageCount }: { page: number; pageCount: numbe
   };
 
   return (
-    <nav aria-label="Pagination" className="flex items-center gap-[6px]">
-      <Step
-        href={hrefFor(page - 1)}
-        disabled={page <= 1}
-        label="Previous page"
-        icon={<ChevronLeft aria-hidden className="size-[16px]" />}
-      />
+    <nav aria-label="Pagination" className="flex items-center gap-[4px]">
+      {page > 1 ? (
+        <Link href={hrefFor(page - 1)} scroll={false} aria-label="Previous page" className={buttonClass({ size: "icon" })}>
+          <ChevronLeft aria-hidden />
+        </Link>
+      ) : (
+        <button type="button" disabled aria-label="Previous page" className={buttonClass({ size: "icon" })}>
+          <ChevronLeft aria-hidden />
+        </button>
+      )}
 
       {pageNumbers(page, pageCount).map((entry, index) =>
         entry === "gap" ? (
-          <span
-            key={`gap-${index}`}
-            aria-hidden
-            className="px-[6px] text-small text-neutral-2"
-          >
+          <span key={`gap-${index}`} aria-hidden className="px-[4px] text-[12px] text-text-muted">
             …
           </span>
         ) : (
@@ -48,60 +47,26 @@ export function Pagination({ page, pageCount }: { page: number; pageCount: numbe
             href={hrefFor(entry)}
             scroll={false}
             aria-current={entry === page ? "page" : undefined}
-            className={cn(
-              "flex h-[28px] min-w-[28px] items-center justify-center border px-[8px] text-small transition-colors",
-              entry === page
-                ? "border-brand bg-brand font-bold text-white"
-                : "border-neutral-4 bg-white text-neutral-1 hover:bg-surface-sunken",
-            )}
+            className={buttonClass({
+              active: entry === page,
+              className: "min-w-[31px] justify-center",
+            })}
           >
             {entry}
           </Link>
         ),
       )}
 
-      <Step
-        href={hrefFor(page + 1)}
-        disabled={page >= pageCount}
-        label="Next page"
-        icon={<ChevronRight aria-hidden className="size-[16px]" />}
-      />
+      {page < pageCount ? (
+        <Link href={hrefFor(page + 1)} scroll={false} aria-label="Next page" className={buttonClass({ size: "icon" })}>
+          <ChevronRight aria-hidden />
+        </Link>
+      ) : (
+        <button type="button" disabled aria-label="Next page" className={buttonClass({ size: "icon" })}>
+          <ChevronRight aria-hidden />
+        </button>
+      )}
     </nav>
-  );
-}
-
-function Step({
-  href,
-  disabled,
-  label,
-  icon,
-}: {
-  href: string;
-  disabled: boolean;
-  label: string;
-  icon: React.ReactNode;
-}) {
-  if (disabled) {
-    return (
-      <span
-        aria-disabled
-        className="flex size-[28px] items-center justify-center text-neutral-3"
-      >
-        {icon}
-        <span className="sr-only-focusable">{label}</span>
-      </span>
-    );
-  }
-
-  return (
-    <Link
-      href={href}
-      scroll={false}
-      aria-label={label}
-      className="flex size-[28px] items-center justify-center text-neutral-1 hover:bg-surface-sunken"
-    >
-      {icon}
-    </Link>
   );
 }
 
@@ -112,9 +77,7 @@ function pageNumbers(page: number, pageCount: number): (number | "gap")[] {
   if (page >= pageCount - 2)
     [pageCount - 1, pageCount - 2, pageCount - 3].forEach((n) => window.add(n));
 
-  const pages = [...window]
-    .filter((n) => n >= 1 && n <= pageCount)
-    .sort((a, b) => a - b);
+  const pages = [...window].filter((n) => n >= 1 && n <= pageCount).sort((a, b) => a - b);
 
   return pages.flatMap((value, index) =>
     index > 0 && value - pages[index - 1] > 1 ? ["gap" as const, value] : [value],

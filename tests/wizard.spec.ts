@@ -77,13 +77,12 @@ test.describe("wizard validation", () => {
       ["Languages Spoken", "english"],
       ["Activity Tags", "rafting"],
     ]) {
-      await page
-        .locator(`label:text-is("${label}") + div select`)
-        .first()
-        .selectOption(value);
+      // By accessible label rather than DOM shape: a restyle may change the
+      // markup around a control, but never what it is called.
+      await page.getByLabel(label).first().selectOption(value);
     }
     // The itinerary derives its days from this, rather than asking again.
-    await page.locator('label:text-is("Duration (days)") + div select').selectOption("7");
+    await page.getByLabel("Duration (days)").selectOption("7");
 
     await page.click("button[type=submit][form=step-basic-info]");
     await expect(page).toHaveURL(new RegExp(`${WIZARD}/itinerary$`));
@@ -129,12 +128,8 @@ test.describe("support & policies", () => {
   });
 
   test("both consents are required before continuing", async ({ page }) => {
-    await page
-      .locator('label:text-is("What\'s Included?") + div select')
-      .selectOption("breakfast-partial");
-    await page
-      .locator('label:text-is("What\'s Not Included?") + div select')
-      .selectOption("elephant-falls-tickets");
+    await page.getByLabel("What's Included?").selectOption("breakfast-partial");
+    await page.getByLabel("What's Not Included?").selectOption("elephant-falls-tickets");
     await page.fill(
       "textarea[name=departureNote]",
       "Meet our captain at Guwahati airport arrivals, 7:30 AM.",
@@ -181,13 +176,15 @@ test.describe("media & overview", () => {
     await expect(card).toContainText("living root bridges");
   });
 
-  test("the final action is Send for Approval, and it is not covered", async ({
+  test("the final action is Send for approval, and it is not covered", async ({
     page,
   }) => {
     // The sticky footer once floated over the form with nothing reserving its
     // height, leaving the last controls unclickable.
     const submit = page.locator("button[type=submit][form=step-media]");
-    await expect(submit).toHaveText(/Send for Approval/);
+    // Case-insensitive: the label follows the system's sentence case, and
+    // what matters here is the action, not its capitalisation.
+    await expect(submit).toHaveText(/Send for approval/i);
     await expect(submit).toBeInViewport();
   });
 });
@@ -196,10 +193,7 @@ test.describe("draft persistence", () => {
   test("a reload does not lose what was typed", async ({ page }) => {
     await page.goto(`${WIZARD}/basic-info`);
     await page.fill("input[name=title]", "Draft survives a refresh");
-    await page
-      .locator('label:text-is("Region/State") + div select')
-      .first()
-      .selectOption("assam");
+    await page.getByLabel("Region/State").first().selectOption("assam");
 
     await page.reload();
 

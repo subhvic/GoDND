@@ -1,41 +1,55 @@
-import { cva, type VariantProps } from "class-variance-authority";
 import type { ButtonHTMLAttributes } from "react";
 
 import { cn } from "@/lib/utils";
 
 /**
- * The handoff file draws one filled button (#007F6A, Roboto Bold 12, square
- * corners) and one outlined button. Hover and disabled states are not drawn;
- * they are derived here because shipping a button with no hover feedback fails
- * the "affordance" bar regardless of what the file shows.
+ * One button family drives every action (source: .hbtn). The primary fill
+ * uses --brand-solid with the --brand-hover / --brand-active interaction
+ * tokens; everything else stays quiet — transparent on a hairline border.
  */
-const button = cva(
-  "inline-flex items-center justify-center gap-[6px] whitespace-nowrap text-small font-bold transition-colors disabled:pointer-events-none disabled:opacity-50",
-  {
-    variants: {
-      variant: {
-        primary: "bg-brand text-white hover:bg-[#006a59] active:bg-[#005a4c]",
-        outline:
-          "border border-neutral-4 bg-white text-neutral-1 hover:bg-surface-sunken",
-        ghost: "text-neutral-1 hover:bg-surface-sunken",
-      },
-      size: {
-        md: "py-[10px] pl-[20px] pr-[24px]",
-        sm: "px-[14px] py-[8px]",
-        icon: "size-[36px]",
-      },
-    },
-    defaultVariants: { variant: "primary", size: "md" },
-  },
-);
+export type ButtonVariant = "default" | "primary" | "brand-lit" | "danger";
+export type ButtonSize = "md" | "small" | "icon";
 
-export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
-  VariantProps<typeof button>;
-
-export function Button({ className, variant, size, ...props }: ButtonProps) {
-  return (
-    <button className={cn(button({ variant, size }), className)} {...props} />
+export function buttonClass({
+  variant = "default",
+  size = "md",
+  active,
+  className,
+}: {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  active?: boolean;
+  className?: string;
+} = {}) {
+  return cn(
+    "hbtn",
+    variant !== "default" && variant,
+    size === "small" && "small",
+    size === "icon" && "icon",
+    active && "active",
+    className,
   );
 }
 
-export { button as buttonVariants };
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  active?: boolean;
+};
+
+export function Button({
+  variant,
+  size,
+  active,
+  className,
+  type = "button",
+  ...props
+}: ButtonProps) {
+  return (
+    <button
+      type={type}
+      className={buttonClass({ variant, size, active, className })}
+      {...props}
+    />
+  );
+}

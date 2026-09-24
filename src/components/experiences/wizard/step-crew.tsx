@@ -30,7 +30,7 @@ export function StepCrew() {
       onSubmit={handleSubmit}
     >
       <section aria-labelledby="crew-info">
-        <h3 id="crew-info" className="mb-[14px] text-body font-medium text-neutral-1">
+        <h3 id="crew-info" className="mb-[14px] form-section-title">
           Crew Info
         </h3>
 
@@ -111,7 +111,7 @@ export function StepCrew() {
       <section aria-labelledby="trip-capacity" className="mt-[10px]">
         <h3
           id="trip-capacity"
-          className="mb-[14px] text-body font-medium text-neutral-1"
+          className="mb-[14px] form-section-title"
         >
           Trip Capacity
         </h3>

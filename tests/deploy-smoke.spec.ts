@@ -56,6 +56,7 @@ test.describe("host routing", () => {
       "/",
       "/dashboard/experiences",
       "/dashboard/experiences/new/basic-info",
+      "/design-system",
     ]) {
       const { status } = await fetchWithHost(DEPLOYMENT_HOST, path);
       expect(status, `${DEPLOYMENT_HOST}${path}`).toBe(200);
@@ -83,6 +84,13 @@ test.describe("host routing", () => {
     const { status, body } = await fetchWithHost(MARKETPLACE_HOST, "/");
     expect(status).toBe(200);
     expect(body).toContain("GoDND");
+  });
+
+  test("the design system is public on the marketplace domain", async () => {
+    // The root page links to it on every host, so it must open on every host
+    // that shows that link.
+    const { status } = await fetchWithHost(MARKETPLACE_HOST, "/design-system");
+    expect(status).toBe(200);
   });
 
   test("the root links to the portal only where it is reachable", async () => {

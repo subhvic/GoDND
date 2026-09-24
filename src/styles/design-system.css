@@ -1,0 +1,180 @@
+/* ============================================================================
+   DESIGN SYSTEM reference page  (route: /design-system)
+   Self-contained documentation shell — consumes the same tokens it documents.
+   Ported from the CubeAPM reference page; the only change is that the code
+   and numeral styling uses Rubik rather than a monospace face.
+   ============================================================================ */
+@layer components {
+  .ds-root { height: 100dvh; overflow-y: auto; background: var(--canvas); color: var(--text-primary); }
+  .ds-topbar {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 14px 26px; height: 60px;
+    background: var(--topbar-bg); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .ds-brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
+  .ds-brand-sep { width: 1px; height: 20px; background: var(--border-strong); margin: 0 3px; }
+  .ds-brand-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+  .ds-version { font-size: 10px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; color: var(--brand-on-muted); background: var(--brand-muted); padding: 3px 8px; border-radius: 99px; white-space: nowrap; }
+  .ds-topbar-actions { display: flex; align-items: center; gap: 8px; }
+  .ds-back, .ds-theme-toggle { display: inline-flex; align-items: center; gap: 7px; background: var(--panel); border: 1px solid var(--border-subtle); color: var(--text-secondary); font-family: inherit; font-size: 12px; padding: 7px 13px; border-radius: var(--radius-sm); cursor: pointer; text-decoration: none; white-space: nowrap; }
+  .ds-back:hover, .ds-theme-toggle:hover { color: var(--text-primary); border-color: var(--border-strong); }
+  .ds-back svg, .ds-theme-toggle svg { width: 14px; height: 14px; }
+
+  .ds-theme-grid { border: 1px solid var(--card-border); border-radius: var(--radius-lg); overflow: hidden; background: var(--card); }
+  .ds-theme-row { display: grid; grid-template-columns: minmax(160px, 240px) 1fr 1fr; gap: 14px; align-items: center; padding: 9px 16px; border-top: 1px solid var(--border-subtle); }
+  .ds-theme-row--head { border-top: none; }
+  .ds-theme-head { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); }
+  .ds-theme-cell { display: flex; align-items: center; gap: 10px; }
+  .ds-theme-chip { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--swatch-edge); flex-shrink: 0; }
+  .ds-theme-hex { font-size: 11px; color: var(--text-secondary); }
+
+  .ds-layout { display: grid; grid-template-columns: 232px minmax(0, 1fr); max-width: 1240px; margin: 0 auto; }
+
+  .ds-nav { position: sticky; top: 60px; align-self: start; height: calc(100dvh - 60px); overflow-y: auto; padding: 22px 14px 40px; display: flex; flex-direction: column; gap: 1px; }
+  .ds-nav-group { font-size: 10px; font-weight: 700; letter-spacing: .9px; text-transform: uppercase; color: var(--text-muted); padding: 16px 12px 6px; }
+  .ds-navlink { display: block; padding: 6px 12px; border-radius: var(--radius-sm); font-size: 12.5px; color: var(--text-secondary); text-decoration: none; }
+  .ds-navlink:hover { background: var(--panel); color: var(--text-primary); }
+  .ds-navlink.active { background: var(--brand-muted); color: var(--brand-on-muted); font-weight: 600; }
+  .ds-navlink--sub { padding-left: 22px; font-size: 12px; color: var(--text-muted); }
+
+  .ds-main { padding: 30px 40px 80px; min-width: 0; }
+  .ds-section { scroll-margin-top: 76px; padding: 30px 0; border-bottom: 1px solid var(--border-subtle); }
+  .ds-section:last-of-type { border-bottom: none; }
+  .ds-kicker { font-size: 10.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--brand); margin-bottom: 9px; }
+  .ds-h2 { font-size: 25px; font-weight: 700; letter-spacing: -.4px; color: var(--text-primary); margin: 0 0 10px; }
+  .ds-lead { font-size: 13.5px; line-height: 1.65; color: var(--text-secondary); max-width: 720px; margin: 0 0 22px; }
+
+  .ds-stat-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .ds-stat { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 16px 18px; }
+  .ds-stat-n { font-size: 22px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+  .ds-stat-l { font-size: 11px; color: var(--text-muted); margin-top: 7px; text-transform: uppercase; letter-spacing: .4px; }
+  .ds-callout { display: flex; gap: 12px; padding: 14px 16px; border-radius: var(--radius-md); background: var(--brand-muted); border: 1px solid color-mix(in srgb, var(--brand) 22%, transparent); font-size: 12.5px; line-height: 1.6; color: var(--text-secondary); }
+  .ds-callout > svg { flex-shrink: 0; margin-top: 2px; color: var(--brand); width: 16px; height: 16px; }
+  .ds-callout strong { color: var(--text-primary); font-weight: 600; }
+  .ds-callout--warn { background: var(--critical-tint); border-color: color-mix(in srgb, var(--critical) 28%, transparent); }
+  .ds-callout--warn > svg { color: var(--critical); }
+
+  .ds-principle-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .ds-principle { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 18px 18px 16px; }
+  .ds-principle-n { font-size: 12px; font-weight: 700; color: var(--brand); margin-bottom: 8px; }
+  .ds-principle-t { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 7px; letter-spacing: -.1px; }
+  .ds-principle-b { font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+
+  .ds-atomic { display: flex; flex-direction: column; gap: 8px; }
+  .ds-atomic-row { display: grid; grid-template-columns: 30px 150px 1fr; grid-template-rows: auto auto; gap: 2px 14px; background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 14px 16px; align-items: start; }
+  .ds-atomic-index { grid-row: 1 / 3; font-size: 13px; font-weight: 700; color: var(--text-muted); }
+  .ds-atomic-head { display: flex; align-items: center; gap: 8px; }
+  .ds-atomic-lvl { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
+  .ds-atomic-tag { font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; color: var(--text-muted); background: var(--panel); padding: 2px 7px; border-radius: 99px; }
+  .ds-atomic-d { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+  .ds-atomic-ex { grid-column: 2 / 4; font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+  .ds-tier-flow { display: flex; align-items: stretch; gap: 10px; }
+  .ds-tier { flex: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+  .ds-tier--1 { border-top: 2px solid var(--neutral); }
+  .ds-tier--2 { border-top: 2px solid var(--info); }
+  .ds-tier--3 { border-top: 2px solid var(--brand); }
+  .ds-tier-badge { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--text-muted); }
+  .ds-tier-name { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+  .ds-tier-desc { font-size: 11.5px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
+  .ds-tier-arrow { display: flex; align-items: center; color: var(--text-muted); font-size: 18px; }
+
+  .ds-token { font-size: 11px; color: var(--text-primary); background: var(--panel); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 2px 6px; white-space: nowrap; font-family: inherit; }
+  .ds-token--ref { color: var(--text-secondary); background: transparent; }
+  .ds-ramp-block { margin-bottom: 22px; }
+  .ds-ramp-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .ds-ramp-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .ds-ramp-desc { font-size: 11.5px; color: var(--text-muted); }
+  .ds-swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 8px; }
+  .ds-swatch-grid--lg { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  .ds-swatch { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .ds-swatch-chip { height: 54px; border-radius: var(--radius-sm); border: 1px solid var(--swatch-edge); }
+  .ds-swatch-val { font-size: 11px; color: var(--text-secondary); }
+  .ds-swatch-text { font-size: 10.5px; color: var(--text-muted); }
+
+  .ds-table-wrap { border: 1px solid var(--card-border); border-radius: var(--radius-lg); overflow: auto; background: var(--card); }
+  .ds-table { width: 100%; border-collapse: collapse; }
+  .ds-table thead th { text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); padding: 11px 16px; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
+  .ds-table tbody th { padding: 10px 16px; border-top: 1px solid var(--border-subtle); text-align: left; font-size: 12px; font-weight: 500; vertical-align: middle; }
+  .ds-table td { padding: 10px 16px; border-top: 1px solid var(--border-subtle); text-align: left; font-size: 12px; vertical-align: middle; }
+  .ds-table tbody tr:hover { background: var(--panel-2); }
+  .ds-table-chip { display: inline-block; width: 40px; height: 18px; border-radius: 4px; border: 1px solid var(--swatch-edge); vertical-align: middle; }
+  .ds-table-usage { color: var(--text-secondary); }
+
+  .ds-type-list { display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 16px; }
+  .ds-type-row { display: flex; align-items: baseline; gap: 20px; padding: 14px 18px; border-top: 1px solid var(--border-subtle); }
+  .ds-type-row:first-child { border-top: none; }
+  .ds-type-meta { width: 210px; flex-shrink: 0; font-size: 10.5px; color: var(--text-muted); }
+  .ds-font-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .ds-font-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 16px 18px; }
+  .ds-font-name { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+  .ds-font-sample { font-size: 20px; color: var(--text-primary); }
+
+  .ds-radius-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 18px; }
+  .ds-radius-item { display: flex; flex-direction: column; gap: 6px; }
+  .ds-radius-demo { height: 58px; background: var(--panel); border: 1px solid var(--border-panel); }
+  .ds-layout-tokens { display: flex; flex-wrap: wrap; gap: 10px; }
+  .ds-lt { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 9px 13px; font-size: 12px; color: var(--text-secondary); }
+  .ds-spacing-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; margin-bottom: 18px; }
+  .ds-spacing-item { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .ds-spacing-bar { height: 18px; background: var(--brand-muted); border: 1px solid color-mix(in srgb, var(--brand) 40%, transparent); border-radius: 3px; }
+
+  .ds-elev-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; padding: 8px 4px 12px; }
+  .ds-elev-card { background: var(--raised); border: 1px solid var(--border-panel); border-radius: var(--radius-md); height: 92px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; font-size: 12px; color: var(--text-secondary); }
+
+  .ds-spec { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-lg); margin-bottom: 14px; overflow: hidden; }
+  .ds-spec-head { display: flex; align-items: baseline; gap: 10px; padding: 11px 16px; border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap; }
+  .ds-spec-title { font-size: 12.5px; font-weight: 600; color: var(--text-primary); }
+  .ds-spec-note { font-size: 10.5px; color: var(--text-muted); }
+  .ds-spec-body { padding: 22px 18px; }
+  .ds-spec--wide .ds-spec-body { padding: 18px; }
+  .ds-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .ds-row--gap { gap: 20px; }
+  .ds-stack { display: flex; flex-direction: column; gap: 12px; }
+  .ds-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+  .ds-inline-dot { display: inline-flex; align-items: center; gap: 9px; font-size: 12.5px; color: var(--text-secondary); }
+  .ds-dot-set { display: inline-flex; align-items: center; gap: 8px; }
+
+  .ds-nav-frame { background: var(--canvas); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px; width: 240px; display: flex; flex-direction: column; gap: 2px; }
+  .ds-frame { background: var(--canvas); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 20px; display: flex; justify-content: center; }
+  .ds-drawer-frame { position: relative; height: 320px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; background: var(--card); }
+
+  /* Live side-by-side theme preview: each frame is a [data-theme] scope, so
+     the same components render in both themes at once. The frame re-sets
+     color and background because those were inherited from the page's theme. */
+  .ds-theme-preview-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+  .ds-theme-preview { background: var(--canvas); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 14px; min-width: 0; }
+  .ds-theme-preview-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin: 0 0 10px; }
+  .ds-ratio { display: inline-flex; align-items: center; gap: 8px; }
+
+  .ds-footer { padding: 30px 0 0; font-size: 11.5px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+  @media (max-width: 900px) {
+    .ds-topbar { padding: 12px 16px; }
+    .ds-brand-title, .ds-version, .ds-brand-sep { display: none; }
+    .ds-layout { grid-template-columns: 1fr; }
+    /* The side nav becomes a sticky, swipeable strip rather than vanishing:
+       a 30-section reference with no way to jump is a very long scroll. */
+    .ds-nav {
+      flex-direction: row; gap: 4px; z-index: 15;
+      height: auto; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+      padding: 8px 16px; background: var(--topbar-bg); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .ds-nav-group { display: none; }
+    .ds-navlink, .ds-navlink--sub { flex-shrink: 0; white-space: nowrap; padding: 5px 10px; font-size: 12px; }
+    .ds-section { scroll-margin-top: 112px; }
+    .ds-main { padding: 24px 16px 60px; }
+    .ds-principle-grid, .ds-font-pair, .ds-grid-3, .ds-theme-preview-row { grid-template-columns: 1fr; }
+    .ds-stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ds-tier-flow { flex-direction: column; }
+    .ds-tier-arrow { transform: rotate(90deg); justify-content: center; }
+    .ds-theme-row { grid-template-columns: 1fr; gap: 6px; }
+    .ds-type-row { flex-direction: column; gap: 6px; }
+    .ds-type-meta { width: auto; }
+    .ds-atomic-row { grid-template-columns: 24px 1fr; }
+    .ds-atomic-d, .ds-atomic-ex { grid-column: 2; }
+  }
+}

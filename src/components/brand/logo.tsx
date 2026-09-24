@@ -1,71 +1,48 @@
 import { cn } from "@/lib/utils";
 
 /**
- * GoDND Portal wordmark.
+ * GoDND brand assets, drawn to the reference's proportions: a 34px mark in
+ * the nav and a 20px-tall wordmark beside it.
  *
- * NOTE — the glyph inside the green disc is a placeholder. The real mark is a
- * vector in the handoff file, and this environment's network policy blocks
- * figma.com, so the asset could not be downloaded. Everything else here matches
- * the file: Outfit Bold at 20.875px, "Go" in --color-ink and "DND" in
- * --color-brand, a 1px #DBDBDB divider, then "Portal" in Roboto Medium Italic
- * 18px carrying a green gradient.
- *
- * Replace `<BrandGlyph />` with the exported SVG and nothing else changes.
+ * NOTE — the glyph is a placeholder. The real mark is a vector in the Admin
+ * Portal handoff file, which this environment could not download. Swap the
+ * <path>s in LogoIcon and nothing else changes.
  */
-export function Logo({
-  className,
-  /** The "Portal" suffix belongs to the operator app, not the marketplace. */
-  suffix = "Portal",
-}: {
-  className?: string;
-  suffix?: "Portal" | null;
-}) {
+export function LogoIcon({ size = 34, className }: { size?: number; className?: string }) {
   return (
-    <span className={cn("flex items-center gap-[7px]", className)}>
-      <BrandGlyph />
-      <span className="font-display text-[20.875px] font-bold leading-none">
-        <span className="text-ink">Go</span>
-        <span className="tracking-[-0.4175px] text-brand">DND</span>
-      </span>
-      {suffix ? (
-        <span className="flex items-center border-l border-neutral-4 pl-[10px]">
-          <span
-            className="inline-block bg-clip-text pr-[2px] text-[18px] font-medium italic leading-[1.3] tracking-[-0.18px] text-transparent"
-            style={{
-              backgroundImage:
-                "linear-gradient(105.59deg, rgba(0,127,106,0.6) 22.8%, rgba(66,198,177,0.6) 65.8%, rgba(1,73,61,0.6) 110.49%)",
-            }}
-          >
-            {suffix}
-          </span>
-        </span>
-      ) : null}
-      <span className="sr-only-focusable">{suffix ? `GoDND ${suffix}` : "GoDND"}</span>
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 34 34"
+      aria-hidden
+      className={cn("shrink-0", className)}
+    >
+      <rect width="34" height="34" rx="8" fill="var(--brand)" />
+      <path d="M9 13.5c5.2-1.9 10.6-1.9 16 0" stroke="var(--on-brand)" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+      <path d="M25 20.5c-5.2 1.9-10.6 1.9-16 0" stroke="var(--on-brand)" strokeOpacity=".65" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+      <rect x="15.8" y="7.5" width="2.4" height="19" rx="1.2" fill="var(--on-brand)" />
+    </svg>
+  );
+}
+
+export function LogoWordmark({ className }: { className?: string }) {
+  return (
+    <span
+      className={cn(
+        "text-[20px] font-semibold leading-none tracking-[-0.3px] text-text-primary",
+        className,
+      )}
+    >
+      GoDND
     </span>
   );
 }
 
-function BrandGlyph() {
+export function Logo({ className }: { className?: string }) {
   return (
-    <span
-      aria-hidden
-      className="flex size-[23.425px] shrink-0 items-center justify-center rounded-full bg-brand"
-    >
-      <svg viewBox="0 0 24 24" className="size-[16px]" fill="none">
-        <path
-          d="M4 9.2c3.4-1.1 6.9-1.1 10.3 0"
-          stroke="#FFFFFF"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-        <path
-          d="M19.4 14.8c-3.4 1.1-6.9 1.1-10.3 0"
-          stroke="var(--color-brand-soft)"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-        <rect x="11.2" y="4.6" width="1.6" height="14.8" rx="0.8" fill="#071D18" />
-      </svg>
+    <span className={cn("inline-flex items-center gap-[10px]", className)}>
+      <LogoIcon size={26} />
+      <LogoWordmark className="text-[17px]" />
     </span>
   );
 }

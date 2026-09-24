@@ -5,7 +5,8 @@ import { Info } from "lucide-react";
 
 import { StepShell } from "@/components/experiences/wizard/step-shell";
 import { useStepForm } from "@/components/experiences/wizard/use-step-form";
-import { Field, RadioGroup, Select, TextInput } from "@/components/ui/field";
+import { AffixInput, Field, RadioGroup, Select } from "@/components/ui/field";
+import { Notice } from "@/components/ui/notice";
 import {
   pricingSchema,
   type PricingValues,
@@ -69,27 +70,27 @@ export function StepPricing() {
         />
       }
     >
-      <h3 className="text-body font-medium text-neutral-1">Set a Base Price</h3>
+      <h3 className="form-section-title">Set a base price</h3>
 
-      <Field label="Base price" required error={errors.basePrice?.message}>
+      <Field
+        label="Base price"
+        required
+        error={errors.basePrice?.message}
+        className="max-w-[320px]"
+      >
         {({ id, describedBy, invalid }) => (
-          <div className="flex items-baseline gap-[10px]">
-            <span aria-hidden className="text-display-sm font-medium text-neutral-1">
-              ₹
-            </span>
-            <TextInput
-              id={id}
-              describedBy={describedBy}
-              invalid={invalid}
-              type="number"
-              min={0}
-              step={100}
-              inputMode="numeric"
-              className="max-w-[180px] border-0 border-b border-neutral-4 px-0 text-display-sm font-medium"
-              {...register("basePrice")}
-            />
-            <span className="text-small text-neutral-2">per guest</span>
-          </div>
+          <AffixInput
+            id={id}
+            describedBy={describedBy}
+            invalid={invalid}
+            prefix="₹"
+            suffix="per guest"
+            type="number"
+            min={0}
+            step={100}
+            inputMode="numeric"
+            {...register("basePrice")}
+          />
         )}
       </Field>
 
@@ -115,7 +116,7 @@ export function StepPricing() {
         )}
       </Field>
 
-      <p className="text-small text-neutral-2">
+      <p className="field-hint">
         Please set individual pricing for each number of guests.
       </p>
 
@@ -153,31 +154,27 @@ export function StepPricing() {
                 }
               >
                 {({ id, describedBy, invalid }) => (
-                  <div className="flex items-center gap-[8px]">
-                    <span aria-hidden className="text-small text-neutral-2">
-                      ₹
-                    </span>
-                    <TextInput
-                      id={id}
-                      describedBy={describedBy}
-                      invalid={invalid}
-                      type="number"
-                      min={0}
-                      step={100}
-                      inputMode="numeric"
-                      {...register(`tiers.${key}` as const)}
-                    />
-                  </div>
+                  <AffixInput
+                    id={id}
+                    describedBy={describedBy}
+                    invalid={invalid}
+                    prefix="₹"
+                    suffix="total"
+                    type="number"
+                    min={0}
+                    step={100}
+                    inputMode="numeric"
+                    {...register(`tiers.${key}` as const)}
+                  />
                 )}
               </Field>
             );
           })}
         </div>
       ) : (
-        <p className="border border-line-soft bg-surface-sunken px-[12px] py-[10px] text-small text-ink-muted">
-          Guests pay {formatMoney(basePrice * 100)} each. A group of {maxGuests}{" "}
-          pays {formatMoney(basePrice * maxGuests * 100)} before tax.
-        </p>
+        <Notice status="info" title={`${formatMoney(basePrice * 100)} per guest`}>
+          A group of {maxGuests} pays {formatMoney(basePrice * maxGuests * 100)} before tax.
+        </Notice>
       )}
     </StepShell>
   );
@@ -223,10 +220,10 @@ function PricePreview({
 }) {
   return (
     <div>
-      <h3 className="text-body font-medium text-neutral-1">
+      <h3 className="form-section-title">
         Price Preview for Your Guests
       </h3>
-      <p className="mt-[2px] text-small text-brand">Including fees and taxes</p>
+      <p className="m-0 mt-[2px] text-[11px] text-text-muted">What a guest pays, including taxes</p>
 
       <Field label="Select No. of Guests" required className="mt-[16px]">
         {({ id }) => (
@@ -246,20 +243,20 @@ function PricePreview({
         )}
       </Field>
 
-      <p className="mt-[20px] text-body text-neutral-2 line-through">
+      <p className="m-0 mt-[18px] text-[12px] text-text-muted line-through">
         {formatMoney(strikethrough * 100)}
       </p>
-      <p className="text-display-sm font-medium text-neutral-1">
+      <p className="m-0 mt-[4px] text-[30px] font-semibold leading-none text-text-primary">
         {formatMoney(payable * 100)}
       </p>
       {guests > 1 ? (
-        <p className="mt-[2px] text-small text-neutral-2">
+        <p className="field-hint m-0 mt-[6px]">
           {formatMoney((payable / guests) * 100)} per person
         </p>
       ) : null}
 
-      <details open className="mt-[16px]">
-        <summary className="cursor-pointer text-small font-medium text-neutral-1">
+      <details open className="mt-[16px] border-t border-border-subtle pt-[12px]">
+        <summary className="cursor-pointer text-[10.5px] font-semibold uppercase tracking-[.5px] text-text-muted">
           See breakup
         </summary>
         <dl className="mt-[12px] space-y-[10px]">
@@ -269,9 +266,9 @@ function PricePreview({
             label={
               <span className="flex flex-col">
                 Coupon Discount
-                <span className="mt-[4px] flex items-center gap-[6px] text-small text-neutral-2">
+                <span className="mt-[4px] flex items-center gap-[6px] field-hint">
                   {SAMPLE_COUPON.percentOff}% Off
-                  <span className="bg-[#7C3AED] px-[6px] py-[2px] text-[11px] font-medium text-white">
+                  <span className="token-chip">
                     {SAMPLE_COUPON.code}
                   </span>
                   <Info aria-hidden className="size-[12px]" />
@@ -295,8 +292,8 @@ function Line({
 }) {
   return (
     <div className="flex items-start justify-between gap-[16px]">
-      <dt className="text-small text-neutral-1">{label}</dt>
-      <dd className="shrink-0 text-small font-medium text-neutral-1">{value}</dd>
+      <dt className="text-[12px] text-text-secondary">{label}</dt>
+      <dd className="m-0 shrink-0 text-[12px] font-medium text-text-primary">{value}</dd>
     </div>
   );
 }

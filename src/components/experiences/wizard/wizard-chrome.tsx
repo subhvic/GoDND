@@ -4,13 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import {
+  ArrowLeft,
   ArrowRight,
   Calendar,
   CheckCircle2,
-  ExternalLink,
-  FileText,
-  Image as ImageIcon,
   IndianRupee,
+  Image as ImageIcon,
   Info,
   MapPin,
   Save,
@@ -20,7 +19,8 @@ import {
 } from "lucide-react";
 
 import { useWizard } from "@/components/experiences/wizard/wizard-provider";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClass } from "@/components/ui/button";
+import { PageBar } from "@/components/ui/page-bar";
 import {
   adjacentSteps,
   stepIndex,
@@ -40,13 +40,13 @@ const STEP_ICONS: Record<WizardStepSlug, LucideIcon> = {
 };
 
 /**
- * The wizard's left rail.
+ * The step list, as the reference's secondary rail inside the surface card
+ * (source: .svc-sidebar).
  *
- * Steps ahead of the furthest one reached are disabled. The file shows no such
- * rule, but the later steps depend on earlier answers — pricing tiers are keyed
- * off max group size, the itinerary is keyed off duration — so jumping to step
- * 5 from a blank step 1 would render a form with nothing to hang on.
- * Completed steps stay freely navigable.
+ * Steps beyond the furthest one reached are disabled: later steps depend on
+ * earlier answers — pricing tiers key off group size, the itinerary off the
+ * duration — so jumping ahead to a blank step would render a form with
+ * nothing to hang on. Completed steps stay freely navigable.
  */
 export function WizardRail({ current }: { current: WizardStepSlug }) {
   const { completed } = useWizard();
@@ -58,59 +58,37 @@ export function WizardRail({ current }: { current: WizardStepSlug }) {
   const reachable = Math.max(currentIndex, furthestComplete + 1);
 
   return (
-    <nav
-      aria-label="Experience setup steps"
-      className="shrink-0 border-b border-neutral-5 lg:w-[240px] lg:border-b-0 lg:border-r"
-    >
-      <ol className="flex gap-[4px] overflow-x-auto p-[12px] lg:flex-col lg:gap-[2px] lg:p-[16px]">
+    <nav aria-label="Experience setup steps" className="rail hidden md:block">
+      <div className="rail-label">New experience</div>
+      <ol className="m-0 list-none p-0">
         {WIZARD_STEPS.map((step, index) => {
           const Icon = STEP_ICONS[step.slug];
           const isCurrent = step.slug === current;
           const isDone = Boolean(completed[step.slug]);
-          const isReachable = index <= reachable;
-
           const content = (
             <>
-              <Icon aria-hidden className="size-[16px] shrink-0" />
-              <span className="flex-1 truncate text-left">{step.label}</span>
+              <Icon aria-hidden />
+              <span className="rail-name">{step.label}</span>
               {isDone ? (
-                <CheckCircle2
-                  aria-hidden
-                  className={cn(
-                    "size-[16px] shrink-0",
-                    isCurrent ? "text-accent" : "text-brand",
-                  )}
-                />
-              ) : isCurrent ? (
-                <ArrowRight aria-hidden className="size-[16px] shrink-0" />
-              ) : null}
+                <CheckCircle2 aria-label="Complete" className="rail-check" />
+              ) : (
+                <span className="rail-count" aria-hidden>{index + 1}</span>
+              )}
             </>
           );
 
-          const shared =
-            "flex w-full items-center gap-[10px] whitespace-nowrap px-[14px] py-[12px] text-small transition-colors lg:whitespace-normal";
-
           return (
-            <li key={step.slug} className="shrink-0 lg:shrink">
-              {isReachable ? (
+            <li key={step.slug}>
+              {index <= reachable ? (
                 <Link
                   href={`/dashboard/experiences/new/${step.slug}`}
                   aria-current={isCurrent ? "step" : undefined}
-                  className={cn(
-                    shared,
-                    isCurrent
-                      ? "bg-ink font-medium text-white"
-                      : "text-ink-muted hover:bg-surface-sunken",
-                  )}
+                  className={cn("rail-item", isCurrent && "active")}
                 >
                   {content}
                 </Link>
               ) : (
-                <span
-                  aria-disabled
-                  title="Finish the earlier steps first"
-                  className={cn(shared, "cursor-not-allowed text-neutral-3")}
-                >
+                <span className="rail-item disabled" aria-disabled="true" title="Finish the earlier steps first">
                   {content}
                 </span>
               )}
@@ -122,100 +100,53 @@ export function WizardRail({ current }: { current: WizardStepSlug }) {
   );
 }
 
-/** The seven progress bars above the form, filled up to the current step. */
-export function WizardProgress({ current }: { current: WizardStepSlug }) {
-  const currentIndex = stepIndex(current);
-  const { completed } = useWizard();
-
-  return (
-    <div
-      className="flex gap-[4px] px-[16px] pt-[16px] lg:px-[24px]"
-      role="progressbar"
-      aria-valuemin={1}
-      aria-valuemax={WIZARD_STEPS.length}
-      aria-valuenow={currentIndex + 1}
-      aria-valuetext={`Step ${currentIndex + 1} of ${WIZARD_STEPS.length}`}
-    >
-      {WIZARD_STEPS.map((step, index) => (
-        <span
-          key={step.slug}
-          className={cn(
-            "h-[3px] flex-1",
-            index < currentIndex || completed[step.slug]
-              ? "bg-brand"
-              : index === currentIndex
-                ? "bg-accent"
-                : "bg-neutral-5",
-          )}
-        />
-      ))}
-    </div>
-  );
-}
-
 /**
- * Header bar. "Save as Draft" is present on every step, per the file; the
- * "Preview" action appears only on the final step, as drawn.
+ * Page bar for the wizard. Save as draft is present on every step, as in the
+ * handoff file, with the save state beside it so a failure is never silent.
  */
-export function WizardHeader({ current }: { current: WizardStepSlug }) {
+export function WizardPageBar({ current }: { current: WizardStepSlug }) {
   const { saving, lastSavedAt, saveError } = useWizard();
-  const isFinalStep = current === "media";
 
   return (
-    <div className="flex items-center justify-between gap-[16px] border-b border-neutral-5 px-[16px] py-[12px] lg:px-[32px]">
-      <h1 className="flex items-center gap-[7px] text-h3 font-semibold text-neutral-1">
-        <FileText aria-hidden className="size-[24px]" />
-        Add New Experience
-      </h1>
-
-      <div className="flex items-center gap-[16px]">
-        <p
-          aria-live="polite"
-          className={cn(
-            "hidden text-small sm:block",
-            saveError ? "text-[#d92d20]" : "text-neutral-2",
-          )}
-        >
-          {saveError
-            ? saveError
-            : saving
-              ? "Saving…"
-              : lastSavedAt
-                ? `Saved ${lastSavedAt.toLocaleTimeString("en-IN", {
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })}`
-                : ""}
-        </p>
-        <SaveDraftButton />
-        {isFinalStep ? (
-          <button
-            type="button"
-            className="flex items-center gap-[6px] text-small font-medium text-neutral-1 hover:text-brand"
+    <PageBar
+      crumbs={[
+        { label: "GoDND", href: "/dashboard" },
+        { label: "Experiences", href: "/dashboard/experiences" },
+        { label: "New experience" },
+      ]}
+      actions={
+        <>
+          <p
+            aria-live="polite"
+            className={cn(
+              "m-0 hidden text-[11.5px] sm:block",
+              saveError ? "text-critical-fg" : "text-text-muted",
+            )}
           >
-            Preview
-            <ExternalLink aria-hidden className="size-[16px]" />
-          </button>
-        ) : null}
-      </div>
-    </div>
+            {saveError
+              ? saveError
+              : saving
+                ? "Saving…"
+                : lastSavedAt
+                  ? `Saved ${lastSavedAt.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}`
+                  : "Autosaved on this device"}
+          </p>
+          <SaveDraftButton />
+          <span className="sr-only">
+            Step {stepIndex(current) + 1} of {WIZARD_STEPS.length}
+          </span>
+        </>
+      }
+    />
   );
 }
 
 function SaveDraftButton() {
-  const {
-    draft,
-    experienceId,
-    setSaving,
-    markSaved,
-    markSaveFailed,
-    saving,
-  } = useWizard();
+  const { draft, experienceId, setSaving, markSaved, markSaveFailed, saving } = useWizard();
   const [pending, startTransition] = useTransition();
 
   return (
-    <button
-      type="button"
+    <Button
       disabled={saving || pending}
       onClick={() => {
         setSaving(true);
@@ -230,17 +161,16 @@ function SaveDraftButton() {
           else markSaveFailed(result.message);
         });
       }}
-      className="flex items-center gap-[6px] text-small font-medium text-neutral-1 hover:text-brand disabled:opacity-60"
     >
-      Save as Draft
-      <Save aria-hidden className="size-[16px]" />
-    </button>
+      <Save aria-hidden />
+      Save as draft
+    </Button>
   );
 }
 
 /**
- * Footer navigation. "Next Step" submits the current step's form by id, so
- * validation runs before navigation and the button can live outside the form.
+ * Footer navigation, pinned to the bottom of the card. "Next" submits the
+ * current step's form by id, so validation runs before navigation.
  */
 export function WizardFooter({
   current,
@@ -253,24 +183,29 @@ export function WizardFooter({
 }) {
   const { previous, next } = adjacentSteps(current);
   const router = useRouter();
+  const index = stepIndex(current);
 
   return (
-    <div className="sticky bottom-0 z-10 flex items-center justify-end gap-[12px] border-t border-neutral-5 bg-white px-[16px] py-[14px] lg:px-[32px]">
-      {previous ? (
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() =>
-            router.push(`/dashboard/experiences/new/${previous.slug}`)
-          }
-        >
-          ← Previous Step
+    <div className="sticky bottom-0 z-10 mx-[-16px] mt-auto flex items-center justify-between gap-[12px] border-t border-border-subtle bg-card px-[16px] py-[12px]">
+      <span className="text-[11.5px] text-text-muted">
+        Step {index + 1} of {WIZARD_STEPS.length}
+      </span>
+      <div className="flex items-center gap-[8px]">
+        {previous ? (
+          <Button onClick={() => router.push(`/dashboard/experiences/new/${previous.slug}`)}>
+            <ArrowLeft aria-hidden />
+            Previous
+          </Button>
+        ) : (
+          <Link href="/dashboard/experiences" className={buttonClass()}>
+            Cancel
+          </Link>
+        )}
+        <Button type="submit" form={formId} variant="primary" disabled={submitting}>
+          {next ? "Next step" : "Send for approval"}
+          <ArrowRight aria-hidden />
         </Button>
-      ) : null}
-
-      <Button type="submit" form={formId} disabled={submitting}>
-        {next ? "Next Step →" : "Send for Approval →"}
-      </Button>
+      </div>
     </div>
   );
 }

@@ -86,7 +86,7 @@ export function StepItinerary() {
 
       <div className="flex flex-col gap-[20px] lg:flex-row">
         <nav aria-label="Itinerary days" className="lg:w-[120px] lg:shrink-0">
-          <ol className="flex gap-[6px] overflow-x-auto lg:flex-col">
+          <ol className="pill-tabs m-0 w-full list-none lg:flex-col lg:items-stretch">
             {days.map((day) => {
               const isActive = day.dayNumber === activeDay;
               const filled = day.activities.length > 0;
@@ -97,10 +97,8 @@ export function StepItinerary() {
                     onClick={() => setActiveDay(day.dayNumber)}
                     aria-current={isActive ? "true" : undefined}
                     className={cn(
-                      "flex w-full items-center justify-between gap-[8px] border px-[14px] py-[10px] text-small transition-colors",
-                      isActive
-                        ? "border-ink bg-ink font-medium text-white"
-                        : "border-neutral-4 bg-white text-neutral-1 hover:bg-surface-sunken",
+                      "pill-tab flex w-full items-center justify-between gap-[8px]",
+                      isActive && "active",
                     )}
                   >
                     Day {day.dayNumber}
@@ -120,11 +118,11 @@ export function StepItinerary() {
         <div className="flex min-w-0 flex-1 flex-col gap-[16px]">
           <section
             aria-labelledby={`pickup-day-${current.dayNumber}`}
-            className="border border-brand-soft bg-brand-surface p-[16px]"
+            className="rounded-md border border-border-subtle bg-panel p-[14px]"
           >
             <h3
               id={`pickup-day-${current.dayNumber}`}
-              className="flex items-center gap-[6px] text-small font-medium text-ink"
+              className="m-0 flex items-center gap-[6px] text-[12.5px] font-semibold text-text-primary"
             >
               <MapPin aria-hidden className="size-[14px]" />
               Pick-up
@@ -140,7 +138,7 @@ export function StepItinerary() {
             />
 
             {current.pickupIncluded ? (
-              <div className="mt-[14px] grid gap-[14px] bg-white p-[14px] md:grid-cols-3">
+              <div className="mt-[14px] grid gap-[14px] md:grid-cols-3">
                 <Field label="Location (Pin on Map)" required>
                   {({ id }) => (
                     <TextInput
@@ -199,9 +197,9 @@ export function StepItinerary() {
             <section
               key={activity.id}
               aria-label={`Activity ${index + 1} on day ${current.dayNumber}`}
-              className="border border-neutral-4 p-[16px]"
+              className="rounded-md border border-border-panel p-[14px]"
             >
-              <div className="flex items-start justify-between gap-[12px] border-b border-neutral-5 pb-[12px]">
+              <div className="flex items-start justify-between gap-[12px] border-b border-border-subtle pb-[12px]">
                 <TextInput
                   aria-label="Activity name"
                   value={activity.title}
@@ -211,7 +209,7 @@ export function StepItinerary() {
                       title: event.target.value,
                     })
                   }
-                  className="border-0 px-0 text-body font-medium focus:border-0"
+                  className="border-transparent bg-transparent px-[6px] text-[13px] font-medium focus:bg-panel"
                 />
                 <button
                   type="button"
@@ -223,9 +221,9 @@ export function StepItinerary() {
                       ),
                     })
                   }
-                  className="shrink-0 p-[6px] text-neutral-2 hover:text-[#d92d20]"
+                  className="record-drawer-close hover:text-critical-fg"
                 >
-                  <Trash2 aria-hidden className="size-[16px]" />
+                  <Trash2 aria-hidden />
                 </button>
               </div>
 
@@ -289,21 +287,21 @@ export function StepItinerary() {
                 </Field>
 
                 <div>
-                  <p className="mb-[6px] text-small font-medium text-neutral-1">
+                  <p className="field-label mb-[6px]">
                     Add Images
-                    <span aria-hidden className="ml-[2px] text-[#d92d20]">
+                    <span aria-hidden className="req">
                       *
                     </span>
                   </p>
                   <div className="flex items-center gap-[12px]">
                     <button
                       type="button"
-                      className="flex items-center gap-[6px] text-small font-medium text-brand underline underline-offset-2"
+                      className="hbtn small"
                     >
-                      <ImagePlus aria-hidden className="size-[16px]" />
+                      <ImagePlus aria-hidden />
                       Upload
                     </button>
-                    <span className="text-small text-neutral-2">
+                    <span className="field-hint">
                       ({activity.imageCount} images)
                     </span>
                   </div>
@@ -347,10 +345,10 @@ export function StepItinerary() {
                 ],
               })
             }
-            className="flex items-center gap-[6px] self-start text-small font-medium text-brand hover:underline"
+            className="hbtn brand-lit self-start"
           >
-            <Plus aria-hidden className="size-[16px]" />
-            Add Activity
+            <Plus aria-hidden />
+            Add activity
           </button>
         </div>
       </div>

@@ -56,10 +56,10 @@ export function StepPolicies() {
       onSubmit={handleSubmit}
     >
       <section aria-labelledby="inclusions">
-        <h3 id="inclusions" className="text-body font-medium text-neutral-1">
+        <h3 id="inclusions" className="form-section-title">
           Things Included and Not Included in the experience
         </h3>
-        <p className="mt-[4px] text-small text-neutral-2">
+        <p className="mt-[4px] field-hint">
           {Math.max(
             14 - watch("inclusions").length - watch("exclusions").length,
             0,
@@ -100,7 +100,7 @@ export function StepPolicies() {
       </section>
 
       <section aria-labelledby="departure">
-        <h3 id="departure" className="mb-[12px] text-body font-medium text-neutral-1">
+        <h3 id="departure" className="mb-[12px] form-section-title">
           Departure and Return
         </h3>
         <Field
@@ -139,7 +139,7 @@ export function StepPolicies() {
       <section aria-labelledby="cancellation">
         <h3
           id="cancellation"
-          className="mb-[12px] text-body font-medium text-neutral-1"
+          className="mb-[12px] form-section-title"
         >
           Cancellation Policy
         </h3>
@@ -163,14 +163,14 @@ export function StepPolicies() {
           }
         />
         {errors.acceptCancellationPolicy ? (
-          <p role="alert" className="mt-[6px] text-small text-[#d92d20]">
+          <p role="alert" className="mt-[6px] field-error">
             {errors.acceptCancellationPolicy.message}
           </p>
         ) : null}
       </section>
 
       <section aria-labelledby="help-policy">
-        <h3 id="help-policy" className="mb-[12px] text-body font-medium text-neutral-1">
+        <h3 id="help-policy" className="mb-[12px] form-section-title">
           Help &amp; Policy
         </h3>
         <Checkbox
@@ -191,7 +191,7 @@ export function StepPolicies() {
           }
         />
         {errors.acceptSupportStandards ? (
-          <p role="alert" className="mt-[6px] text-small text-[#d92d20]">
+          <p role="alert" className="mt-[6px] field-error">
             {errors.acceptSupportStandards.message}
           </p>
         ) : null}
@@ -225,7 +225,7 @@ function PolicyLink({
       className="text-brand underline underline-offset-2"
     >
       {children}
-      <span className="sr-only-focusable"> (opens in a new tab)</span>
+      <span className="sr-only"> (opens in a new tab)</span>
     </a>
   );
 }
@@ -251,7 +251,7 @@ function CheckboxSection({
     <fieldset aria-labelledby={`${id}-legend`}>
       <legend
         id={`${id}-legend`}
-        className="mb-[12px] text-body font-medium text-neutral-1"
+        className="mb-[12px] form-section-title"
       >
         {title}
       </legend>

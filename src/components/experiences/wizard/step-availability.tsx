@@ -47,7 +47,7 @@ export function StepAvailability() {
       <section aria-labelledby="trip-availability">
         <h3
           id="trip-availability"
-          className="mb-[14px] text-body font-medium text-neutral-1"
+          className="form-section-title mb-[14px]"
         >
           Trip Availability Setting
         </h3>
@@ -101,7 +101,7 @@ export function StepAvailability() {
             </option>
           ))}
         </Select>
-        <span className="text-small text-neutral-1">
+        <span className="text-[12.5px] text-text-secondary">
           days once a booking is confirmed at full capacity
         </span>
       </div>
@@ -109,11 +109,11 @@ export function StepAvailability() {
       <section aria-labelledby="mark-holidays" className="mt-[10px]">
         <h3
           id="mark-holidays"
-          className="text-body font-medium text-neutral-1"
+          className="form-section-title"
         >
           Mark Holidays
         </h3>
-        <p className="mt-[6px] text-small text-neutral-2">
+        <p className="field-hint m-0 mt-[6px]">
           ** Availability will be blocked from your available period to avoid
           conflict.
           <br />
@@ -162,7 +162,7 @@ function RangeList({
 
   return (
     <fieldset className={className}>
-      <legend className="mb-[10px] text-small font-medium text-neutral-1">
+      <legend className="field-label mb-[10px] p-0">
         {legend}
       </legend>
 
@@ -170,7 +170,7 @@ function RangeList({
         {ranges.map((range, index) => (
           <div
             key={range.id}
-            className="flex flex-wrap items-end gap-[14px] border border-neutral-4 p-[14px]"
+            className="flex flex-wrap items-end gap-[14px] rounded-md border border-border-subtle bg-panel p-[14px]"
           >
             <Field label="Starting from" required className="min-w-[180px] flex-1">
               {({ id }) => (
@@ -204,9 +204,9 @@ function RangeList({
                 onClick={() =>
                   onChange(ranges.filter((item) => item.id !== range.id))
                 }
-                className="mb-[10px] p-[6px] text-neutral-2 hover:text-[#d92d20]"
+                className="record-drawer-close mb-[6px] hover:text-critical-fg"
               >
-                <Trash2 aria-hidden className="size-[16px]" />
+                <Trash2 aria-hidden />
               </button>
             ) : null}
           </div>
@@ -214,7 +214,7 @@ function RangeList({
       </div>
 
       {error ? (
-        <p role="alert" className="mt-[8px] text-small text-[#d92d20]">
+        <p role="alert" className="field-error mt-[8px]">
           {error}
         </p>
       ) : null}
@@ -227,9 +227,9 @@ function RangeList({
             { id: `${idPrefix}-${Date.now()}`, from: "", to: "" },
           ])
         }
-        className="mt-[12px] flex items-center gap-[6px] text-small font-medium text-brand hover:underline"
+        className="hbtn brand-lit mt-[12px]"
       >
-        <Plus aria-hidden className="size-[16px]" />
+        <Plus aria-hidden />
         {addLabel}
       </button>
     </fieldset>
@@ -261,10 +261,10 @@ function AvailabilityPreview({
 
   return (
     <div>
-      <h3 className="text-body font-medium text-neutral-1">
+      <h3 className="form-section-title">
         Availability Preview for Your Guests
       </h3>
-      <p className="mt-[2px] text-small text-brand">
+      <p className="m-0 mt-[2px] text-[11px] text-text-muted">
         {firstDate
           ? `effective from ${new Date(firstDate).toLocaleDateString("en-IN", {
               day: "numeric",
@@ -286,13 +286,13 @@ function AvailabilityPreview({
         ))}
       </div>
 
-      <ul className="mt-[18px] space-y-[6px] text-small text-neutral-2">
+      <ul className="mt-[18px] space-y-[6px] field-hint">
         <li className="flex items-center gap-[8px]">
-          <span className="size-[12px] bg-brand" aria-hidden />
+          <span className="size-[10px] rounded-[2px] bg-brand" aria-hidden />
           Available
         </li>
         <li className="flex items-center gap-[8px]">
-          <span className="size-[12px] bg-neutral-4 line-through" aria-hidden />
+          <span className="size-[10px] rounded-[2px] bg-border-strong" aria-hidden />
           Holiday / blocked
         </li>
       </ul>
@@ -321,15 +321,15 @@ function MonthGrid({
 
   return (
     <section aria-label={label}>
-      <h4 className="mb-[8px] text-small font-medium text-neutral-1">
+      <h4 className="m-0 mb-[8px] text-[10.5px] font-semibold uppercase tracking-[.5px] text-text-muted">
         {label.split(" ")[0]}
       </h4>
       <div
         role="grid"
-        className="grid grid-cols-7 gap-y-[6px] text-center text-small"
+        className="grid grid-cols-7 gap-y-[6px] text-center text-[12px]"
       >
         {["m", "t", "w", "t", "f", "s", "s"].map((day, index) => (
-          <span key={index} aria-hidden className="text-neutral-3">
+          <span key={index} aria-hidden className="text-text-muted">
             {day}
           </span>
         ))}
@@ -346,10 +346,10 @@ function MonthGrid({
             <span
               key={day}
               className={cn(
-                "mx-auto flex size-[24px] items-center justify-center",
-                isAvailable && "bg-brand font-medium text-white",
-                isHoliday && "text-neutral-3 line-through",
-                !isAvailable && !isHoliday && "text-neutral-2",
+                "mx-auto flex size-[24px] items-center justify-center rounded-[4px]",
+                isAvailable && "bg-brand-solid font-medium text-on-brand",
+                isHoliday && "text-text-muted line-through",
+                !isAvailable && !isHoliday && "text-text-muted",
               )}
             >
               {pad(day)}
