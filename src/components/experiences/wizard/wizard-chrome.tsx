@@ -202,7 +202,7 @@ export function WizardFooter({
           </Link>
         )}
         <Button type="submit" form={formId} variant="primary" disabled={submitting}>
-          {next ? "Next step" : "Send for approval"}
+          {next ? "Next step" : "Review & send"}
           <ArrowRight aria-hidden />
         </Button>
       </div>

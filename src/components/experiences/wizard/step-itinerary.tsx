@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Controller } from "react-hook-form";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Controller, type FieldErrors } from "react-hook-form";
 import { ImagePlus, MapPin, Plus, Trash2 } from "lucide-react";
 
 import { StepShell } from "@/components/experiences/wizard/step-shell";
@@ -32,11 +32,71 @@ const FORM_ID = "step-itinerary";
  * listing. Changing the duration on step 1 adds or removes days here, keeping
  * whatever was already filled in on the days that survive.
  */
+
+/**
+ * Walk the react-hook-form errors tree for the itinerary and return a flat
+ * list of user-facing problems, each anchored to a specific day (and, where
+ * applicable, a specific activity).
+ *
+ * The default error summary from useStepForm just counts top-level error
+ * keys, which for a nested array shape like days[i].activities[j].title
+ * reads as "1 field needs attention" — with no way to see which day.
+ * Operators would then land on step 2 unable to advance and unable to see
+ * what was blocking them. This walker lets us name the exact spot.
+ */
+type ItineraryProblem = {
+  dayNumber: number;
+  activityIndex?: number;
+  field: string;
+  message: string;
+};
+
+function collectItineraryProblems(
+  errors: FieldErrors<ItineraryValues>,
+): ItineraryProblem[] {
+  const daysErrors = errors.days;
+  if (!daysErrors || !Array.isArray(daysErrors)) return [];
+
+  const problems: ItineraryProblem[] = [];
+  daysErrors.forEach((dayError, dayIdx) => {
+    if (!dayError || typeof dayError !== "object") return;
+    const dayNumber = dayIdx + 1;
+
+    for (const [field, fieldError] of Object.entries(dayError)) {
+      if (field === "activities" && Array.isArray(fieldError)) {
+        fieldError.forEach((activityError, actIdx) => {
+          if (!activityError || typeof activityError !== "object") return;
+          for (const [actField, actFieldError] of Object.entries(
+            activityError,
+          )) {
+            const message = (actFieldError as { message?: string })?.message;
+            if (message) {
+              problems.push({
+                dayNumber,
+                activityIndex: actIdx,
+                field: actField,
+                message,
+              });
+            }
+          }
+        });
+      } else {
+        const message = (fieldError as { message?: string })?.message;
+        if (message) {
+          problems.push({ dayNumber, field, message });
+        }
+      }
+    }
+  });
+
+  return problems;
+}
+
 export function StepItinerary() {
   const { draft } = useWizard();
   const dayCount = draft.basicInfo.durationDays || 1;
 
-  const { form, handleSubmit, errorSummary } = useStepForm<
+  const { form, handleSubmit } = useStepForm<
     "itinerary",
     ItineraryValues
   >({
@@ -45,10 +105,60 @@ export function StepItinerary() {
     schema: itinerarySchema,
   });
 
-  const { control, watch, setValue } = form;
+  const { control, watch, setValue, formState } = form;
   const days = normaliseDays(watch("days"), dayCount);
   const [activeDay, setActiveDay] = useState(1);
   const current = days.find((day) => day.dayNumber === activeDay) ?? days[0];
+
+  // Errors that survived validation: which days they touch, and a specific,
+  // user-facing summary that names the first one.
+  const problems = useMemo(
+    () => collectItineraryProblems(formState.errors),
+    [formState.errors],
+  );
+  const problemDays = useMemo(
+    () => new Set(problems.map((problem) => problem.dayNumber)),
+    [problems],
+  );
+
+  const errorSummary = useMemo(() => {
+    if (!formState.isSubmitted || problems.length === 0) return "";
+    const first = problems[0];
+    const where =
+      first.activityIndex != null
+        ? `Day ${first.dayNumber}, activity ${first.activityIndex + 1}`
+        : `Day ${first.dayNumber}`;
+    if (problems.length === 1) return `${where}: ${first.message}.`;
+    return `${problems.length} problems in this itinerary. First: ${where} — ${first.message}.`;
+  }, [formState.isSubmitted, problems]);
+
+  // On a failed submit, jump to the first day that has a problem — operators
+  // otherwise stay on whatever day they were editing and cannot see the field
+  // the schema is complaining about.
+  //
+  // Wired through form.subscribe so setActiveDay is called from an event
+  // callback (a submit-count change), never from a render-derived effect
+  // body. The lastSubmitCount ref suppresses re-jumps while the operator is
+  // still fixing the errors, since submitCount only ticks on a new submit.
+  const subscribe = form.subscribe;
+  const lastSubmitCount = useRef(0);
+  useEffect(() => {
+    const unsubscribe = subscribe({
+      formState: { submitCount: true, errors: true },
+      callback: ({ submitCount, errors }) => {
+        // RHF's subscribe types both keys as optional; fall back to safe
+        // no-ops if either arrives undefined.
+        const count = submitCount ?? 0;
+        if (count === lastSubmitCount.current) return;
+        lastSubmitCount.current = count;
+        if (!errors) return;
+        const found = collectItineraryProblems(errors);
+        if (found.length === 0) return;
+        setActiveDay(found[0].dayNumber);
+      },
+    });
+    return unsubscribe;
+  }, [subscribe]);
 
   const updateDay = (dayNumber: number, patch: Partial<DayValues>) => {
     setValue(
@@ -90,6 +200,7 @@ export function StepItinerary() {
             {days.map((day) => {
               const isActive = day.dayNumber === activeDay;
               const filled = day.activities.length > 0;
+              const hasProblem = problemDays.has(day.dayNumber);
               return (
                 <li key={day.dayNumber} className="shrink-0 lg:shrink">
                   <button
@@ -102,7 +213,15 @@ export function StepItinerary() {
                     )}
                   >
                     Day {day.dayNumber}
-                    {filled && !isActive ? (
+                    {hasProblem ? (
+                      // Trumps the has-activities dot: a red mark on the day
+                      // rail is the operator's only signal that the schema is
+                      // failing here rather than on the day they can see.
+                      <span
+                        aria-label="needs attention"
+                        className="size-[6px] rounded-full bg-critical"
+                      />
+                    ) : filled && !isActive ? (
                       <span
                         aria-label="has activities"
                         className="size-[6px] rounded-full bg-brand"

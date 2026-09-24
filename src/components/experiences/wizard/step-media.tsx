@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { BadgeCheck, Sparkles, Star, Upload } from "lucide-react";
 
 import { StepShell } from "@/components/experiences/wizard/step-shell";
@@ -19,66 +18,20 @@ const FORM_ID = "step-media";
 
 /** Step 7 of 7 — Media & Overview, ending in "Send for Approval". */
 export function StepMedia() {
-  const { draft, experienceId, reset, markSaveFailed } = useWizard();
+  const { draft } = useWizard();
   const router = useRouter();
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const { form, handleSubmit, errorSummary } = useStepForm<"media", MediaValues>({
     sectionKey: "media",
     slug: "media",
     schema: mediaSchema,
-    onComplete: async (values) => {
-      setSubmitting(true);
-      setError(null);
-
-      const { submitExperienceForApproval } = await import(
-        "@/app/dashboard/experiences/new/actions"
-      );
-      // The section's own values are passed explicitly: the store write from
-      // this submit has not been read back yet, so `draft.media` may still hold
-      // the previous summary.
-      const result = await submitExperienceForApproval(
-        { ...draft, media: values },
-        experienceId,
-      );
-
-      if (!result.ok) {
-        // Keep the draft and stay put. Clearing it here would destroy seven
-        // steps of work over a transient network failure.
-        setSubmitting(false);
-        setError(result.message);
-        markSaveFailed(result.message);
-        return;
-      }
-
-      // Flash the submitted title into sessionStorage so the confirmation
-      // screen can name it. Written BEFORE reset() clears the draft, and
-      // read-and-forgotten on that screen so a refresh does not resurface it.
-      try {
-        const { SUBMISSION_FLASH_KEY } = await import(
-          "@/components/experiences/wizard/submitted-screen"
-        );
-        window.sessionStorage.setItem(
-          SUBMISSION_FLASH_KEY,
-          JSON.stringify({
-            title: draft.basicInfo.title,
-            // The RPC returns the internal id, not the public reference
-            // (which comes off the row itself). Persisted for now; the flash
-            // reads it into a short ID chip on the confirmation screen.
-            ref: result.experienceId,
-            submittedAt: Date.now(),
-          }),
-        );
-      } catch {
-        // A storage failure just means the confirmation screen falls back to
-        // its neutral copy — never a reason to lose the submission.
-      }
-      reset();
-      // Seven steps deserve a proper acknowledgment before dropping into the
-      // list. The confirmation screen owns the SLA and the "what's next" copy,
-      // and its primary CTA lands on Under Review from there.
-      router.push("/dashboard/experiences/new/submitted");
+    // Media is the last data-collection step, but not where the submit
+    // fires: seven steps of work deserve a final look before it goes to a
+    // reviewer, so we route to /review. That page owns the actual
+    // submitExperienceForApproval() call and the flash write for the
+    // confirmation screen.
+    onComplete: () => {
+      router.push("/dashboard/experiences/new/review");
     },
   });
 
@@ -93,18 +46,8 @@ export function StepMedia() {
       formId={FORM_ID}
       errorSummary={errorSummary}
       onSubmit={handleSubmit}
-      submitting={submitting}
       aside={<GuestCardPreview summary={summary} thumbnailId={thumbnailId} />}
     >
-      {error ? (
-        <p
-          role="alert"
-          className="notice critical text-[12.5px] text-critical-fg"
-        >
-          {error}
-        </p>
-      ) : null}
-
       <section aria-labelledby="thumbnail">
         <div className="flex flex-wrap items-baseline justify-between gap-[8px]">
           <h3 id="thumbnail" className="form-section-title">

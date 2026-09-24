@@ -176,15 +176,15 @@ test.describe("media & overview", () => {
     await expect(card).toContainText("living root bridges");
   });
 
-  test("the final action is Send for approval, and it is not covered", async ({
+  test("the final action is Review & send, and it is not covered", async ({
     page,
   }) => {
     // The sticky footer once floated over the form with nothing reserving its
     // height, leaving the last controls unclickable.
     const submit = page.locator("button[type=submit][form=step-media]");
-    // Case-insensitive: the label follows the system's sentence case, and
-    // what matters here is the action, not its capitalisation.
-    await expect(submit).toHaveText(/Send for approval/i);
+    // Step 7's action is now a pre-flight review, not the actual submit —
+    // seven steps of work get one last look before they go to a reviewer.
+    await expect(submit).toHaveText(/Review & send/i);
     await expect(submit).toBeInViewport();
   });
 });
