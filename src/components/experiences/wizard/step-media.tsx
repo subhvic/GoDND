@@ -52,10 +52,33 @@ export function StepMedia() {
         return;
       }
 
+      // Flash the submitted title into sessionStorage so the confirmation
+      // screen can name it. Written BEFORE reset() clears the draft, and
+      // read-and-forgotten on that screen so a refresh does not resurface it.
+      try {
+        const { SUBMISSION_FLASH_KEY } = await import(
+          "@/components/experiences/wizard/submitted-screen"
+        );
+        window.sessionStorage.setItem(
+          SUBMISSION_FLASH_KEY,
+          JSON.stringify({
+            title: draft.basicInfo.title,
+            // The RPC returns the internal id, not the public reference
+            // (which comes off the row itself). Persisted for now; the flash
+            // reads it into a short ID chip on the confirmation screen.
+            ref: result.experienceId,
+            submittedAt: Date.now(),
+          }),
+        );
+      } catch {
+        // A storage failure just means the confirmation screen falls back to
+        // its neutral copy — never a reason to lose the submission.
+      }
       reset();
-      // Lands on Under Review, where the newly submitted experience now sits —
-      // rather than Active, where it would be conspicuously absent.
-      router.push("/dashboard/experiences?tab=under_review");
+      // Seven steps deserve a proper acknowledgment before dropping into the
+      // list. The confirmation screen owns the SLA and the "what's next" copy,
+      // and its primary CTA lands on Under Review from there.
+      router.push("/dashboard/experiences/new/submitted");
     },
   });
 
