@@ -65,6 +65,7 @@
   /* Type primitive — Rubik is loaded by next/font as --font-rubik */
   --font-sans: var(--font-rubik), -apple-system, 'Segoe UI', sans-serif;
   /* Radius primitives */
+  --radius-xs: 4px;
   --radius-1: 6px;
   --radius-2: 9px;
   --radius-3: 10px;
@@ -102,7 +103,7 @@
   --radius-sm: var(--radius-1);
   --radius-md: var(--radius-2);
   --radius-lg: var(--radius-3);
-  --radius-card: var(--radius-4);
+  --radius-card: var(--radius-xs);
   /* Layout */
   --nav-w: 222px;
   --nav-w-collapsed: 66px;

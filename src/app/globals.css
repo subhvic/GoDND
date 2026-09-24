@@ -52,7 +52,7 @@
   --radius-sm: 6px;
   --radius-md: 9px;
   --radius-lg: 10px;
-  --radius-card: 12px;
+  --radius-card: 4px;
 
   /* The type scale, by role (source: tailwind.config.js fontSize) */
   --text-kpi-value: 30px;
