@@ -1403,7 +1403,6 @@ function Navigation() {
       </Spec>
       <Spec title="Step rail" note=".rail-item · the wizard's secondary navigation">
         <div className="ds-nav-frame w-[260px] px-0">
-          <div className="rail-label">New experience</div>
           <span className="rail-item">
             <Info aria-hidden />
             <span className="rail-name">Basic Info</span>
