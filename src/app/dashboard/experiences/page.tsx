@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Archive, EyeOff, FileText, Globe, Eye, Plus, type LucideIcon } from "lucide-react";
+import { Archive, EyeOff, FileText, Globe, Eye, Plus } from "lucide-react";
 
 import { ExperiencesTable } from "@/components/experiences/experiences-table";
 import { buttonClass } from "@/components/ui/button";
@@ -10,12 +10,12 @@ import { SearchInput } from "@/components/ui/search-input";
 import { listExperiences } from "@/lib/data/experiences";
 import { EXPERIENCE_TABS, type ExperienceTabKey } from "@/lib/types";
 
-const EXPERIENCE_TAB_ICONS: Record<ExperienceTabKey, LucideIcon> = {
-  active: Globe,
-  under_review: Eye,
-  draft: FileText,
-  disabled: EyeOff,
-  archived: Archive,
+const EXPERIENCE_TAB_ICONS: Record<ExperienceTabKey, React.ReactNode> = {
+  active: <Globe size={13} aria-hidden />,
+  under_review: <Eye size={13} aria-hidden />,
+  draft: <FileText size={13} aria-hidden />,
+  disabled: <EyeOff size={13} aria-hidden />,
+  archived: <Archive size={13} aria-hidden />,
 };
 
 export const metadata = { title: "Experiences" };

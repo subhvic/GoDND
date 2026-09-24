@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -12,7 +11,7 @@ import { cn } from "@/lib/utils";
  * one is a real URL, so it survives a refresh and opens in a new tab. Button
  * tabs, for tabs that are purely local view state.
  */
-export type PillTab = { id: string; label: string; count?: number; href?: string; icon?: LucideIcon };
+export type PillTab = { id: string; label: string; count?: number; href?: string; icon?: React.ReactNode };
 
 export function PillTabs({
   tabs,
@@ -34,7 +33,7 @@ export function PillTabs({
         const isActive = tab.id === active;
         const content = (
           <>
-            {tab.icon ? <tab.icon size={13} aria-hidden /> : null}
+            {tab.icon ?? null}
             {tab.label}
             {tab.count != null ? <span className="count">{tab.count}</span> : null}
           </>

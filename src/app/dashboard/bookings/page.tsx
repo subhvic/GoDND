@@ -1,4 +1,4 @@
-import { Ban, CalendarClock, CheckCircle2, CreditCard, type LucideIcon } from "lucide-react";
+import { Ban, CalendarClock, CheckCircle2, CreditCard } from "lucide-react";
 
 import { BookingsTable } from "@/components/bookings/bookings-table";
 import { PageBar } from "@/components/ui/page-bar";
@@ -8,11 +8,11 @@ import { SearchInput } from "@/components/ui/search-input";
 import { listBookings } from "@/lib/data/bookings";
 import { BOOKING_TABS, type BookingTabKey } from "@/lib/types";
 
-const BOOKING_TAB_ICONS: Record<BookingTabKey, LucideIcon> = {
-  upcoming: CalendarClock,
-  awaiting: CreditCard,
-  completed: CheckCircle2,
-  cancelled: Ban,
+const BOOKING_TAB_ICONS: Record<BookingTabKey, React.ReactNode> = {
+  upcoming: <CalendarClock size={13} aria-hidden />,
+  awaiting: <CreditCard size={13} aria-hidden />,
+  completed: <CheckCircle2 size={13} aria-hidden />,
+  cancelled: <Ban size={13} aria-hidden />,
 };
 
 export const metadata = { title: "Bookings" };
