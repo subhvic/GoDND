@@ -19,17 +19,13 @@ import {
 } from "lucide-react";
 
 import { LogoIcon, LogoWordmark } from "@/components/brand/logo";
-import { useTheme } from "@/components/theme/use-theme";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSection,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { THEME_OPTIONS, type ThemePreference } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 /**
@@ -160,8 +156,6 @@ export function Sidebar({
 }
 
 function AccountMenu({ user }: { user: SidebarUser }) {
-  const { theme, setTheme } = useTheme();
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -185,19 +179,6 @@ function AccountMenu({ user }: { user: SidebarUser }) {
           </div>
           <div className="pop-email">{user.email ?? user.role}</div>
         </div>
-
-        <DropdownMenuSection label="Theme">
-          <DropdownMenuRadioGroup
-            value={theme}
-            onValueChange={(value) => setTheme(value as ThemePreference)}
-          >
-            {THEME_OPTIONS.map((option) => (
-              <DropdownMenuRadioItem key={option} value={option}>
-                {option}
-              </DropdownMenuRadioItem>
-            ))}
-          </DropdownMenuRadioGroup>
-        </DropdownMenuSection>
 
         <DropdownMenuSection label="Reference">
           <DropdownMenuItem asChild>

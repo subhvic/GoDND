@@ -12,102 +12,85 @@ export const PRIMITIVES = [
     group: "Neutral ramp · slate",
     desc: "A blue-tinted grayscale. Every surface, border and text color is drawn from here.",
     tokens: [
-      "--slate-950", "--slate-925", "--slate-900", "--slate-880", "--slate-870",
-      "--slate-860", "--slate-840", "--slate-800", "--slate-750", "--slate-700",
-      "--slate-600", "--slate-500", "--slate-400", "--slate-100",
+      "--white", "--slate-25", "--slate-50", "--slate-75", "--slate-100", "--slate-125",
+      "--slate-150", "--slate-200", "--slate-500", "--slate-550", "--slate-600", "--slate-900",
     ],
   },
   {
     group: "Blue · brand",
-    desc: "Focus, active state and the primary action. 600–800 are the fill steps that carry white text.",
-    tokens: ["--blue-200", "--blue-400", "--blue-500", "--blue-600", "--blue-700", "--blue-800", "--blue-950"],
+    desc: "Focus, active state and the primary action. 700–800 are its hover and pressed steps.",
+    tokens: ["--blue-50", "--blue-600", "--blue-700", "--blue-800"],
   },
   {
     group: "Violet · accent",
     desc: "Onboarding and walkthrough moments only — never status, never a category.",
-    tokens: ["--violet-500", "--violet-950"],
+    tokens: ["--violet-50", "--violet-600"],
   },
   {
     group: "Status hues",
-    desc: "Reserved for status. Each hue has a base (500), an on-tint foreground (300) and a solid step (700) that carries white text.",
-    tokens: [
-      "--green-500", "--green-300", "--green-700",
-      "--amber-500", "--amber-300", "--amber-700",
-      "--red-500", "--red-300", "--red-700",
-    ],
-  },
-  {
-    group: "Constant",
-    desc: "The one foreground that never themes: text on a solid fill.",
-    tokens: ["--white"],
+    desc: "Reserved for status. Each hue has a base (600) for dots and borders, and a deeper step (700) for status text and for fills that carry white text.",
+    tokens: ["--green-600", "--green-700", "--amber-600", "--amber-700", "--red-600", "--red-700"],
   },
 ] as const;
 
-/** [token, dark-theme primitive, usage] */
+/** [token, primitive, usage] */
 export const SEMANTIC: [string, string, string][] = [
-  ["--canvas", "--slate-900", "App gutter / page background — deliberately mid-tone"],
-  ["--card", "--slate-950", "The single floating surface card (darker than canvas)"],
-  ["--panel", "--slate-880", "Inset panels, inputs, the pill-tab track"],
-  ["--panel-2", "--slate-860", "Row hover, pressed panel"],
-  ["--raised", "--slate-840", "Menus, popovers, toast"],
-  ["--border-subtle", "--slate-800", "Hairline dividers inside a panel"],
-  ["--border-panel", "--slate-750", "Panel, control and drawer borders"],
-  ["--border-strong", "--slate-700", "Hover / emphasized borders"],
-  ["--text-primary", "--slate-100", "Headings, values, primary copy"],
-  ["--text-secondary", "--slate-400", "Labels, secondary copy"],
-  ["--text-muted", "--slate-500", "Captions, hints, meta — clears AA on every surface"],
-  ["--brand", "--blue-500", "Focus, active rail, brand text and icons"],
-  ["--brand-muted", "--blue-950", "Active nav / tab / row background"],
-  ["--accent", "--violet-500", "Onboarding & walkthrough accent"],
-  ["--accent-muted", "--violet-950", "Accent surface"],
-  ["--healthy", "--green-500", "Live and bookable — nothing to do"],
-  ["--warning", "--amber-500", "Waiting on someone — under review, payment pending"],
-  ["--critical", "--red-500", "Blocked until the operator acts — changes requested"],
-  ["--info", "--blue-400", "Informational notices"],
-  ["--neutral", "--slate-600", "Draft, disabled, archived — not trading, nothing wrong"],
+  ["--canvas", "--slate-25", "App gutter / page background — a shade darker than the card"],
+  ["--card", "--white", "The single floating surface card"],
+  ["--panel", "--slate-50", "Inset panels, inputs, the pill-tab track"],
+  ["--panel-2", "--slate-100", "Row hover, pressed panel"],
+  ["--raised", "--white", "Menus, popovers, toast"],
+  ["--border-subtle", "--slate-75", "Hairline dividers inside a panel"],
+  ["--border-panel", "--slate-150", "Panel, control and drawer borders"],
+  ["--border-strong", "--slate-200", "Hover / emphasized borders"],
+  ["--text-primary", "--slate-900", "Headings, values, primary copy"],
+  ["--text-secondary", "--slate-600", "Labels, secondary copy"],
+  ["--text-muted", "--slate-550", "Captions, hints, meta — clears AA on every surface"],
+  ["--brand", "--blue-600", "Focus, active rail, brand text and icons"],
+  ["--brand-muted", "--blue-50", "Active nav / tab / row background"],
+  ["--accent", "--violet-600", "Onboarding & walkthrough accent"],
+  ["--accent-muted", "--violet-50", "Accent surface"],
+  ["--healthy", "--green-600", "Live and bookable — nothing to do"],
+  ["--warning", "--amber-600", "Waiting on someone — under review, payment pending"],
+  ["--critical", "--red-600", "Blocked until the operator acts — changes requested"],
+  ["--info", "--blue-600", "Informational notices"],
+  ["--neutral", "--slate-500", "Draft, disabled, archived — not trading, nothing wrong"],
 ];
 
-/** [token, resolves to (dark), usage] */
+/** [token, resolves to, usage] */
 export const COMPONENT_TOKENS: [string, string, string][] = [
   ["--brand-solid", "--blue-600", "Primary button, avatar, selected calendar day"],
   ["--brand-hover", "--blue-700", "Primary fill hover"],
   ["--brand-active", "--blue-800", "Primary fill pressed"],
-  ["--brand-on-muted", "--blue-200", "Text / icon on a --brand-muted surface"],
+  ["--brand-on-muted", "--blue-700", "Text / icon on a --brand-muted surface"],
   ["--on-brand", "--white", "Text on any solid fill"],
   ["--healthy-solid", "--green-700", "Status badge fill · healthy"],
   ["--warning-solid", "--amber-700", "Status badge fill · warning"],
   ["--critical-solid", "--red-700", "Status badge fill · critical"],
   ["--info-solid", "--blue-600", "Status badge fill · info"],
-  ["--neutral-solid", "--slate-600", "Status badge fill · neutral"],
-  ["--card-border", "--slate-870", "Hairline on every card, panel and table surface"],
-  ["--card-shadow", "0 4px 20px · --slate-925", "Floating-card elevation"],
-  ["--critical-fg", "--red-300", "Status as text — on a critical tint or a plain surface"],
-  ["--warning-fg", "--amber-300", "Status as text — on a warning tint or a plain surface"],
-  ["--healthy-fg", "--green-300", "Status as text — on a healthy tint or a plain surface"],
-  ["--critical-tint", "red-500 · 15%", "Badge / notice critical fill"],
-  ["--warning-tint", "amber-500 · 15%", "Badge / notice warning fill"],
-  ["--healthy-tint", "green-500 · 14%", "Badge / notice healthy fill"],
-  ["--info-tint", "blue-400 · 12%", "Info surface fill"],
-  ["--focus-ring", "0 0 0 3px · blue-500 · 14%", "Text input / select focus glow"],
-];
-
-/** Tokens whose value differs between themes — read from both scopes. */
-export const THEME_DELTAS = [
-  "--canvas", "--card", "--panel", "--raised", "--border-panel",
-  "--text-primary", "--text-secondary", "--text-muted",
-  "--brand", "--brand-solid", "--brand-muted", "--brand-on-muted", "--card-border",
-  "--critical", "--critical-fg", "--warning", "--healthy", "--healthy-solid",
+  ["--neutral-solid", "--slate-500", "Status badge fill · neutral"],
+  ["--card-border", "--slate-125", "Hairline on every card, panel and table surface"],
+  ["--card-shadow", "slate-900 · 5% + 10%", "Floating-card elevation"],
+  ["--critical-fg", "--red-700", "Status as text — on a critical tint or a plain surface"],
+  ["--warning-fg", "--amber-700", "Status as text — on a warning tint or a plain surface"],
+  ["--healthy-fg", "--green-700", "Status as text — on a healthy tint or a plain surface"],
+  ["--critical-tint", "red-600 · 10%", "Badge / notice critical fill"],
+  ["--warning-tint", "amber-600 · 12%", "Badge / notice warning fill"],
+  ["--healthy-tint", "green-600 · 12%", "Badge / notice healthy fill"],
+  ["--info-tint", "blue-600 · 10%", "Info surface fill"],
+  ["--focus-ring", "0 0 0 3px · blue-600 · 16%", "Text input / select focus glow"],
 ];
 
 /**
- * [label, foreground, background, minimum ratio]. Checked live in both
- * themes on the Color section; 4.5 is WCAG AA for text under 18px.
+ * [label, foreground, background, minimum ratio]. Checked live on the Color
+ * section; 4.5 is WCAG AA for text under 18px.
  */
 export const CONTRAST_PAIRS: [string, string, string, number][] = [
   ["Primary text on card", "--text-primary", "--card", 4.5],
   ["Secondary text on card", "--text-secondary", "--card", 4.5],
   ["Muted text on card", "--text-muted", "--card", 4.5],
   ["Muted text on panel", "--text-muted", "--panel", 4.5],
+  ["Muted text on hover row", "--text-muted", "--panel-2", 4.5],
   ["Brand text on card", "--brand", "--card", 4.5],
   ["Critical text on card", "--critical-fg", "--card", 4.5],
   ["Warning text on card", "--warning-fg", "--card", 4.5],
@@ -174,7 +157,6 @@ export const SECTIONS: SectionLink[] = [
   { id: "primitives", label: "Primitive", sub: true },
   { id: "semantic", label: "Semantic", sub: true },
   { id: "component-tokens", label: "Component", sub: true },
-  { id: "theming", label: "Theming", sub: true },
   { header: "Foundations" },
   { id: "color", label: "Color" },
   { id: "typography", label: "Typography" },

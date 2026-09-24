@@ -19,14 +19,12 @@ import {
   Info,
   Layers,
   MapPin,
-  Moon,
   Palette,
   Pencil,
   Plus,
   RefreshCw,
   Search,
   Settings,
-  Sun,
   Trash2,
   X,
 } from "lucide-react";
@@ -40,10 +38,8 @@ import {
   PRINCIPLES,
   SECTIONS,
   SEMANTIC,
-  THEME_DELTAS,
 } from "@/components/design-system/reference-data";
 import { contrastRatio, useTokenValues } from "@/components/design-system/use-token-values";
-import { useTheme } from "@/components/theme/use-theme";
 import { Button, buttonClass } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -95,7 +91,6 @@ const SPARK_CALM = [9, 8, 9, 8, 10, 9, 8, 9];
 const EXPERIENCE_STATES = ["rejected", "under_review", "active", "draft", "disabled", "archived"];
 
 export function DesignSystemView() {
-  const { resolved, toggle } = useTheme();
   const [activeId, setActiveId] = useState("overview");
   const navRef = useRef<HTMLElement>(null);
 
@@ -131,8 +126,6 @@ export function DesignSystemView() {
     }
   }, [activeId]);
 
-  const nextTheme = resolved === "light" ? "dark" : "light";
-
   return (
     <div className="ds-root">
       <header className="ds-topbar">
@@ -143,18 +136,9 @@ export function DesignSystemView() {
           </Link>
           <span className="ds-brand-sep" aria-hidden />
           <span className="ds-brand-title">Design System</span>
-          <span className="ds-version">v1.0 · light + dark</span>
+          <span className="ds-version">v1.0</span>
         </div>
         <div className="ds-topbar-actions">
-          <button
-            type="button"
-            className="ds-theme-toggle"
-            onClick={toggle}
-            aria-label={`Switch to ${nextTheme} theme`}
-          >
-            {resolved === "light" ? <Moon aria-hidden /> : <Sun aria-hidden />}
-            <span className="capitalize">{nextTheme}</span>
-          </button>
           <Link href="/" className="ds-back">
             <ArrowLeft aria-hidden />
             Back to app
@@ -195,7 +179,6 @@ export function DesignSystemView() {
           <Primitives />
           <SemanticTokens />
           <ComponentTokens />
-          <Theming />
           <Color />
           <Typography />
           <SpacingRadius />
@@ -211,8 +194,7 @@ export function DesignSystemView() {
 
           <footer className="ds-footer">
             GoDND Design System · rendered live from
-            <code className="ds-token">src/components/design-system</code>·
-            {resolved} theme
+            <code className="ds-token">src/components/design-system</code>
           </footer>
         </main>
       </div>
@@ -361,13 +343,13 @@ function Overview() {
       <div className="ds-stat-row">
         <Stat n="3" label="Token tiers" />
         <Stat n="6" label="Non-negotiable rules" />
-        <Stat n="2" label="Themes · light + dark" />
-        <Stat n="AA" label="Contrast floor, both themes" />
+        <Stat n="Rubik" label="One typeface" />
+        <Stat n="AA" label="Contrast floor, every pair" />
       </div>
       <div className="ds-callout">
         <Palette aria-hidden />
         <div>
-          <strong>How theming works.</strong> Colors, type, spacing and radius live as CSS
+          <strong>How the tokens work.</strong> Colors, type, spacing and radius live as CSS
           custom properties in a three-tier cascade (primitive → semantic → component). The
           Tailwind theme mirrors the semantic layer, so a utility class and hand-written CSS
           resolve to the exact same variable. Change a primitive once and it propagates
@@ -464,7 +446,7 @@ function Architecture() {
           layer="Layer 2"
           name="Semantic"
           desc="Role-based aliases the platform consumes. Says what, not which."
-          example="--brand: var(--blue-500)"
+          example="--brand: var(--blue-600)"
           className="ds-tier--2"
         />
         <div className="ds-tier-arrow" aria-hidden>
@@ -512,7 +494,7 @@ function Primitives() {
       id="primitives"
       kicker="Tokens · Layer 1"
       title="Primitive tokens"
-      lead="The raw palette, named by hue and lightness, never by purpose. Primitives do not change between themes."
+      lead="The raw palette, named by hue and lightness, never by purpose."
     >
       {PRIMITIVES.map((group) => (
         <div key={group.group} className="ds-ramp-block">
@@ -538,9 +520,9 @@ function SemanticTokens() {
       id="semantic"
       kicker="Tokens · Layer 2"
       title="Semantic tokens"
-      lead="What the platform actually references. Each maps to exactly one primitive in the dark theme; the light theme re-points them (see Theming). Values shown are the current theme's."
+      lead="What the platform actually references. Each maps to exactly one primitive."
     >
-      <TokenTable rows={SEMANTIC} values={values} refLabel="Primitive · dark" caption="Semantic tokens" />
+      <TokenTable rows={SEMANTIC} values={values} refLabel="Primitive" caption="Semantic tokens" />
     </Section>
   );
 }
@@ -557,141 +539,10 @@ function ComponentTokens() {
       <TokenTable
         rows={COMPONENT_TOKENS}
         values={values}
-        refLabel="Resolves to · dark"
+        refLabel="Resolves to"
         caption="Component tokens"
       />
     </Section>
-  );
-}
-
-function Theming() {
-  const dark = useTokenValues(THEME_DELTAS, "ds-preview-dark");
-  const light = useTokenValues(THEME_DELTAS, "ds-preview-light");
-
-  return (
-    <Section
-      id="theming"
-      kicker="Tokens · Theming"
-      title="Light & dark from one system"
-      lead="Two themes, zero component rewrites. Because no component names a raw value, a theme is nothing more than a second set of semantic and component values. Both previews below are the same components, rendered at once."
-    >
-      <div className="ds-tier-flow mb-[18px]">
-        <Tier
-          layer="Mechanism"
-          name="One attribute"
-          desc={
-            <>
-              The resolved theme is written to <code className="ds-token">html[data-theme]</code>.
-              Any element can open its own scope the same way — that is how the previews below
-              render both themes side by side.
-            </>
-          }
-        />
-        <Tier
-          layer="Layers touched"
-          name="Semantic + Component"
-          desc="Primitives stay fixed. Only the meaning and decision layers flip — surfaces, text, borders, brand tints and status foregrounds."
-        />
-        <Tier
-          layer="Preference"
-          name="Light · Dark · Auto"
-          desc={
-            <>
-              Stored per device; <code className="ds-token">auto</code> follows the OS. Default
-              is dark, applied by an inline script before first paint, so there is no flash.
-            </>
-          }
-        />
-      </div>
-
-      <div className="ds-theme-preview-row">
-        <ThemePreview theme="dark" />
-        <ThemePreview theme="light" />
-      </div>
-
-      <div className="ds-callout mb-[18px]">
-        <Palette aria-hidden />
-        <div>
-          <strong>The floating-card relationship inverts, on purpose.</strong> In dark, the
-          canvas is mid-tone and the card sits <em>darker</em>. In light, the card is white and
-          the canvas sits <em>darker</em> — either way the single surface card reads as raised.
-          Status hues also step one shade deeper in light so values stay legible on white.
-        </div>
-      </div>
-
-      <div className="ds-theme-grid" role="table" aria-label="Token values by theme">
-        <div className="ds-theme-row ds-theme-row--head" role="row">
-          <span className="ds-theme-head" role="columnheader">
-            Token
-          </span>
-          <span className="ds-theme-head" role="columnheader">
-            Dark
-          </span>
-          <span className="ds-theme-head" role="columnheader">
-            Light
-          </span>
-        </div>
-        {THEME_DELTAS.map((token) => (
-          <div key={token} className="ds-theme-row" role="row">
-            <code className="ds-token justify-self-start" role="rowheader">
-              {token}
-            </code>
-            <ThemeCell theme="dark" token={token} value={dark[token]} />
-            <ThemeCell theme="light" token={token} value={light[token]} />
-          </div>
-        ))}
-      </div>
-    </Section>
-  );
-}
-
-function ThemeCell({ theme, token, value }: { theme: string; token: string; value: string }) {
-  return (
-    <div className="ds-theme-cell" role="cell">
-      {/* The chip is its own theme scope, so it paints the token's value in
-          that theme whatever the page is showing. */}
-      <span data-theme={theme} className="ds-theme-chip" style={{ background: `var(${token})` }} />
-      <span className="ds-theme-hex">{value}</span>
-    </div>
-  );
-}
-
-function ThemePreview({ theme }: { theme: "dark" | "light" }) {
-  return (
-    <div id={`ds-preview-${theme}`} data-theme={theme} className="ds-theme-preview">
-      <p className="ds-theme-preview-label capitalize">{theme}</p>
-      <div className="panel">
-        <div className="panel-head">
-          <div className="panel-head-left">
-            <span className="text-[13px] font-semibold">Experiences</span>
-            <span className="hint">needs attention first</span>
-          </div>
-          <span className={buttonClass({ variant: "primary", size: "small" })}>
-            <Plus aria-hidden />
-            Add
-          </span>
-        </div>
-        <div className="flex flex-col">
-          {(
-            [
-              ["Rafting in Upper Assam", "rejected"],
-              ["Raw Meghalaya", "under_review"],
-              ["7 Day Meghalaya", "active"],
-            ] as const
-          ).map(([name, state]) => (
-            <div
-              key={name}
-              className="flex items-center gap-[10px] border-t border-border-subtle px-[16px] py-[10px] text-[12.5px]"
-            >
-              <span className={cn("status-dot", statusForExperience(state))} aria-hidden />
-              <span className="min-w-0 flex-1 truncate font-medium">{name}</span>
-              <StatusBadge status={statusForExperience(state)} label={EXPERIENCE_STATE_LABELS[state]} />
-            </div>
-          ))}
-        </div>
-      </div>
-      <p className="m-0 mt-[10px] text-[11px] text-text-muted">Muted caption · 11px</p>
-    </div>
   );
 }
 
@@ -701,18 +552,17 @@ function ThemePreview({ theme }: { theme: "dark" | "light" }) {
 
 function Color() {
   const surfaces = useTokenValues(SURFACE_TOKENS);
-  const dark = useTokenValues(CONTRAST_TOKENS, "ds-preview-dark");
-  const light = useTokenValues(CONTRAST_TOKENS, "ds-preview-light");
+  const contrast = useTokenValues(CONTRAST_TOKENS);
 
   return (
     <Section
       id="color"
       kicker="Foundations"
       title="Color"
-      lead="Surfaces are intentionally inverted in dark — the canvas gutter is mid-tone and the card sits darker, which lets the single surface card read as floating."
+      lead="The card is white and the canvas sits a shade darker, so the single surface card reads as floating. Everything else inside it is a quieter step of the same slate."
     >
       <div className="ds-swatch-grid ds-swatch-grid--lg">
-        <Swatch token="--canvas" value={surfaces["--canvas"]} text="Gutter · mid-tone" />
+        <Swatch token="--canvas" value={surfaces["--canvas"]} text="Gutter" />
         <Swatch token="--card" value={surfaces["--card"]} text="Surface card" />
         <Swatch token="--panel" value={surfaces["--panel"]} text="Panel" />
         <Swatch token="--panel-2" value={surfaces["--panel-2"]} text="Hover" />
@@ -743,11 +593,11 @@ function Color() {
           <strong>One hue, three jobs.</strong> Each status hue has a base step for dots, rails
           and borders; an <code className="ds-token">-fg</code> step for status written as text;
           and a <code className="ds-token">-solid</code> step for fills that carry a white label.
-          Picking the step by job is what keeps every pair at AA in both themes.
+          Picking the step by job is what keeps every pair at AA.
         </div>
       </div>
 
-      <Spec title="Contrast" note="Computed live from the tokens, in both themes · WCAG AA is 4.5:1" wide>
+      <Spec title="Contrast" note="Computed live from the tokens · WCAG AA is 4.5:1" wide>
         <div className="ds-table-wrap">
           <table className="ds-table">
             <caption className="sr-only">Contrast ratios for key text pairs</caption>
@@ -755,8 +605,7 @@ function Color() {
               <tr>
                 <th scope="col">Pair</th>
                 <th scope="col">Tokens</th>
-                <th scope="col">Dark</th>
-                <th scope="col">Light</th>
+                <th scope="col">Ratio</th>
               </tr>
             </thead>
             <tbody>
@@ -769,10 +618,7 @@ function Color() {
                     {fg} on {bg}
                   </td>
                   <td>
-                    <Ratio value={contrastRatio(dark[fg], dark[bg])} minimum={minimum} />
-                  </td>
-                  <td>
-                    <Ratio value={contrastRatio(light[fg], light[bg])} minimum={minimum} />
+                    <Ratio value={contrastRatio(contrast[fg], contrast[bg])} minimum={minimum} />
                   </td>
                 </tr>
               ))}
@@ -916,7 +762,7 @@ function Elevation() {
       id="elevation"
       kicker="Foundations"
       title="Elevation"
-      lead="Depth is carried by soft shadows — near-black in dark, gray in light. The higher the layer, the larger and softer the cast."
+      lead="Depth is carried by soft, cool-gray shadows. The higher the layer, the larger and softer the cast."
     >
       <div className="ds-elev-row">
         {(

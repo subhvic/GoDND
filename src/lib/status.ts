@@ -4,11 +4,11 @@
  * Rule 01 of the system: no component writes a raw color for a status. Every
  * dot, badge and banner asks one of these resolvers for a status key and
  * renders it through a token (var(--critical), .status-dot.critical, …), so
- * the color follows the theme and the same state never looks two ways.
+ * the color follows the tokens and the same state never looks two ways.
  *
- * The source's equivalent returns hardcoded dark-theme hexes from
- * statusColor(), so anything colored through it stays dark-themed in light
- * mode. statusColor() here returns the CSS variable instead.
+ * The source's equivalent returns hardcoded hexes from statusColor(), so
+ * anything colored through it ignores a token change. statusColor() here
+ * returns the CSS variable instead.
  */
 
 export const STATUSES = ["healthy", "warning", "critical", "info", "neutral"] as const;

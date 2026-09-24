@@ -6,12 +6,12 @@ import { expect, test } from "@playwright/test";
  * the tokens themselves.
  *
  * The regression this guards: the source system's muted text and white-on-fill
- * pairs sat at 2.2–3.8:1. A token edit that drops any documented pair below
- * WCAG AA, in either theme, fails here rather than in front of an operator.
+ * pairs sat below 4.5:1. A token edit that drops any documented pair below
+ * WCAG AA fails here rather than in front of an operator.
  */
 
 test.describe("design system", () => {
-  test("every documented text pair clears WCAG AA in both themes", async ({ page }) => {
+  test("every documented text pair clears WCAG AA", async ({ page }) => {
     await page.goto("/design-system");
 
     const rows = page.locator("#color table tbody tr");
@@ -23,24 +23,25 @@ test.describe("design system", () => {
     for (let index = 0; index < count; index += 1) {
       const row = rows.nth(index);
       const label = (await row.locator("th").textContent()) ?? `row ${index}`;
-      // Both the dark and light cells must show a computed, passing ratio.
-      await expect(row.locator("td").nth(1), `${label} · dark`).toContainText("AA");
-      await expect(row.locator("td").nth(2), `${label} · light`).toContainText("AA");
+      // The ratio cell must show a computed, passing ratio.
+      await expect(row.locator("td").nth(1), label).toContainText("AA");
       await expect(row, label).not.toContainText("Fails");
     }
   });
 
-  test("the theme toggle re-skins the page and is remembered", async ({ page }) => {
+  test("the product is light only, whatever the OS prefers", async ({ browser }) => {
+    // Light is the one theme. A dark OS setting must not flip any surface,
+    // and no theme control should be left behind to suggest otherwise.
+    const context = await browser.newContext({ colorScheme: "dark" });
+    const page = await context.newPage();
     await page.goto("/design-system");
-    const html = page.locator("html");
-    await expect(html).toHaveAttribute("data-theme", "dark");
 
-    await page.getByRole("button", { name: "Switch to light theme" }).click();
-    await expect(html).toHaveAttribute("data-theme", "light");
-
-    await page.reload();
-    await expect(html).toHaveAttribute("data-theme", "light");
-    await expect(page.getByRole("button", { name: "Switch to dark theme" })).toBeVisible();
+    const canvas = await page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue("--canvas").trim().toLowerCase(),
+    );
+    expect(canvas).toBe("#f5f7fb");
+    await expect(page.getByRole("button", { name: /theme/i })).toHaveCount(0);
+    await context.close();
   });
 
   test("the record drawer opens, and Escape closes it", async ({ page }) => {

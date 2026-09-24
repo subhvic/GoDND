@@ -18,17 +18,10 @@
   .ds-brand-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
   .ds-version { font-size: 10px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; color: var(--brand-on-muted); background: var(--brand-muted); padding: 3px 8px; border-radius: 99px; white-space: nowrap; }
   .ds-topbar-actions { display: flex; align-items: center; gap: 8px; }
-  .ds-back, .ds-theme-toggle { display: inline-flex; align-items: center; gap: 7px; background: var(--panel); border: 1px solid var(--border-subtle); color: var(--text-secondary); font-family: inherit; font-size: 12px; padding: 7px 13px; border-radius: var(--radius-sm); cursor: pointer; text-decoration: none; white-space: nowrap; }
-  .ds-back:hover, .ds-theme-toggle:hover { color: var(--text-primary); border-color: var(--border-strong); }
-  .ds-back svg, .ds-theme-toggle svg { width: 14px; height: 14px; }
+  .ds-back { display: inline-flex; align-items: center; gap: 7px; background: var(--panel); border: 1px solid var(--border-subtle); color: var(--text-secondary); font-family: inherit; font-size: 12px; padding: 7px 13px; border-radius: var(--radius-sm); cursor: pointer; text-decoration: none; white-space: nowrap; }
+  .ds-back:hover { color: var(--text-primary); border-color: var(--border-strong); }
+  .ds-back svg { width: 14px; height: 14px; }
 
-  .ds-theme-grid { border: 1px solid var(--card-border); border-radius: var(--radius-lg); overflow: hidden; background: var(--card); }
-  .ds-theme-row { display: grid; grid-template-columns: minmax(160px, 240px) 1fr 1fr; gap: 14px; align-items: center; padding: 9px 16px; border-top: 1px solid var(--border-subtle); }
-  .ds-theme-row--head { border-top: none; }
-  .ds-theme-head { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); }
-  .ds-theme-cell { display: flex; align-items: center; gap: 10px; }
-  .ds-theme-chip { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--swatch-edge); flex-shrink: 0; }
-  .ds-theme-hex { font-size: 11px; color: var(--text-secondary); }
 
   .ds-layout { display: grid; grid-template-columns: 232px minmax(0, 1fr); max-width: 1240px; margin: 0 auto; }
 
@@ -141,12 +134,6 @@
   .ds-frame { background: var(--canvas); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 20px; display: flex; justify-content: center; }
   .ds-drawer-frame { position: relative; height: 320px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; background: var(--card); }
 
-  /* Live side-by-side theme preview: each frame is a [data-theme] scope, so
-     the same components render in both themes at once. The frame re-sets
-     color and background because those were inherited from the page's theme. */
-  .ds-theme-preview-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
-  .ds-theme-preview { background: var(--canvas); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 14px; min-width: 0; }
-  .ds-theme-preview-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin: 0 0 10px; }
   .ds-ratio { display: inline-flex; align-items: center; gap: 8px; }
 
   .ds-footer { padding: 30px 0 0; font-size: 11.5px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -167,11 +154,10 @@
     .ds-navlink, .ds-navlink--sub { flex-shrink: 0; white-space: nowrap; padding: 5px 10px; font-size: 12px; }
     .ds-section { scroll-margin-top: 112px; }
     .ds-main { padding: 24px 16px 60px; }
-    .ds-principle-grid, .ds-font-pair, .ds-grid-3, .ds-theme-preview-row { grid-template-columns: 1fr; }
+    .ds-principle-grid, .ds-font-pair, .ds-grid-3 { grid-template-columns: 1fr; }
     .ds-stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ds-tier-flow { flex-direction: column; }
     .ds-tier-arrow { transform: rotate(90deg); justify-content: center; }
-    .ds-theme-row { grid-template-columns: 1fr; gap: 6px; }
     .ds-type-row { flex-direction: column; gap: 6px; }
     .ds-type-meta { width: auto; }
     .ds-atomic-row { grid-template-columns: 24px 1fr; }

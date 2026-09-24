@@ -78,7 +78,7 @@ export default async function HomePage() {
               href="/design-system"
               icon={BookOpen}
               title="Design system"
-              body="Tokens, foundations and every component, rendered live in both themes."
+              body="Tokens, foundations and every component, rendered live."
               available
               unavailableNote=""
             />

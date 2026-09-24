@@ -6,8 +6,8 @@
 /* ============================================================================
    Tailwind mirrors the SEMANTIC layer, so `bg-card` and `.panel` resolve to
    the same variable and re-theme together. `inline` makes each utility emit
-   var(--card) itself rather than a copy of its value, which is what lets a
-   theme switch reach utilities at all.
+   var(--card) itself rather than a copy of its value, so a token edit reaches
+   utilities and hand-written CSS alike.
 
    The default palette is switched off. A utility like `bg-slate-800` would be
    a raw value by another name — exactly what the three tiers exist to stop.

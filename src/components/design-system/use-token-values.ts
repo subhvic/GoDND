@@ -8,34 +8,23 @@ import { useMemo, useSyncExternalStore } from "react";
  * that could drift.
  *
  * A computed custom property has its var() references substituted, so
- * --canvas reads as "#151820", not "var(--slate-900)". Values are re-read
- * whenever the theme attribute on <html> changes.
+ * --canvas reads as "#F5F7FB", not "var(--slate-25)". The tokens never change
+ * at runtime, so there is nothing to subscribe to: the store exists only to
+ * read on the client (the server has no computed styles) without a
+ * set-state-in-effect round trip.
  */
 
-function subscribe(onChange: () => void) {
-  const observer = new MutationObserver(onChange);
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ["data-theme"],
-  });
-  return () => observer.disconnect();
-}
+const subscribe = () => () => {};
 
-const SEPARATOR = "␞";
+const SEPARATOR = "\u241E";
 
-/**
- * @param scopeId  id of an element carrying data-theme, to read one theme's
- *                 values regardless of the page's theme. Omit to read <html>.
- */
-export function useTokenValues(tokens: readonly string[], scopeId?: string) {
+export function useTokenValues(tokens: readonly string[]) {
   // A joined string is a stable snapshot: useSyncExternalStore compares
   // with Object.is, which a fresh object would fail on every read.
   const snapshot = useSyncExternalStore(
     subscribe,
     () => {
-      const element = scopeId ? document.getElementById(scopeId) : document.documentElement;
-      if (!element) return "";
-      const style = getComputedStyle(element);
+      const style = getComputedStyle(document.documentElement);
       return tokens.map((token) => style.getPropertyValue(token).trim()).join(SEPARATOR);
     },
     () => "",
