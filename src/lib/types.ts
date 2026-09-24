@@ -84,3 +84,128 @@ export type ApprovalEvent = {
   occurrence: number;
   createdAt: string;
 };
+
+/* ==========================================================================
+   Bookings
+   ========================================================================== */
+
+/**
+ * The eight-state booking lifecycle from the schema, plus the grouping the
+ * operator sees on the list. The DB carries every distinct state; the UI
+ * collapses them into four tabs because "confirmed / paid / partially_paid"
+ * are all just "upcoming, money is coming" to an operator scanning the list.
+ */
+export const BOOKING_STATUSES = [
+  "draft",
+  "pending_payment",
+  "confirmed",
+  "partially_paid",
+  "paid",
+  "completed",
+  "cancelled",
+  "refunded",
+] as const;
+
+export type BookingStatus = (typeof BOOKING_STATUSES)[number];
+
+export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
+  draft: "Draft",
+  pending_payment: "Awaiting payment",
+  confirmed: "Confirmed",
+  partially_paid: "Part-paid",
+  paid: "Paid",
+  completed: "Completed",
+  cancelled: "Cancelled",
+  refunded: "Refunded",
+};
+
+export const BOOKING_TABS = [
+  { key: "upcoming", label: "Upcoming" },
+  { key: "awaiting", label: "Awaiting payment" },
+  { key: "completed", label: "Completed" },
+  { key: "cancelled", label: "Cancelled" },
+] as const;
+
+export type BookingTabKey = (typeof BOOKING_TABS)[number]["key"];
+
+/** Which DB statuses land under which operator-facing tab. */
+export const BOOKING_TAB_STATUSES: Record<BookingTabKey, BookingStatus[]> = {
+  upcoming: ["confirmed", "paid", "partially_paid"],
+  awaiting: ["pending_payment", "draft"],
+  completed: ["completed"],
+  cancelled: ["cancelled", "refunded"],
+};
+
+export type BookingRow = {
+  id: string;
+  reference: string;              // BKG-000142
+  status: BookingStatus;
+  isMarketplace: boolean;
+  experienceTitle: string;
+  experienceId: string | null;
+  leadName: string;
+  leadEmail: string | null;
+  leadPhone: string | null;
+  travelStart: string | null;
+  travelEnd: string | null;
+  adults: number;
+  children: number;
+  infants: number;
+  currency: string;
+  totalMinor: number;
+  paidMinor: number;
+  refundedMinor: number;
+  commissionMinor: number;
+  createdAt: string;
+};
+
+export type BookingDetail = BookingRow & {
+  /** Other travellers on the same booking, in seat order. */
+  guests: BookingGuest[];
+  /** Chronological, oldest first. */
+  timeline: BookingEvent[];
+  /** Payments recorded against this booking. */
+  payments: BookingPayment[];
+  /** Snapshot of what the operator sold at the time of booking. */
+  experienceSnapshot: {
+    durationDays: number | null;
+    location: string[];
+    thumbnailNote: string | null;
+  };
+  cancellationReason: string | null;
+  notes: string | null;
+};
+
+export type BookingGuest = {
+  id: string;
+  fullName: string;
+  ageBucket: "adult" | "child" | "infant";
+  role: "lead" | "guest";
+};
+
+export type BookingEvent = {
+  id: string;
+  kind:
+    | "created"
+    | "payment_captured"
+    | "confirmed"
+    | "reminder_sent"
+    | "checked_in"
+    | "completed"
+    | "cancelled"
+    | "refunded"
+    | "note";
+  label: string;
+  detail?: string | null;
+  amountMinor?: number | null;
+  createdAt: string;
+};
+
+export type BookingPayment = {
+  id: string;
+  method: "razorpay" | "cash" | "bank_transfer" | "other";
+  status: "authorized" | "captured" | "failed" | "refunded";
+  amountMinor: number;
+  createdAt: string;
+  reference: string | null;
+};

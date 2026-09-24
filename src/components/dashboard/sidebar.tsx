@@ -43,7 +43,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { id: "home", label: "Home", icon: Home },
       { id: "experiences", label: "Experiences", icon: Compass, href: "/dashboard/experiences" },
-      { id: "bookings", label: "Bookings", icon: CalendarCheck },
+      { id: "bookings", label: "Bookings", icon: CalendarCheck, href: "/dashboard/bookings" },
       { id: "enquiries", label: "Enquiries", icon: MessagesSquare },
     ],
   },

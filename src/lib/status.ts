@@ -48,6 +48,29 @@ export function statusForExperience(state: string): Status {
   }
 }
 
+/**
+ * Same shape as statusForExperience: one resolver, one place a booking's
+ * status ever picks up a color. Green means "money is coming or here"; amber
+ * means the operator has something to do; red means the money moved out; grey
+ * is done or set aside.
+ */
+export function statusForBooking(state: string): Status {
+  switch (state) {
+    case "paid":
+    case "confirmed":
+    case "partially_paid":
+      return "healthy";
+    case "pending_payment":
+    case "draft":
+      return "warning";
+    case "cancelled":
+    case "refunded":
+      return "critical";
+    default:
+      return "neutral";
+  }
+}
+
 export const EXPERIENCE_STATE_LABELS: Record<string, string> = {
   active: "Active",
   under_review: "Under review",
