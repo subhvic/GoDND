@@ -8,6 +8,7 @@ import { PageBar } from "@/components/ui/page-bar";
 import { Pagination } from "@/components/ui/pagination";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { SearchInput } from "@/components/ui/search-input";
+import { demoNoticeCopy } from "@/lib/data/demo-notice";
 import { listExperiences } from "@/lib/data/experiences";
 import { EXPERIENCE_TABS, type ExperienceTabKey } from "@/lib/types";
 
@@ -64,9 +65,21 @@ export default async function ExperiencesPage(
         />
 
         {isDemoData ? (
-          <Notice status="info" title="Showing sample data" className="mb-[16px]">
-            Add your Supabase keys to <code>.env.local</code> to see your own experiences.
-          </Notice>
+          (() => {
+            // NODE_ENV chooses between "dev, fill your env" and "stakeholder,
+            // this is a preview" copy — the notice is decided in one place
+            // (lib/data/demo-notice.tsx) so both audiences read what fits.
+            const copy = demoNoticeCopy();
+            return (
+              <Notice
+                status="info"
+                title={copy.title}
+                className="mb-[16px]"
+              >
+                {copy.body}
+              </Notice>
+            );
+          })()
         ) : null}
 
         <div className="mb-[14px] flex flex-wrap items-center justify-between gap-[10px]">

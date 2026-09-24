@@ -1143,7 +1143,12 @@ function Feedback() {
             Approval usually takes one working day. It stays bookable on your own site meanwhile.
           </Notice>
           <Notice status="info" title="Showing sample data">
-            Add your Supabase keys to see your own experiences.
+            Add your Supabase keys to <code className="ds-token">.env.local</code> to see your own experiences.
+          </Notice>
+          <Notice status="info" title="Preview with sample data">
+            You&rsquo;re looking at a walkthrough of the operator portal. The
+            experiences below are representative &mdash; real ones appear here
+            once the workspace is connected to a live database.
           </Notice>
           <Notice status="healthy" title="Published to the marketplace">
             Travellers can find and book this experience now.
