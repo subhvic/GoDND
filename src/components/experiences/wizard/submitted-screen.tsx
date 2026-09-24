@@ -101,15 +101,14 @@ export function SubmittedScreen() {
 
   return (
     <main className="surface-card">
+      <PageBar
+        crumbs={[
+          { label: "GoDND", href: "/dashboard" },
+          { label: "Experiences", href: "/dashboard/experiences" },
+          { label: "Sent for approval" },
+        ]}
+      />
       <div className="card-scroll">
-        <PageBar
-          crumbs={[
-            { label: "GoDND", href: "/dashboard" },
-            { label: "Experiences", href: "/dashboard/experiences" },
-            { label: "Sent for approval" },
-          ]}
-        />
-
         <div className="mx-auto max-w-[820px] pb-[40px]">
           {state === null || state.flash ? (
             <Confirmation flash={state?.flash ?? null} />

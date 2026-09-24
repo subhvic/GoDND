@@ -137,15 +137,14 @@ export function NewExperienceIntro() {
 
   return (
     <main className="surface-card">
+      <PageBar
+        crumbs={[
+          { label: "GoDND", href: "/dashboard" },
+          { label: "Experiences", href: "/dashboard/experiences" },
+          { label: "New experience" },
+        ]}
+      />
       <div className="card-scroll">
-        <PageBar
-          crumbs={[
-            { label: "GoDND", href: "/dashboard" },
-            { label: "Experiences", href: "/dashboard/experiences" },
-            { label: "New experience" },
-          ]}
-        />
-
         <div className="mx-auto max-w-[820px] pb-[40px]">
           {/* Hero */}
           <p className="m-0 text-[10.5px] font-bold uppercase tracking-[1px] text-brand">

@@ -136,15 +136,15 @@ export function ReviewScreen() {
   if (!wizard.hydrated) {
     return (
       <main className="surface-card">
+        <PageBar
+          crumbs={[
+            { label: "GoDND", href: "/dashboard" },
+            { label: "Experiences", href: "/dashboard/experiences" },
+            { label: "New experience", href: "/dashboard/experiences/new" },
+            { label: "Review" },
+          ]}
+        />
         <div className="card-scroll">
-          <PageBar
-            crumbs={[
-              { label: "GoDND", href: "/dashboard" },
-              { label: "Experiences", href: "/dashboard/experiences" },
-              { label: "New experience", href: "/dashboard/experiences/new" },
-              { label: "Review" },
-            ]}
-          />
           <div className="mx-auto max-w-[860px] pb-[40px]">
             <div className="skeleton h-[24px] w-[60%]" />
             <div className="skeleton mt-[10px] h-[14px] w-[80%]" />
@@ -216,16 +216,15 @@ export function ReviewScreen() {
 
   return (
     <main className="surface-card">
+      <PageBar
+        crumbs={[
+          { label: "GoDND", href: "/dashboard" },
+          { label: "Experiences", href: "/dashboard/experiences" },
+          { label: "New experience", href: "/dashboard/experiences/new" },
+          { label: "Review" },
+        ]}
+      />
       <div className="card-scroll">
-        <PageBar
-          crumbs={[
-            { label: "GoDND", href: "/dashboard" },
-            { label: "Experiences", href: "/dashboard/experiences" },
-            { label: "New experience", href: "/dashboard/experiences/new" },
-            { label: "Review" },
-          ]}
-        />
-
         <div className="mx-auto max-w-[860px] pb-[100px]">
           <EditStateBanner />
 

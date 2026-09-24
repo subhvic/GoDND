@@ -108,14 +108,16 @@
     position: relative;
   }
   .surface-card.has-rail { flex-direction: row; }
-  .card-scroll { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; padding: 8px 16px 24px; display: flex; flex-direction: column; border-radius: var(--radius-xs) var(--radius-xs) 0 0; }
+  /* Right-column wrapper for has-rail layouts — holds PageBar + card-scroll in a column */
+  .card-col { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .card-scroll { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; padding: 8px 16px 24px; display: flex; flex-direction: column; }
 
   /* Page bar: breadcrumb trail left, page controls right */
   .card-crumbs {
     display: flex; align-items: center; justify-content: space-between; gap: 14px;
     font-size: 11.5px; color: var(--text-muted);
-    margin-left: -16px; margin-right: -16px; padding: 4px 16px 10px;
-    border-bottom: 1px solid var(--border-subtle); margin-bottom: 16px;
+    padding: 4px 16px 10px;
+    border-bottom: 1px solid var(--border-subtle);
   }
   .card-crumbs-left { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; }
   .card-crumbs-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }

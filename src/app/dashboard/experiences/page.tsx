@@ -3,12 +3,10 @@ import { Plus } from "lucide-react";
 
 import { ExperiencesTable } from "@/components/experiences/experiences-table";
 import { buttonClass } from "@/components/ui/button";
-import { Notice } from "@/components/ui/notice";
 import { PageBar } from "@/components/ui/page-bar";
 import { Pagination } from "@/components/ui/pagination";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { SearchInput } from "@/components/ui/search-input";
-import { demoNoticeCopy } from "@/lib/data/demo-notice";
 import { listExperiences } from "@/lib/data/experiences";
 import { EXPERIENCE_TABS, type ExperienceTabKey } from "@/lib/types";
 
@@ -23,7 +21,7 @@ export default async function ExperiencesPage(
   const search = typeof params.q === "string" ? params.q : "";
   const page = parsePage(params.page);
 
-  const { rows, counts, page: current, pageCount, total, isDemoData } =
+  const { rows, counts, page: current, pageCount, total } =
     await listExperiences({ tab, search, page });
 
   const tabHref = (key: ExperienceTabKey) => {
@@ -35,52 +33,34 @@ export default async function ExperiencesPage(
 
   return (
     <div className="surface-card">
-      <div className="card-scroll">
-        <PageBar
-          crumbs={[{ label: "GoDND", href: "/dashboard" }, { label: "Experiences" }]}
-          actions={
-            <>
-              <SearchInput
-                label="Search experiences"
-                placeholder="Search experiences…"
-                className="hidden w-[280px] md:block"
-              />
-              <Link
-                href="/dashboard/experiences/new"
-                className={buttonClass({ variant: "primary" })}
-              >
-                <Plus aria-hidden />
-                <span className="hidden sm:inline">Add experience</span>
-                <span className="sm:hidden">Add</span>
-              </Link>
-            </>
-          }
-        />
+      <PageBar
+        crumbs={[{ label: "GoDND", href: "/dashboard" }, { label: "Experiences" }]}
+        actions={
+          <>
+            <SearchInput
+              label="Search experiences"
+              placeholder="Search experiences…"
+              className="hidden w-[280px] md:block"
+            />
+            <Link
+              href="/dashboard/experiences/new"
+              className={buttonClass({ variant: "primary" })}
+            >
+              <Plus aria-hidden />
+              <span className="hidden sm:inline">Add experience</span>
+              <span className="sm:hidden">Add</span>
+            </Link>
+          </>
+        }
+      />
 
+      <div className="card-scroll">
         {/* Search stays reachable on phones, where the page bar has no room. */}
         <SearchInput
           label="Search experiences"
           placeholder="Search experiences…"
           className="mb-[14px] w-full md:hidden"
         />
-
-        {isDemoData ? (
-          (() => {
-            // NODE_ENV chooses between "dev, fill your env" and "stakeholder,
-            // this is a preview" copy — the notice is decided in one place
-            // (lib/data/demo-notice.tsx) so both audiences read what fits.
-            const copy = demoNoticeCopy();
-            return (
-              <Notice
-                status="info"
-                title={copy.title}
-                className="mb-[16px]"
-              >
-                {copy.body}
-              </Notice>
-            );
-          })()
-        ) : null}
 
         <div className="mb-[14px] flex flex-wrap items-center justify-between gap-[10px]">
           <PillTabs

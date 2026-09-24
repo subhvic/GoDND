@@ -1,11 +1,9 @@
 import { BookingsTable } from "@/components/bookings/bookings-table";
-import { Notice } from "@/components/ui/notice";
 import { PageBar } from "@/components/ui/page-bar";
 import { Pagination } from "@/components/ui/pagination";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { SearchInput } from "@/components/ui/search-input";
 import { listBookings } from "@/lib/data/bookings";
-import { demoNoticeCopy } from "@/lib/data/demo-notice";
 import { BOOKING_TABS, type BookingTabKey } from "@/lib/types";
 
 export const metadata = { title: "Bookings" };
@@ -19,7 +17,7 @@ export default async function BookingsPage(
   const search = typeof params.q === "string" ? params.q : "";
   const page = parsePage(params.page);
 
-  const { rows, counts, page: current, pageCount, total, isDemoData } =
+  const { rows, counts, page: current, pageCount, total } =
     await listBookings({ tab, search, page });
 
   const tabHref = (key: BookingTabKey) => {
@@ -31,38 +29,23 @@ export default async function BookingsPage(
 
   return (
     <div className="surface-card">
-      <div className="card-scroll">
-        <PageBar
-          crumbs={[{ label: "GoDND", href: "/dashboard" }, { label: "Bookings" }]}
-          actions={
-            <SearchInput
-              label="Search bookings"
-              placeholder="Search name, reference…"
-              className="hidden w-[280px] md:block"
-            />
-          }
-        />
+      <PageBar
+        crumbs={[{ label: "GoDND", href: "/dashboard" }, { label: "Bookings" }]}
+        actions={
+          <SearchInput
+            label="Search bookings"
+            placeholder="Search name, reference…"
+            className="hidden w-[280px] md:block"
+          />
+        }
+      />
 
+      <div className="card-scroll">
         <SearchInput
           label="Search bookings"
           placeholder="Search name, reference…"
           className="mb-[14px] w-full md:hidden"
         />
-
-        {isDemoData ? (
-          (() => {
-            const copy = demoNoticeCopy();
-            return (
-              <Notice
-                status="info"
-                title={copy.title}
-                className="mb-[16px]"
-              >
-                {copy.body}
-              </Notice>
-            );
-          })()
-        ) : null}
 
         <div className="mb-[14px] flex flex-wrap items-center justify-between gap-[10px]">
           <PillTabs

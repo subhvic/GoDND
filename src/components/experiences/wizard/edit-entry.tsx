@@ -71,15 +71,15 @@ export function EditEntry({
   // editor", nothing to interact with.
   return (
     <main className="surface-card">
+      <PageBar
+        crumbs={[
+          { label: "GoDND", href: "/dashboard" },
+          { label: "Experiences", href: "/dashboard/experiences" },
+          { label: title.length > 40 ? `${title.slice(0, 40)}…` : title },
+          { label: "Edit" },
+        ]}
+      />
       <div className="card-scroll">
-        <PageBar
-          crumbs={[
-            { label: "GoDND", href: "/dashboard" },
-            { label: "Experiences", href: "/dashboard/experiences" },
-            { label: title.length > 40 ? `${title.slice(0, 40)}…` : title },
-            { label: "Edit" },
-          ]}
-        />
         <div className="mx-auto max-w-[560px] pb-[40px] pt-[40px] text-center">
           <p className="m-0 text-[10.5px] font-bold uppercase tracking-[1px] text-brand">
             Opening editor
@@ -114,16 +114,15 @@ function ArchivedBlock({
 }) {
   return (
     <main className="surface-card">
+      <PageBar
+        crumbs={[
+          { label: "GoDND", href: "/dashboard" },
+          { label: "Experiences", href: "/dashboard/experiences" },
+          { label: title.length > 40 ? `${title.slice(0, 40)}…` : title },
+          { label: "Edit" },
+        ]}
+      />
       <div className="card-scroll">
-        <PageBar
-          crumbs={[
-            { label: "GoDND", href: "/dashboard" },
-            { label: "Experiences", href: "/dashboard/experiences" },
-            { label: title.length > 40 ? `${title.slice(0, 40)}…` : title },
-            { label: "Edit" },
-          ]}
-        />
-
         <div className="mx-auto max-w-[640px] pb-[40px]">
           <span
             aria-hidden
