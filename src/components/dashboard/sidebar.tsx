@@ -87,9 +87,9 @@ export function Sidebar({
     <nav className="nav" aria-label="Main">
       <div className="nav-top">
         <Link href="/dashboard/experiences" aria-label="GoDND home" className="flex items-center gap-[12px]">
-          <LogoIcon size={34} />
+          <LogoIcon size={27} />
           <span className="nav-wordmark">
-            <LogoWordmark />
+            <LogoWordmark className="text-[16px]" />
           </span>
         </Link>
       </div>

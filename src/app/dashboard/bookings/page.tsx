@@ -1,3 +1,5 @@
+import { Ban, CalendarClock, CheckCircle2, CreditCard, type LucideIcon } from "lucide-react";
+
 import { BookingsTable } from "@/components/bookings/bookings-table";
 import { PageBar } from "@/components/ui/page-bar";
 import { Pagination } from "@/components/ui/pagination";
@@ -5,6 +7,13 @@ import { PillTabs } from "@/components/ui/pill-tabs";
 import { SearchInput } from "@/components/ui/search-input";
 import { listBookings } from "@/lib/data/bookings";
 import { BOOKING_TABS, type BookingTabKey } from "@/lib/types";
+
+const BOOKING_TAB_ICONS: Record<BookingTabKey, LucideIcon> = {
+  upcoming: CalendarClock,
+  awaiting: CreditCard,
+  completed: CheckCircle2,
+  cancelled: Ban,
+};
 
 export const metadata = { title: "Bookings" };
 
@@ -57,6 +66,7 @@ export default async function BookingsPage(
               label: entry.label,
               count: counts[entry.key],
               href: tabHref(entry.key),
+              icon: BOOKING_TAB_ICONS[entry.key],
             }))}
           />
           <p className="m-0 text-[11.5px] text-text-muted">

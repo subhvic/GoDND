@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Archive, EyeOff, FileText, Globe, Eye, Plus, type LucideIcon } from "lucide-react";
 
 import { ExperiencesTable } from "@/components/experiences/experiences-table";
 import { buttonClass } from "@/components/ui/button";
@@ -9,6 +9,14 @@ import { PillTabs } from "@/components/ui/pill-tabs";
 import { SearchInput } from "@/components/ui/search-input";
 import { listExperiences } from "@/lib/data/experiences";
 import { EXPERIENCE_TABS, type ExperienceTabKey } from "@/lib/types";
+
+const EXPERIENCE_TAB_ICONS: Record<ExperienceTabKey, LucideIcon> = {
+  active: Globe,
+  under_review: Eye,
+  draft: FileText,
+  disabled: EyeOff,
+  archived: Archive,
+};
 
 export const metadata = { title: "Experiences" };
 
@@ -72,6 +80,7 @@ export default async function ExperiencesPage(
               label: item.label,
               count: counts[item.key] ?? 0,
               href: tabHref(item.key),
+              icon: EXPERIENCE_TAB_ICONS[item.key],
             }))}
           />
           <p className="text-[11.5px] text-text-muted" aria-live="polite">
