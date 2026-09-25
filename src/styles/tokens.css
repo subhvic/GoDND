@@ -11,8 +11,8 @@
    Deliberate differences from the source:
    - One theme. The product ships light only; there is no theme switch, no
      stored preference and no second set of values to keep in step.
-   - Rubik only. The source pairs Rubik with JetBrains Mono for numerals;
-     here numerals stay in Rubik and take tabular figures, set globally.
+   - Roboto only. The source pairs Rubik with JetBrains Mono for numerals;
+     here numerals stay in Roboto and take tabular figures, set globally.
    - No R G B channel mirrors (--c-canvas and friends). Tailwind 4 applies
      opacity to a variable with color-mix(), so `bg-card/50` just works.
    - WCAG AA everywhere. Muted text is one step darker than the source's, and
@@ -65,8 +65,8 @@
   --red-700: #B42318;
   /* Pure white — the card surface, and text on any solid fill */
   --white: #FFFFFF;
-  /* Type primitive — Rubik is loaded by next/font as --font-rubik */
-  --font-sans: var(--font-rubik), -apple-system, 'Segoe UI', sans-serif;
+  /* Type primitive — Roboto is loaded by next/font as --font-roboto */
+  --font-sans: var(--font-roboto), -apple-system, 'Segoe UI', sans-serif;
   /* Radius primitives */
   --radius-xs: 4px;
   --radius-1: 6px;

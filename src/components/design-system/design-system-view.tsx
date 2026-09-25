@@ -343,7 +343,7 @@ function Overview() {
       <div className="ds-stat-row">
         <Stat n="3" label="Token tiers" />
         <Stat n="6" label="Non-negotiable rules" />
-        <Stat n="Rubik" label="One typeface" />
+        <Stat n="Roboto" label="One typeface" />
         <Stat n="AA" label="Contrast floor, every pair" />
       </div>
       <div className="ds-callout">
@@ -659,7 +659,7 @@ function Typography() {
       id="typography"
       kicker="Foundations"
       title="Typography"
-      lead="One typeface: Rubik, for everything. Numerals take tabular figures globally, so prices, dates and counts line up in columns without a second, monospaced face."
+      lead="One typeface: Roboto, for everything. Numerals take tabular figures globally, so prices, dates and counts line up in columns without a second, monospaced face."
     >
       <div className="ds-type-list">
         {TYPE_SCALE.map(([meta, sample, style]) => (
@@ -673,7 +673,7 @@ function Typography() {
       </div>
       <div className="ds-font-pair">
         <div className="ds-font-card">
-          <div className="ds-font-name">Rubik · 400 / 500 / 600 / 700</div>
+          <div className="ds-font-name">Roboto · 400 / 500 / 600 / 700</div>
           <div className="ds-font-sample flex flex-wrap gap-x-[14px]">
             <span className="font-normal">Aa</span>
             <span className="font-medium">Aa</span>
@@ -683,7 +683,7 @@ function Typography() {
           </div>
         </div>
         <div className="ds-font-card">
-          <div className="ds-font-name">Rubik · tabular figures</div>
+          <div className="ds-font-name">Roboto · tabular figures</div>
           <div className="ds-font-sample text-right">
             <div>₹1,11,500</div>
             <div>₹98,000</div>
