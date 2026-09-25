@@ -184,7 +184,8 @@ The section is UI over fixtures until this lands.
 
 1. **Schema.** `agency_social_channels`, `social_posts`, `social_post_targets`,
    `social_post_metrics`, `ad_campaigns`, `ad_campaign_metrics`. RLS by
-   `agency_id` on every table, matching the existing migrations' pattern.
+   `agency_id` on every table, matching the existing migrations' pattern, plus
+   an admin-role check on channel writes (decision 1).
 2. **Start Meta App Review now.** It is 4–8 weeks of calendar time and gates
    phases 2 and 6. Begin it in parallel with everything else in this phase.
 3. **Pick and integrate an aggregator.** Implement `AggregatorProvider` against
@@ -192,7 +193,7 @@ The section is UI over fixtures until this lands.
    cost at 50 / 500 / 5,000 operators before committing.
 4. **OAuth connect flow.** Real Connect and Reconnect on Channels, with the
    `state` round-trip and encrypted token storage. Tokens never reach the
-   client.
+   client. Admin-only, with a read-only Channels view for other members.
 5. **Draft persistence.** Studio saves to `social_posts`; Calendar reads real
    rows.
 
@@ -242,7 +243,7 @@ The section is UI over fixtures until this lands.
 
 19. **Read-only import first.** Pull campaigns created in Meta Ads Manager and
     show them with GoDND's booking attribution. Useful immediately, and far
-    less risky than creation.
+    less risky than creation. Gated to the Ads tier (decision 4).
 20. **Ad account linking** and the billing consent flow.
 21. **Campaign creation** from an experience — audience, budget, creative from
     the experience media.
@@ -260,17 +261,63 @@ The section is UI over fixtures until this lands.
 
 ---
 
-## Open questions
+## Decisions
 
-1. **Aggregator cost at scale.** At 500 operators averaging 2 profiles, $3 per
-   profile per month is $36k a year. Where is the crossover point that justifies
-   direct integration, and does it land inside the first year?
-2. **Who owns the connection?** If GoDND holds one Meta app for all operators,
-   one policy violation risks every operator's publishing. Per-operator apps
-   avoid the blast radius but make onboarding much harder. This needs deciding
-   before phase 1 ships.
-3. **Is Ads a separate plan tier?** Ad spend implies a different support burden
-   and a different kind of customer conversation than scheduling does.
-4. **Who writes?** Whether AI drafting is positioned as a first draft the
-   operator always edits, or as autopilot, changes both the UI and the liability
-   when something reads badly under the operator's name.
+Settled. Each one is load-bearing on the phases above, so the reasoning is kept
+rather than just the outcome.
+
+### 1. The agency is the publisher of record — not GoDND
+
+GoDND is the tool; the agency running the experience owns its handles, its
+content and the responsibility for both. Same posture as Buffer, whose customers
+publish and whose product does not.
+
+Two consequences that reach the code:
+
+- **Channel management is admin-only.** Connecting and disconnecting is gated to
+  the agency's admin role, not open to every member. That is a role check on
+  writes to `agency_social_channels` and a read-only state on the Channels page
+  for everyone else.
+- **Ownership is per agency,** so a channel row is never shared across agencies
+  and RLS scopes it like every other table.
+
+The Meta *developer app* brokering OAuth is a separate, lower question than
+account ownership. Default: GoDND's app (initially the aggregator's), because
+per-operator App Review — business verification, hosted policy URLs, a demo
+screencast, multiple weeks — is a wall a three-person operator in Shillong does
+not get over, and the feature would ship to nobody. Revisit if an operator asks
+for isolation or a suspension actually happens.
+
+### 2. Aggregator first, migrate later
+
+Ayrshare / Phyllo / Late, behind `SocialProvider`. Publishing works in days
+rather than after a 4–8 week review, and the interface makes a later move to
+direct Meta APIs a swap rather than a rewrite.
+
+The crossover to watch: roughly $1–5 per connected profile per month. Trivial at
+100 operators, around ₹30L a year at 500. Re-run the maths when connected
+profiles pass ~300, comparing licence cost against the engineering cost of
+direct integration plus its ongoing maintenance.
+
+### 3. AI drafts, the operator writes
+
+A first draft the operator always edits — never autopilot, never an approval
+queue that decays into rubber-stamping. The editor stays the centre of Studio
+and generated text is labelled a starting point.
+
+This follows directly from decision 1: posts go out under the agency's name and
+the agency carries the liability, so the agency writes the final words. It also
+sets the phase 4 bar — the model has to make the blank page disappear, not the
+task.
+
+### 4. Ads is a paid tier above the base plan
+
+A flat monthly add-on, not bundled and not a percentage of spend. A cut of spend
+is the media-agency model, and operators route around it at exactly the volume
+where it would start to matter. A flat tier self-selects operators with a real
+budget, who generate less support load per rupee — and ad support is the
+expensive kind, because the operator is losing money while they wait.
+
+Worth pairing with a track-record gate at some point: a brand-new listing with
+no reviews will burn ₹20,000 and the operator will blame the tool. Not decided
+yet, and not blocking.
