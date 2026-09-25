@@ -90,3 +90,53 @@ export function severityRank(status: Status): number {
 export function worstStatus(...statuses: Status[]): Status {
   return SEVERITY_ORDER.find((s) => statuses.includes(s)) ?? "neutral";
 }
+
+/**
+ * A social connection, read as "can this channel publish right now?" — amber
+ * once a token is close enough to expiry that a scheduled post could outlive
+ * it, red once posting is already broken, grey for a channel never connected
+ * (nothing is wrong with an account the operator chose not to link).
+ */
+export function statusForChannel(state: string): Status {
+  switch (state) {
+    case "connected":
+      return "healthy";
+    case "expiring":
+      return "warning";
+    case "needs_reauth":
+      return "critical";
+    default:
+      return "neutral";
+  }
+}
+
+/**
+ * A post's lifecycle. Green is "it went out", amber is "it is going out and
+ * still could be stopped", red is a publish that failed and is losing the
+ * slot it was written for.
+ */
+export function statusForPost(state: string): Status {
+  switch (state) {
+    case "published":
+      return "healthy";
+    case "scheduled":
+    case "publishing":
+      return "warning";
+    case "failed":
+      return "critical";
+    default:
+      return "neutral";
+  }
+}
+
+/** A campaign, read as "is money moving?" — spend is the thing to notice. */
+export function statusForCampaign(state: string): Status {
+  switch (state) {
+    case "active":
+      return "healthy";
+    case "in_review":
+      return "warning";
+    default:
+      return "neutral";
+  }
+}
