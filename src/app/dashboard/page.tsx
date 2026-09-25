@@ -11,6 +11,7 @@ import { PageBar } from "@/components/ui/page-bar";
 import { listLatestBookings } from "@/lib/data/bookings";
 import { listRecentExperiences } from "@/lib/data/experiences";
 import { getHomeInsights } from "@/lib/data/insights";
+import { dayKey } from "@/lib/time";
 
 export const metadata = { title: "Home" };
 
@@ -49,7 +50,7 @@ export default async function HomePage() {
               <ExperienceFunnel figures={insights.funnel} />
               <div className="home-split">
                 <ConversionChart series={insights.conversion} />
-                <LatestBookings rows={latestBookings} />
+                <LatestBookings rows={latestBookings} today={dayKey(new Date())} />
               </div>
               <RecentExperiences rows={recentExperiences} />
             </div>

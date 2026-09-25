@@ -280,7 +280,7 @@
   .badge.critical { background: var(--critical-tint); color: var(--critical-fg); }
   .badge.warning { background: var(--warning-tint); color: var(--warning-fg); }
   .badge.healthy { background: var(--healthy-tint); color: var(--healthy-fg); }
-  .badge.info { background: var(--info-tint); color: var(--brand-on-muted); }
+  .badge.info { background: var(--info-tint); color: var(--info-fg); }
   .badge.neutral { background: var(--panel); color: var(--text-secondary); }
 
   /* Status badge — solid fill, white text. The fill alone

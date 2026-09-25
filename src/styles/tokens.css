@@ -132,6 +132,7 @@
   --critical-fg: var(--red-700);
   --warning-fg: var(--amber-700);
   --healthy-fg: var(--green-700);
+  --info-fg: var(--blue-700);
   /* Status tints — translucent fills behind badges, chips, notices */
   --critical-tint: rgba(220, 38, 38, .10);
   --warning-tint: rgba(217, 119, 6, .12);
