@@ -76,7 +76,7 @@ function ThreadView({
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, [row.id, markRead]);
 
-  const wide = useMediaQuery("(min-width: 1280px)");
+  const wide = useMediaQuery("(min-width: 1360px)");
   const phone = useMediaQuery("(max-width: 767px)");
   useVisualViewportVars(phone);
   const online = useOnline();
@@ -186,7 +186,7 @@ function ThreadView({
       </div>
 
       {/* Docked details: in the markup at every width so a wide screen paints
-          it on first load; CSS shows it only from 1280px up. */}
+          it on first load; CSS shows it only from 1360px up. */}
       <aside className="thread-details" aria-label="Enquiry details" hidden={!docked}>
         {details}
       </aside>

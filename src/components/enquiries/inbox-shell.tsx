@@ -10,10 +10,11 @@ import { useInbox } from "@/components/enquiries/inbox-provider";
  * JavaScript, so the first paint is already right at every width:
  *
  *   phone      one pane at a time; an open thread covers the screen
- *   tablet     list + thread
- *   desktop    list + thread + details (the thread docks it at 1280px)
+ *   < 900px    one pane at a time inside the card (the rail takes 178px)
+ *   ≥ 900px    list + thread
+ *   ≥ 1360px   list + thread + details (the thread docks it)
  *
- * data-pane tells the phone layout which of the two to show.
+ * data-pane tells the one-pane layouts which of the two to show.
  */
 export function InboxShell({ children }: { children: React.ReactNode }) {
   const { selectedId } = useInbox();

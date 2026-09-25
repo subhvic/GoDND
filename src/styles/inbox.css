@@ -5,10 +5,11 @@
    conversation row, bubbles, a composer, dialogs. Every value resolves
    through tokens.css; nothing below names a raw color.
 
-   Layout by width
+   Layout by width (the portal rail is 178px and always open from 768px)
      < 768   one pane; an open thread covers the screen (native-app pattern)
-     ≥ 768   list | thread
-     ≥ 1280  list | thread | details
+     < 900   one pane inside the card, with a back button
+     ≥ 900   list | thread
+     ≥ 1360  list | thread | details
    ============================================================================ */
 @layer components {
 
@@ -428,22 +429,31 @@
   .lost-option input { margin: 0; width: 15px; height: 15px; accent-color: var(--brand); }
 
   /* ============ RESPONSIVE ============ */
-  @media (min-width: 1280px) {
+  @media (min-width: 1360px) {
     .inbox-list { width: 340px; }
     .thread-details:not([hidden]) { display: block; }
   }
 
+  @media (max-width: 1359px) {
+    .inbox-list { width: 300px; }
+  }
+
   @media (max-width: 1023px) {
-    .inbox-list { width: 290px; }
+    .inbox-list { width: 280px; }
     .thread-sub-extra { display: none; }
     .quote-form { grid-template-columns: minmax(0, 1fr); }
     .quote-form-preview { position: static; }
   }
 
-  @media (max-width: 767px) {
+  /* Too narrow for two panes beside the rail: show one, like a phone. */
+  @media (max-width: 899px) {
     .inbox-list { width: 100%; border-right: 0; }
     .inbox[data-pane="thread"] .inbox-list { display: none; }
     .inbox[data-pane="list"] .inbox-main { display: none; }
+    .thread-back { display: inline-flex; }
+  }
+
+  @media (max-width: 767px) {
 
     /* The open thread takes the whole screen, sized to the visible viewport
        so the reply box rides above the iOS keyboard (see useVisualViewportVars). */
