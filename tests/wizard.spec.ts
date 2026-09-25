@@ -33,6 +33,15 @@ const seededDraft = {
       foodIncluded: "breakfast_dinner",
       foodPreference: "both",
     },
+    itinerary: {
+      days: [
+        { dayNumber: 1, pickupIncluded: false, pickupLocation: "", pickupRegion: "", pickupTime: "",
+          activities: [{ id: "a1", title: "Living root bridge", kind: "trek", stoppageMin: 120, locationName: "Nongriat", comment: "" }] },
+      ],
+    },
+    images: [
+      { id: "photo-1", owner: "activity:a1", name: "bridge.jpg", alt: "Living root bridge", width: 1600, height: 1200, bytes: 280000, originalBytes: 3600000 },
+    ],
     pricing: {
       basePrice: 7500,
       maxGuestsPerBooking: 4,

@@ -397,3 +397,92 @@ export type EnquiryDetail = EnquiryRow & {
   messages: EnquiryMessage[];
   booking: { id: string; reference: string } | null;
 };
+
+/* ==========================================================================
+   Home
+   ========================================================================== */
+
+/** Pick-up → drop, the "Guwahati → Itanagar" line under a location. */
+export type Route = { from: string; to: string };
+
+/** "Latest bookings" on Home: who booked, where to, when, and when they travel. */
+export type LatestBookingRow = BookingRow & {
+  /** State(s) the experience runs in — the snapshot's, else the live row's. */
+  location: string[];
+  route: Route | null;
+};
+
+export type PricingMode = "unit_multiply" | "variable";
+
+/** "Recently created experiences" on Home — newest first, drafts included. */
+export type RecentExperienceRow = ExperienceRow & {
+  createdAt: string;
+  route: Route | null;
+  /** Last open departure: the file's "Expiring on …" under next availability. */
+  availableUntil: string | null;
+  /** unit_multiply prices a guest ("per head"); variable prices the group. */
+  pricingMode: PricingMode;
+};
+
+/**
+ * The funnel strip's time windows. Rolling rather than calendar periods, so
+ * "+18%" always compares two windows of equal length and the strip doesn't
+ * reset to near-zero on the first of the month.
+ */
+export const FUNNEL_PERIODS = [
+  { key: "7d", label: "Last 7 days", days: 7 },
+  { key: "30d", label: "Last 30 days", days: 30 },
+  { key: "90d", label: "Last 90 days", days: 90 },
+] as const;
+
+export type FunnelPeriod = (typeof FUNNEL_PERIODS)[number]["key"];
+
+/**
+ * One window of "My experience funnel". Each "previous" value is the same
+ * count over the window before, for the growth caption.
+ *
+ * The two cancellation tiles split on money, because the schema does:
+ * a reservation cancelled before payment ends `cancelled`, a paid booking
+ * cancelled afterwards ends `refunded`.
+ */
+export type FunnelFigures = {
+  activeExperiences: number;
+  /** Went live inside the window. */
+  newlyActive: number;
+  reservationsMade: number;
+  reservationsMadePrevious: number;
+  reservationsCancelled: number;
+  bookingsCompleted: number;
+  bookingsCompletedPrevious: number;
+  reviewsReceived: number;
+  averageRating: number | null;
+  bookingsCancelled: number;
+};
+
+export type ConversionGranularity = "monthly" | "weekly";
+
+export type ConversionPoint = {
+  /** ISO date the bucket starts on. */
+  key: string;
+  /** Axis label: "Mar ’26", or "Sep 1" for a week. */
+  label: string;
+  /** A week's second axis line: "– Sep 7". */
+  sublabel?: string;
+  /** Tooltip and table: "March 2026", "1 – 7 Sep 2026". */
+  range: string;
+  /** Experiences live during the bucket. */
+  activeExperiences: number;
+  /**
+   * Distinct experiences that took at least one booking in the bucket —
+   * the file's "Experiences Booked". Counting experiences rather than
+   * bookings keeps both lines in one unit on one axis, so the gap between
+   * them reads directly as inventory that didn't sell.
+   */
+  bookedExperiences: number;
+};
+
+export type HomeInsights = {
+  funnel: Record<FunnelPeriod, FunnelFigures>;
+  conversion: Record<ConversionGranularity, ConversionPoint[]>;
+  isDemoData: boolean;
+};

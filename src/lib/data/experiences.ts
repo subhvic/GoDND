@@ -6,6 +6,9 @@ import type {
   ExperienceRow,
   ExperienceStatus,
   ExperienceTabKey,
+  PricingMode,
+  RecentExperienceRow,
+  Route,
 } from "@/lib/types";
 
 /**
@@ -90,6 +93,65 @@ export async function listExperiences({
     pageCount: Math.max(Math.ceil(total / pageSize), 1),
     isDemoData: false,
   };
+}
+
+/**
+ * Home's "Recently created experiences": newest first, every state — a
+ * fresh draft is exactly what an operator comes back to finish.
+ */
+export async function listRecentExperiences(limit = 3): Promise<RecentExperienceRow[]> {
+  if (!isSupabaseConfigured()) {
+    return DEMO.map(withDemoExtras)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, limit);
+  }
+
+  const supabase = await createServerSupabase();
+  const { data, error } = await supabase
+    .from("experiences")
+    .select(
+      `id, public_ref, title, kind, status, list_on_marketplace,
+       max_group_size, group_sizing, max_parallel_groups,
+       duration_days, duration_nights, base_price_minor, currency,
+       pricing_mode, pickup_location, dropoff_location, created_at,
+       experience_regions ( regions ( name ) ),
+       experience_availability ( start_date, end_date, is_open )`,
+    )
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw new Error(`Failed to load recent experiences: ${error.message}`);
+
+  return (data ?? []).map((raw) => {
+    const record = raw as unknown as RecentExperienceRecord;
+    const today = new Date().toISOString().slice(0, 10);
+    const lastOpen = (record.experience_availability ?? [])
+      .filter((slot) => slot.is_open && slot.end_date >= today)
+      .map((slot) => slot.end_date)
+      .sort()
+      .at(-1);
+
+    return {
+      ...toExperienceRow(record),
+      createdAt: record.created_at,
+      route: toRoute(record.pickup_location, record.dropoff_location),
+      availableUntil: lastOpen ?? null,
+      pricingMode: record.pricing_mode,
+    };
+  });
+}
+
+type RecentExperienceRecord = Omit<ExperienceRecord, "experience_availability"> & {
+  pricing_mode: PricingMode;
+  pickup_location: string | null;
+  dropoff_location: string | null;
+  created_at: string;
+  experience_availability?: { start_date: string; end_date: string; is_open: boolean }[] | null;
+};
+
+/** A route only when both ends are known; a draft with half a route has none yet. */
+function toRoute(from: string | null | undefined, to: string | null | undefined): Route | null {
+  return from && to ? { from, to } : null;
 }
 
 type SupabaseClient = Awaited<ReturnType<typeof createServerSupabase>>;
@@ -253,7 +315,8 @@ const DEMO: ExperienceRow[] = [
     durationDays: 5,
     durationNights: 4,
     location: ["Meghalaya"],
-    nextAvailableOn: null,
+    // Departures are set before submitting; they open once it's approved.
+    nextAvailableOn: "2026-10-18",
     basePriceMinor: 3200000,
     currency: "INR",
   },
@@ -330,6 +393,37 @@ const DEMO: ExperienceRow[] = [
   },
 ];
 
+/**
+ * What the Home page needs beyond the list row. Kept beside DEMO rather
+ * than inside it so the list fixture stays shape-identical to its query.
+ * Created dates put a draft, a submission and a rejection at the top of
+ * "Recently created" — the states an operator returns to.
+ */
+const DEMO_EXTRAS: Record<
+  string,
+  { createdAt: string; route: Route | null; availableUntil: string | null; pricingMode: PricingMode }
+> = {
+  "demo-1": { createdAt: "2026-01-12T10:05:00+05:30", route: { from: "Guwahati", to: "Shillong" }, availableUntil: "2026-12-20", pricingMode: "variable" },
+  "demo-2": { createdAt: "2026-02-02T16:40:00+05:30", route: { from: "Guwahati", to: "Itanagar" }, availableUntil: "2026-12-15", pricingMode: "variable" },
+  "demo-3": { createdAt: "2025-12-05T11:20:00+05:30", route: { from: "Dibrugarh", to: "Jorhat" }, availableUntil: "2026-11-30", pricingMode: "unit_multiply" },
+  "demo-4": { createdAt: "2025-11-20T09:15:00+05:30", route: { from: "Shillong", to: "Shillong" }, availableUntil: "2026-12-31", pricingMode: "unit_multiply" },
+  "demo-5": { createdAt: "2026-09-16T12:30:00+05:30", route: { from: "Shillong", to: "Shillong" }, availableUntil: "2027-02-28", pricingMode: "unit_multiply" },
+  "demo-6": { createdAt: "2026-09-22T18:45:00+05:30", route: null, availableUntil: null, pricingMode: "variable" },
+  "demo-7": { createdAt: "2025-10-02T08:50:00+05:30", route: { from: "Guwahati", to: "Kaziranga" }, availableUntil: null, pricingMode: "unit_multiply" },
+  "demo-8": { createdAt: "2024-05-10T14:00:00+05:30", route: { from: "Shillong", to: "Shillong" }, availableUntil: null, pricingMode: "unit_multiply" },
+  "demo-9": { createdAt: "2026-09-08T15:10:00+05:30", route: { from: "Tezpur", to: "Bomdila" }, availableUntil: null, pricingMode: "unit_multiply" },
+};
+
+function withDemoExtras(row: ExperienceRow): RecentExperienceRow {
+  const extras = DEMO_EXTRAS[row.id] ?? {
+    createdAt: "2026-01-01T00:00:00+05:30",
+    route: null,
+    availableUntil: null,
+    pricingMode: "unit_multiply" as const,
+  };
+  return { ...row, ...extras };
+}
+
 function demoList({
   tab,
   search = "",
@@ -370,9 +464,12 @@ export async function getExperience(
 ): Promise<ExperienceDetail | null> {
   const row = DEMO.find((item) => item.id === id);
   if (!row) return null;
+  const extras = withDemoExtras(row);
 
   // Detail fields beyond the list shape. Wired to the fixture for now; the
-  // Supabase read lands with the drawer's edit actions.
+  // Supabase read lands with the drawer's edit actions. Route, pricing mode
+  // and inventory come from the same extras Home lists, so a row and its
+  // drawer never disagree.
   return {
     ...row,
     ratingAvg: 4.6,
@@ -383,11 +480,11 @@ export async function getExperience(
     activityTags: ["Rafting", "Camping", "Biking", "Swimming"],
     foodIncluded: "Breakfast & Dinner",
     foodPreference: "Both Veg and Non-Veg",
-    pickupLocation: "Guwahati",
-    dropoffLocation: "Guwahati",
+    pickupLocation: extras.route?.from ?? null,
+    dropoffLocation: extras.route?.to ?? null,
     tripCaptain: "Madhurjyoti Saikia",
-    variablePricing: true,
-    inventoryUntil: "2026-05-15",
+    variablePricing: extras.pricingMode === "variable",
+    inventoryUntil: extras.availableUntil,
     photoCount: 24,
     videoCount: 6,
     guestPhotoCount: 9,

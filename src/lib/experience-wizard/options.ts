@@ -126,10 +126,3 @@ export const STOPPAGE_OPTIONS = [15, 30, 45, 60, 90, 120, 180, 240].map((mins) =
   label: mins >= 60 ? `${mins / 60} hr${mins >= 120 ? "s" : ""}` : `${mins} mins`,
 }));
 
-/** Thumbnail candidates — in production these come from experience_media. */
-export const SAMPLE_MEDIA = [
-  { id: "media-1", alt: "Traveller looking out over green hills" },
-  { id: "media-2", alt: "Campsite beside a river at dusk" },
-  { id: "media-3", alt: "Cyclists on a mountain road" },
-  { id: "media-4", alt: "Living root bridge in the forest" },
-];

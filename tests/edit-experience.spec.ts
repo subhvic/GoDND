@@ -102,7 +102,7 @@ test.describe("edit review flow", () => {
             itinerary: {
               days: [
                 { dayNumber: 1, pickupIncluded: true, pickupLocation: "Guwahati", pickupRegion: "", pickupTime: "10:30",
-                  activities: [{ id: "a1", title: "Drive", kind: "transfer", stoppageMin: 180, locationName: "", comment: "", imageCount: 0 }] },
+                  activities: [{ id: "a1", title: "Drive", kind: "transfer", stoppageMin: 180, locationName: "", comment: "" }] },
               ],
             },
             crew: { tripCaptain: "dipendu-dey", coordinator: "anjali-rai", hasGroundCrew: false, crewMembers: [], onboardingStrategy: "open", maxGroupSize: 10 },
@@ -110,6 +110,7 @@ test.describe("edit review flow", () => {
             availability: { availabilityMode: "selective", logs: [{ id: "log-1", from: "2026-05-01", to: "2026-05-31" }], blockAfterFullCapacity: false, blockForDays: 0, holidays: [] },
             policies: { inclusions: ["accommodation"], exclusions: ["flights"], departureNote: "Meet at Guwahati arrivals.", accessibility: [], additionalInfo: [], acceptCancellationPolicy: true, acceptSupportStandards: true },
             media: { thumbnailId: "media-01", summary: "Seven days across Meghalaya’s living root bridges." },
+            images: [{ id: "media-01", owner: "activity:a1", name: "drive.jpg", alt: "", width: 1600, height: 1200, bytes: 300000, originalBytes: 3900000 }],
           },
           completed: { "basic-info": true, itinerary: true, crew: true, pricing: true, availability: true, policies: true, media: true },
           experienceId: "demo-1",

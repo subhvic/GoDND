@@ -54,6 +54,8 @@ test.describe("host routing", () => {
     // way to open the app at all. It must reach the portal as well as the root.
     for (const path of [
       "/",
+      "/login",
+      "/dashboard",
       "/dashboard/experiences",
       "/dashboard/experiences/new/basic-info",
       "/design-system",
@@ -74,7 +76,9 @@ test.describe("host routing", () => {
     // Host isolation is the security property behind the whole routing scheme:
     // a traveller on the public marketplace must not be able to walk into the
     // operator app by typing a path.
-    for (const path of ["/dashboard/experiences", "/sites/any-agency"]) {
+    // The sign-in page belongs to the portal too: a traveller on godnd.co
+    // must not land on an operator login.
+    for (const path of ["/dashboard", "/dashboard/experiences", "/login", "/sites/any-agency"]) {
       const { status } = await fetchWithHost(MARKETPLACE_HOST, path);
       expect(status, `${MARKETPLACE_HOST}${path}`).toBe(404);
     }
@@ -103,9 +107,23 @@ test.describe("host routing", () => {
     expect(marketplace.body).not.toContain('href="/dashboard/experiences"');
   });
 
+  test("the root links to sign-in only where sign-in is reachable", async () => {
+    const deployment = await fetchWithHost(DEPLOYMENT_HOST, "/");
+    expect(deployment.body).toContain('href="/login"');
+
+    const marketplace = await fetchWithHost(MARKETPLACE_HOST, "/");
+    expect(marketplace.body).not.toContain('href="/login"');
+  });
+
   test("the portal hostname redirects its root into the dashboard", async () => {
     const { status } = await fetchWithHost(PORTAL_HOST, "/");
     expect([301, 302, 307, 308]).toContain(status);
+  });
+
+  test("the portal hostname serves its sign-in page", async () => {
+    const { status, body } = await fetchWithHost(PORTAL_HOST, "/login");
+    expect(status).toBe(200);
+    expect(body).toContain("Login");
   });
 
   test("the portal hostname serves the experiences table", async () => {

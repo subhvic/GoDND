@@ -2,11 +2,15 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, type FieldErrors } from "react-hook-form";
-import { ImagePlus, MapPin, Plus, Trash2 } from "lucide-react";
+import { MapPin, Plus, Trash2 } from "lucide-react";
 
 import { StepShell } from "@/components/experiences/wizard/step-shell";
 import { useStepForm } from "@/components/experiences/wizard/use-step-form";
+import { ImageUploader } from "@/components/experiences/wizard/image-uploader";
 import { useWizard } from "@/components/experiences/wizard/wizard-provider";
+import { removeImagesForOwner } from "@/lib/experience-wizard/draft-store";
+import { IMAGE_LIMITS } from "@/lib/experience-wizard/image-uploads";
+import { activityOwner } from "@/lib/experience-wizard/images";
 import { Checkbox, Field, Select, TextArea, TextInput } from "@/components/ui/field";
 import {
   ACTIVITY_KIND_OPTIONS,
@@ -333,13 +337,14 @@ export function StepItinerary() {
                 <button
                   type="button"
                   aria-label={`Remove activity ${index + 1}`}
-                  onClick={() =>
+                  onClick={() => {
                     updateDay(current.dayNumber, {
                       activities: current.activities.filter(
                         (item) => item.id !== activity.id,
                       ),
-                    })
-                  }
+                    });
+                    removeImagesForOwner(activityOwner(activity.id));
+                  }}
                   className="record-drawer-close hover:text-critical-fg"
                 >
                   <Trash2 aria-hidden />
@@ -405,26 +410,15 @@ export function StepItinerary() {
                   )}
                 </Field>
 
-                <div>
-                  <p className="field-label mb-[6px]">
-                    Add Images
-                    <span aria-hidden className="req">
-                      *
-                    </span>
-                  </p>
-                  <div className="flex items-center gap-[12px]">
-                    <button
-                      type="button"
-                      className="hbtn small"
-                    >
-                      <ImagePlus aria-hidden />
-                      Upload
-                    </button>
-                    <span className="field-hint">
-                      ({activity.imageCount} images)
-                    </span>
-                  </div>
-                </div>
+              </div>
+
+              <div className="mt-[14px]">
+                <ImageUploader
+                  owner={activityOwner(activity.id)}
+                  max={IMAGE_LIMITS.perActivity}
+                  label="Photos"
+                  hint="Optional. The first photo leads this stop in the itinerary guests see."
+                />
               </div>
 
               <div className="mt-[14px]">
@@ -459,7 +453,6 @@ export function StepItinerary() {
                     stoppageMin: 60,
                     locationName: "",
                     comment: "",
-                    imageCount: 0,
                   },
                 ],
               })

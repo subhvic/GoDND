@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+
 import { AppShell } from "@/components/dashboard/app-shell";
 import type { SidebarUser } from "@/components/dashboard/sidebar";
 import { createServerSupabase } from "@/lib/supabase/server";
@@ -14,8 +16,9 @@ export default async function DashboardLayout({
 
 /**
  * Falls back to a demo identity when Supabase is not configured, so the shell
- * renders on a fresh clone. Once auth is wired, an unauthenticated request
- * redirects rather than showing a placeholder.
+ * renders on a fresh clone. With auth configured, the proxy already sends a
+ * signed-out visitor to /login; redirecting here too keeps that true if a
+ * request ever reaches the shell without passing through it.
  */
 async function currentUser(): Promise<SidebarUser> {
   if (
@@ -30,7 +33,7 @@ async function currentUser(): Promise<SidebarUser> {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { name: "Guest", role: "Signed out" };
+  if (!user) redirect("/login");
 
   const { data: profile } = await supabase
     .from("profiles")
