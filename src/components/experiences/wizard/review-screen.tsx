@@ -19,6 +19,7 @@ import {
 
 import { useWizard } from "@/components/experiences/wizard/wizard-provider";
 import { EditStateBanner } from "@/components/experiences/wizard/edit-state-banner";
+import { StoredImage } from "@/components/experiences/wizard/stored-image";
 import { SUBMISSION_FLASH_KEY } from "@/components/experiences/wizard/submitted-screen";
 import { Button, buttonClass } from "@/components/ui/button";
 import { Notice } from "@/components/ui/notice";
@@ -44,6 +45,11 @@ import {
   policiesSchema,
   pricingSchema,
 } from "@/lib/experience-wizard/schema";
+import {
+  activityOwner,
+  pickableImages,
+  type PickableImage,
+} from "@/lib/experience-wizard/images";
 import { WIZARD_STEPS, type WizardStepSlug } from "@/lib/experience-wizard/steps";
 import { formatDuration, formatMoney } from "@/lib/utils";
 
@@ -174,6 +180,14 @@ export function ReviewScreen() {
     }
   }
 
+  // The schema only knows the thumbnail is a non-empty id. Whether that id
+  // is still a photo in this draft is a cross-section fact, checked here.
+  const pickable = pickableImages(wizard.draft);
+  const thumbnail = pickable.find((image) => image.id === wizard.draft.media.thumbnailId);
+  if (wizard.draft.media.thumbnailId && !thumbnail) {
+    problems.push({ slug: "media", message: "The chosen thumbnail was removed. Choose another" });
+  }
+
   const canSubmit = problems.length === 0 && !submitting;
 
   const handleSubmit = async () => {
@@ -283,7 +297,7 @@ export function ReviewScreen() {
               <BasicInfoSummary draft={wizard.draft.basicInfo} />
             </SectionCard>
             <SectionCard slug="itinerary">
-              <ItinerarySummary draft={wizard.draft.itinerary} />
+              <ItinerarySummary draft={wizard.draft.itinerary} images={wizard.draft.images} />
             </SectionCard>
             <SectionCard slug="crew">
               <CrewSummary draft={wizard.draft.crew} />
@@ -301,7 +315,7 @@ export function ReviewScreen() {
               <PoliciesSummary draft={wizard.draft.policies} />
             </SectionCard>
             <SectionCard slug="media">
-              <MediaSummary draft={wizard.draft.media} />
+              <MediaSummary draft={wizard.draft.media} thumbnail={thumbnail} />
             </SectionCard>
           </div>
         </div>
@@ -309,7 +323,7 @@ export function ReviewScreen() {
         {/* Pinned footer, matching the wizard's own footer shape so the flow
             feels continuous. The primary action is the terminal action of the
             whole seven-step flow. */}
-        <div className="sticky bottom-0 z-10 mx-[-16px] flex items-center justify-between gap-[12px] border-t border-border-subtle bg-card px-[16px] py-[12px]">
+        <div className="sticky bottom-0 z-10 ml-[-12px] mr-[-16px] flex items-center justify-between gap-[12px] border-t border-border-subtle bg-card py-[12px] pl-[12px] pr-[16px]">
           <span className="text-[11.5px] text-text-muted">
             {wizard.isEditing
               ? `Reviewing your changes to this experience`
@@ -465,7 +479,15 @@ function BasicInfoSummary({ draft }: { draft: Draft["basicInfo"] }) {
   );
 }
 
-function ItinerarySummary({ draft }: { draft: Draft["itinerary"] }) {
+function ItinerarySummary({
+  draft,
+  images,
+}: {
+  draft: Draft["itinerary"];
+  images: Draft["images"];
+}) {
+  const photosOf = (activityId: string) =>
+    images.filter((image) => image.owner === activityOwner(activityId)).length;
   const total = draft.days.reduce((sum, day) => sum + day.activities.length, 0);
   if (total === 0 && draft.days.every((day) => !day.pickupLocation)) {
     return (
@@ -506,6 +528,9 @@ function ItinerarySummary({ draft }: { draft: Draft["itinerary"] }) {
                     {labelOf(ACTIVITY_KIND_OPTIONS, activity.kind)}
                     {activity.locationName ? ` · ${activity.locationName}` : ""}
                     {activity.stoppageMin ? ` · ${activity.stoppageMin} min` : ""}
+                    {photosOf(activity.id)
+                      ? ` · ${photosOf(activity.id)} photo${photosOf(activity.id) === 1 ? "" : "s"}`
+                      : ""}
                   </span>
                 </li>
               ))}
@@ -704,14 +729,25 @@ function PoliciesSummary({ draft }: { draft: Draft["policies"] }) {
   );
 }
 
-function MediaSummary({ draft }: { draft: Draft["media"] }) {
+function MediaSummary({
+  draft,
+  thumbnail,
+}: {
+  draft: Draft["media"];
+  thumbnail: PickableImage | undefined;
+}) {
   return (
     <DetailGrid
       rows={[
         [
           "Thumbnail",
-          draft.thumbnailId ? (
-            <span className="font-mono text-[11.5px]">{draft.thumbnailId}</span>
+          thumbnail ? (
+            <span className="flex items-center gap-[10px]">
+              <span className="block h-[54px] w-[72px] shrink-0 overflow-hidden rounded-sm border border-border-subtle">
+                <StoredImage id={thumbnail.id} alt={thumbnail.alt || thumbnail.name} />
+              </span>
+              <span className="text-[11.5px] text-text-muted">{thumbnail.source}</span>
+            </span>
           ) : (
             <Empty />
           ),

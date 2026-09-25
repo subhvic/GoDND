@@ -108,8 +108,7 @@
   --radius-lg: var(--radius-3);
   --radius-card: var(--radius-xs);
   /* Layout */
-  --nav-w: 222px;
-  --nav-w-collapsed: 66px;
+  --nav-w: 178px;
   --gutter: 14px;
 
   /* ---------- Layer 3 · COMPONENT ---------------------------------------- */

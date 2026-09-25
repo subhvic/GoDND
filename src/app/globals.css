@@ -72,8 +72,7 @@
   --text-caption: 11px;
   --text-caption--line-height: 1.3;
 
-  --spacing-nav-expanded: 222px;
-  --spacing-nav-collapsed: 66px;
+  --spacing-nav: 178px;
 }
 
 @layer base {

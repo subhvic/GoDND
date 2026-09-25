@@ -738,8 +738,7 @@ function SpacingRadius() {
         ))}
       </div>
       <div className="ds-layout-tokens">
-        <LayoutToken token="--nav-w" value="222px" use="Expanded sidebar" />
-        <LayoutToken token="--nav-w-collapsed" value="66px" use="Collapsed sidebar" />
+        <LayoutToken token="--nav-w" value="178px" use="Sidebar (always expanded)" />
         <LayoutToken token="--gutter" value="14px" use="Canvas padding" />
       </div>
     </Section>
@@ -1403,7 +1402,6 @@ function Navigation() {
       </Spec>
       <Spec title="Step rail" note=".rail-item · the wizard's secondary navigation">
         <div className="ds-nav-frame w-[260px] px-0">
-          <div className="rail-label">New experience</div>
           <span className="rail-item">
             <Info aria-hidden />
             <span className="rail-name">Basic Info</span>

@@ -59,7 +59,6 @@ export function WizardRail({ current }: { current: WizardStepSlug }) {
 
   return (
     <nav aria-label="Experience setup steps" className="rail hidden md:block">
-      <div className="rail-label">New experience</div>
       <ol className="m-0 list-none p-0">
         {WIZARD_STEPS.map((step, index) => {
           const Icon = STEP_ICONS[step.slug];
@@ -201,7 +200,7 @@ export function WizardFooter({
   const finalLabel = isEditing ? "Review updates" : "Review & send";
 
   return (
-    <div className="sticky bottom-0 z-10 mx-[-16px] mt-auto flex items-center justify-between gap-[12px] border-t border-border-subtle bg-card px-[16px] py-[12px]">
+    <div className="sticky bottom-0 z-10 ml-[-20px] mr-[-16px] mt-auto flex items-center justify-between gap-[12px] border-t border-border-subtle bg-card py-[12px] pl-[20px] pr-[16px]">
       <span className="text-[11.5px] text-text-muted">
         Step {index + 1} of {WIZARD_STEPS.length}
       </span>

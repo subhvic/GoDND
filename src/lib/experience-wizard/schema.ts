@@ -61,7 +61,6 @@ export const activitySchema = z.object({
   stoppageMin: z.coerce.number().int().min(0).nullable(),
   locationName: z.string().trim().default(""),
   comment: z.string().trim().default(""),
-  imageCount: z.number().int().min(0).default(0),
 });
 
 export const daySchema = z.object({
@@ -172,6 +171,29 @@ export const mediaSchema = z.object({
   ),
 });
 
+/* --- Photos --------------------------------------------------------------- */
+
+/**
+ * A photo's record in the draft. The pixels are not here: they live in the
+ * browser's IndexedDB (see image-db.ts), because a draft in sessionStorage has
+ * a ~5 MB ceiling and a single phone photo can exceed it. The draft carries
+ * only what the UI and the server need to reason about the photo.
+ *
+ * `owner` says where the photo was added: `activity:<activityId>` for an
+ * itinerary stop, or `thumbnail` for a custom thumbnail from step 7.
+ */
+export const imageRefSchema = z.object({
+  id: z.string(),
+  owner: z.string(),
+  name: z.string(),
+  alt: z.string().default(""),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  /** Size after optimisation — what would be uploaded. */
+  bytes: z.number().int().nonnegative(),
+  originalBytes: z.number().int().nonnegative(),
+});
+
 /* --- The whole draft ------------------------------------------------------ */
 
 export type BasicInfoValues = z.infer<typeof basicInfoSchema>;
@@ -183,6 +205,7 @@ export type PoliciesValues = z.infer<typeof policiesSchema>;
 export type MediaValues = z.infer<typeof mediaSchema>;
 export type DayValues = z.infer<typeof daySchema>;
 export type ActivityValues = z.infer<typeof activitySchema>;
+export type ImageRef = z.infer<typeof imageRefSchema>;
 
 export type ExperienceDraft = {
   basicInfo: BasicInfoValues;
@@ -192,6 +215,8 @@ export type ExperienceDraft = {
   availability: AvailabilityValues;
   policies: PoliciesValues;
   media: MediaValues;
+  /** Every photo in the draft, in display order within each owner. */
+  images: ImageRef[];
 };
 
 export const emptyDraft: ExperienceDraft = {
@@ -256,4 +281,5 @@ export const emptyDraft: ExperienceDraft = {
     thumbnailId: "",
     summary: "",
   },
+  images: [],
 };
