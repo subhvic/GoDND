@@ -1,4 +1,9 @@
-import { emptyDraft, type ExperienceDraft } from "@/lib/experience-wizard/schema";
+import { clearImages, deleteImage } from "@/lib/experience-wizard/image-db";
+import {
+  emptyDraft,
+  type ExperienceDraft,
+  type ImageRef,
+} from "@/lib/experience-wizard/schema";
 import type { WizardStepSlug } from "@/lib/experience-wizard/steps";
 
 /**
@@ -203,6 +208,7 @@ export function markSaveFailed(message: string) {
 
 export function resetDraft() {
   snapshot = { ...serverSnapshot, hydrated: true };
+  void clearImages();
   try {
     window.sessionStorage.removeItem(STORAGE_KEY);
   } catch {
@@ -247,4 +253,70 @@ export function loadForEdit({
   };
   persist();
   emit();
+}
+
+/* ------------------------------------------------------------------------ */
+/* Photos                                                                    */
+/* ------------------------------------------------------------------------ */
+
+const imagesOf = () => snapshot.draft.images ?? [];
+
+function writeImages(images: ImageRef[], media = snapshot.draft.media) {
+  update({ draft: { ...snapshot.draft, images, media } });
+}
+
+/**
+ * Adds a processed photo. `replaceOwner` is for single-photo slots (the custom
+ * thumbnail): the new photo takes the slot and the old one is deleted, so a
+ * replaced photo never lingers in storage.
+ */
+export function addImage(ref: ImageRef, { replaceOwner = false } = {}) {
+  const replaced = replaceOwner ? imagesOf().filter((image) => image.owner === ref.owner) : [];
+  const kept = imagesOf().filter((image) => !replaced.includes(image));
+  const media =
+    replaced.some((image) => image.id === snapshot.draft.media.thumbnailId)
+      ? { ...snapshot.draft.media, thumbnailId: ref.id }
+      : snapshot.draft.media;
+  writeImages([...kept, ref], media);
+  for (const image of replaced) void deleteImage(image.id);
+}
+
+/**
+ * Removes photos. A removed photo that was the thumbnail clears the choice,
+ * rather than leaving the listing pointing at a photo that no longer exists.
+ */
+function removeWhere(match: (image: ImageRef) => boolean) {
+  const removed = imagesOf().filter(match);
+  if (removed.length === 0) return;
+  const media = removed.some((image) => image.id === snapshot.draft.media.thumbnailId)
+    ? { ...snapshot.draft.media, thumbnailId: "" }
+    : snapshot.draft.media;
+  writeImages(imagesOf().filter((image) => !match(image)), media);
+  for (const image of removed) void deleteImage(image.id);
+}
+
+export function removeImage(id: string) {
+  removeWhere((image) => image.id === id);
+}
+
+/** Drops every photo of a stop, e.g. when the stop itself is deleted. */
+export function removeImagesForOwner(owner: string) {
+  removeWhere((image) => image.owner === owner);
+}
+
+/** Moves a photo one place earlier (-1) or later (+1) among its owner's photos. */
+export function moveImage(id: string, delta: -1 | 1) {
+  const images = [...imagesOf()];
+  const from = images.findIndex((image) => image.id === id);
+  if (from === -1) return;
+  const owner = images[from].owner;
+  let to = from + delta;
+  while (to >= 0 && to < images.length && images[to].owner !== owner) to += delta;
+  if (to < 0 || to >= images.length) return;
+  [images[from], images[to]] = [images[to], images[from]];
+  writeImages(images);
+}
+
+export function setImageAlt(id: string, alt: string) {
+  writeImages(imagesOf().map((image) => (image.id === id ? { ...image, alt } : image)));
 }

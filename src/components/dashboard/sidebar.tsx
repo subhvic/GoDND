@@ -6,8 +6,6 @@ import {
   BarChart3,
   BookOpen,
   CalendarCheck,
-  ChevronLeft,
-  ChevronRight,
   Compass,
   Globe,
   HelpCircle,
@@ -15,6 +13,7 @@ import {
   MessagesSquare,
   Receipt,
   Settings,
+  X,
   type LucideIcon,
 } from "lucide-react";
 
@@ -72,19 +71,18 @@ export type SidebarUser = {
 
 export function Sidebar({
   user,
-  collapsed,
-  onToggleCollapsed,
   onOpenHelp,
+  onClose,
 }: {
   user: SidebarUser;
-  collapsed: boolean;
-  onToggleCollapsed: () => void;
   onOpenHelp: () => void;
+  /** Phones only: the rail is a slide-in panel there, and needs a close. */
+  onClose?: () => void;
 }) {
   const pathname = usePathname();
 
   return (
-    <nav className="nav" aria-label="Main">
+    <nav id="main-nav" className="nav" aria-label="Main">
       <div className="nav-top">
         <Link href="/dashboard/experiences" aria-label="GoDND home" className="flex items-center gap-[12px]">
           <LogoIcon size={27} />
@@ -92,6 +90,11 @@ export function Sidebar({
             <LogoWordmark className="text-[16px]" />
           </span>
         </Link>
+        {onClose ? (
+          <button type="button" className="nav-close record-drawer-close" aria-label="Close navigation" onClick={onClose}>
+            <X aria-hidden />
+          </button>
+        ) : null}
       </div>
 
       <div className="nav-scroll">
@@ -140,16 +143,6 @@ export function Sidebar({
           </button>
           <AccountMenu user={user} />
         </div>
-        <button
-          type="button"
-          className="nav-collapse"
-          onClick={onToggleCollapsed}
-          aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
-          aria-expanded={!collapsed}
-        >
-          {collapsed ? <ChevronRight aria-hidden /> : <ChevronLeft aria-hidden />}
-          <span className="nav-text">{collapsed ? "Expand" : "Collapse"}</span>
-        </button>
       </div>
     </nav>
   );

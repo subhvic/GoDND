@@ -30,9 +30,9 @@ const FILLED_DRAFT_STATE = {
     itinerary: {
       days: [
         { dayNumber: 1, pickupIncluded: true, pickupLocation: "Bagdogra", pickupRegion: "", pickupTime: "10:30",
-          activities: [{ id: "a1", title: "Drive to Gangtok", kind: "transfer", stoppageMin: 240, locationName: "Gangtok", comment: "", imageCount: 0 }] },
+          activities: [{ id: "a1", title: "Drive to Gangtok", kind: "transfer", stoppageMin: 240, locationName: "Gangtok", comment: "" }] },
         { dayNumber: 2, pickupIncluded: false, pickupLocation: "", pickupRegion: "", pickupTime: "",
-          activities: [{ id: "a2", title: "Rumtek Monastery", kind: "stop_location", stoppageMin: 120, locationName: "Rumtek", comment: "", imageCount: 0 }] },
+          activities: [{ id: "a2", title: "Rumtek Monastery", kind: "stop_location", stoppageMin: 120, locationName: "Rumtek", comment: "" }] },
         { dayNumber: 3, pickupIncluded: false, pickupLocation: "", pickupRegion: "", pickupTime: "",
           activities: [] },
       ],
@@ -61,6 +61,11 @@ const FILLED_DRAFT_STATE = {
       thumbnailId: "media-01",
       summary: "A short guarded summary that references what the guest will read.",
     },
+    // The photo's record only — its pixels live in IndexedDB, which a seed
+    // cannot reach, so review shows the "not on this device" state.
+    images: [
+      { id: "media-01", owner: "activity:a1", name: "gangtok.jpg", alt: "Road into Gangtok", width: 1600, height: 1200, bytes: 312000, originalBytes: 4200000 },
+    ],
   },
   completed: { "basic-info": true, itinerary: true, crew: true, pricing: true, availability: true, policies: true, media: true },
 };
@@ -134,9 +139,9 @@ test.describe("itinerary error surfacing", () => {
             itinerary: {
               days: [
                 { dayNumber: 1, pickupIncluded: false, pickupLocation: "", pickupRegion: "", pickupTime: "",
-                  activities: [{ id: "a1", title: "", kind: "stop_location", stoppageMin: 60, locationName: "", comment: "", imageCount: 0 }] },
+                  activities: [{ id: "a1", title: "", kind: "stop_location", stoppageMin: 60, locationName: "", comment: "" }] },
                 { dayNumber: 2, pickupIncluded: false, pickupLocation: "", pickupRegion: "", pickupTime: "",
-                  activities: [{ id: "a2", title: "Umiam Lake", kind: "stop_location", stoppageMin: 60, locationName: "mrf", comment: "", imageCount: 0 }] },
+                  activities: [{ id: "a2", title: "Umiam Lake", kind: "stop_location", stoppageMin: 60, locationName: "mrf", comment: "" }] },
               ],
             },
           },

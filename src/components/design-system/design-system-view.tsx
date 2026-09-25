@@ -738,8 +738,7 @@ function SpacingRadius() {
         ))}
       </div>
       <div className="ds-layout-tokens">
-        <LayoutToken token="--nav-w" value="222px" use="Expanded sidebar" />
-        <LayoutToken token="--nav-w-collapsed" value="66px" use="Collapsed sidebar" />
+        <LayoutToken token="--nav-w" value="178px" use="Sidebar (always expanded)" />
         <LayoutToken token="--gutter" value="14px" use="Canvas padding" />
       </div>
     </Section>

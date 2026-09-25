@@ -7,8 +7,7 @@ import { cn } from "@/lib/utils";
 /**
  * Tooltip — shadcn's composition over Radix, restyled with the system tokens.
  *
- * Exists for one job in particular: the collapsed 66px nav shows icons only,
- * and rule 04 says no icon-only control goes unlabeled. A native `title` is
+ * Rule 04 says no icon-only control goes unlabeled. A native `title` is
  * invisible to keyboard users and slow to appear; this shows on focus too.
  */
 export const TooltipProvider = TooltipPrimitive.Provider;
