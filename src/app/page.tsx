@@ -2,7 +2,7 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { ArrowRight, BookOpen, Compass, Globe, LayoutDashboard, LogIn, SquarePlus, Store } from "lucide-react";
 
-import { Logo } from "@/components/brand/logo";
+import { LogoLockup } from "@/components/brand/logo";
 import { buttonClass } from "@/components/ui/button";
 import { Notice } from "@/components/ui/notice";
 
@@ -30,7 +30,7 @@ export default async function HomePage() {
   return (
     <main className="min-h-dvh bg-canvas">
       <header className="flex items-center justify-between gap-[16px] border-b border-border-subtle px-[20px] py-[14px] lg:px-[40px]">
-        <Logo />
+        <LogoLockup height={26} label="GoDND Portal" />
         <Link href="/design-system" className={buttonClass()}>
           <BookOpen aria-hidden />
           Design system

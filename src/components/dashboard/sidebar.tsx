@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 
 import { signOut } from "@/app/login/actions";
-import { LogoIcon, LogoWordmark } from "@/components/brand/logo";
+import { LogoLockup } from "@/components/brand/logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -111,11 +111,8 @@ export function Sidebar({
   return (
     <nav id="main-nav" className="nav" aria-label="Main">
       <div className="nav-top">
-        <Link href="/dashboard" aria-label="GoDND home" className="flex items-center gap-[12px]">
-          <LogoIcon size={27} />
-          <span className="nav-wordmark">
-            <LogoWordmark className="text-[16px]" />
-          </span>
+        <Link href="/dashboard" aria-label="GoDND Portal home" className="nav-brand">
+          <LogoLockup height={22} />
         </Link>
         {onClose ? (
           <button type="button" className="nav-close record-drawer-close" aria-label="Close navigation" onClick={onClose}>

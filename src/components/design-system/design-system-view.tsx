@@ -29,7 +29,7 @@ import {
   X,
 } from "lucide-react";
 
-import { LogoIcon, LogoWordmark } from "@/components/brand/logo";
+import { LogoLockup } from "@/components/brand/logo";
 import {
   ATOMIC,
   COMPONENT_TOKENS,
@@ -130,9 +130,8 @@ export function DesignSystemView() {
     <div className="ds-root">
       <header className="ds-topbar">
         <div className="ds-brand">
-          <Link href="/" className="inline-flex items-center gap-[10px] no-underline">
-            <LogoIcon size={26} />
-            <LogoWordmark className="text-[17px]" />
+          <Link href="/" aria-label="GoDND home" className="inline-flex items-center no-underline">
+            <LogoLockup height={24} product={false} />
           </Link>
           <span className="ds-brand-sep" aria-hidden />
           <span className="ds-brand-title">Design System</span>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HelpCircle, Menu, X } from "lucide-react";
 
-import { LogoIcon, LogoWordmark } from "@/components/brand/logo";
+import { LogoLockup } from "@/components/brand/logo";
 import { Sidebar, type SidebarUser } from "@/components/dashboard/sidebar";
 import { cn } from "@/lib/utils";
 
@@ -90,9 +90,8 @@ export function AppShell({
         >
           <Menu aria-hidden />
         </button>
-        <Link href="/dashboard/experiences" aria-label="GoDND home" className="flex items-center gap-[8px]">
-          <LogoIcon size={24} />
-          <LogoWordmark className="text-[15px]" />
+        <Link href="/dashboard/experiences" aria-label="GoDND Portal home" className="flex items-center">
+          <LogoLockup height={22} />
         </Link>
       </header>
 
