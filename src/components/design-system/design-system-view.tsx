@@ -597,10 +597,10 @@ function Color() {
         </div>
       </div>
 
-      <Spec title="Contrast" note="Computed live from the tokens · WCAG AA is 4.5:1" wide>
+      <Spec title="Contrast" note="Computed live from the tokens · WCAG AA is 4.5:1 for text, 3:1 for control boundaries" wide>
         <div className="ds-table-wrap">
           <table className="ds-table">
-            <caption className="sr-only">Contrast ratios for key text pairs</caption>
+            <caption className="sr-only">Contrast ratios for key text and control-boundary pairs</caption>
             <thead>
               <tr>
                 <th scope="col">Pair</th>

@@ -31,6 +31,9 @@
   --slate-125: #E2E7F0;
   --slate-150: #DBE1EC;
   --slate-200: #C4CCDA;
+  /* The lightest step that clears 3:1 on white (3.06:1) — for control
+     boundaries that must be found without help from a label. */
+  --slate-400: #8A94A6;
   --slate-500: #64748B;
   --slate-550: #5F687B;
   --slate-600: #4A5468;
@@ -136,6 +139,11 @@
   --info-tint: rgba(37, 99, 235, .10);
   /* Focus ring shared by every text input / select */
   --focus-ring: 0 0 0 3px rgba(4, 120, 87, .18);
+  /* Boundary of a control that IS the affordance — text fields, selects and
+     textareas are drawn with no fill, so their edge alone says "type here"
+     and must meet WCAG 1.4.11's 3:1. Panels and dividers stay on
+     --border-panel: they group content, they are not operable. */
+  --border-control: var(--slate-400);
 
   /* Overlay elevation and helpers */
   --shadow-pop: 0 12px 32px rgba(15, 23, 42, .14), 0 2px 6px rgba(15, 23, 42, .06);

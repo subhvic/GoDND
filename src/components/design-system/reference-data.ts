@@ -13,7 +13,7 @@ export const PRIMITIVES = [
     desc: "A blue-tinted grayscale. Every surface, border and text color is drawn from here.",
     tokens: [
       "--white", "--slate-25", "--slate-50", "--slate-75", "--slate-100", "--slate-125",
-      "--slate-150", "--slate-200", "--slate-500", "--slate-550", "--slate-600", "--slate-900",
+      "--slate-150", "--slate-200", "--slate-400", "--slate-500", "--slate-550", "--slate-600", "--slate-900",
     ],
   },
   {
@@ -46,7 +46,8 @@ export const SEMANTIC: [string, string, string][] = [
   ["--panel-2", "--slate-100", "Row hover, pressed panel"],
   ["--raised", "--white", "Menus, popovers, toast"],
   ["--border-subtle", "--slate-75", "Hairline dividers inside a panel"],
-  ["--border-panel", "--slate-150", "Panel, control and drawer borders"],
+  ["--border-panel", "--slate-150", "Panel, card and drawer borders — grouping, not operable"],
+  ["--border-control", "--slate-400", "Resting edge of text fields, selects and textareas — 3:1 on card"],
   ["--border-strong", "--slate-200", "Hover / emphasized borders"],
   ["--text-primary", "--slate-900", "Headings, values, primary copy"],
   ["--text-secondary", "--slate-600", "Labels, secondary copy"],
@@ -106,6 +107,8 @@ export const CONTRAST_PAIRS: [string, string, string, number][] = [
   ["Warning badge label", "--on-brand", "--warning-solid", 4.5],
   ["Critical badge label", "--on-brand", "--critical-solid", 4.5],
   ["Neutral badge label", "--on-brand", "--neutral-solid", 4.5],
+  // Non-text (WCAG 1.4.11): the field edge is the only cue that it is a field.
+  ["Form control boundary", "--border-control", "--card", 3],
 ];
 
 export const PRINCIPLES: [string, string, string][] = [
