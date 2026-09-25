@@ -71,6 +71,40 @@ export function statusForBooking(state: string): Status {
   }
 }
 
+/**
+ * An enquiry's pipeline stage. Amber is "nobody has answered this yet", green
+ * is a won deal, blue is a conversation in flight, grey is set aside.
+ */
+export function statusForEnquiry(state: string): Status {
+  switch (state) {
+    case "new":
+      return "warning";
+    case "open":
+    case "quoted":
+    case "negotiating":
+      return "info";
+    case "won":
+      return "healthy";
+    default:
+      return "neutral";
+  }
+}
+
+/**
+ * How long a traveller has waited for a reply. Replies inside two hours
+ * convert best for travel leads; past a day the lead has usually gone cold.
+ * The thresholds live here so the list, the thread and any future KPI read
+ * the same clock.
+ */
+export const REPLY_TARGET_MINUTES = 120;
+export const REPLY_OVERDUE_MINUTES = 24 * 60;
+
+export function statusForWaiting(minutes: number): Status {
+  if (minutes >= REPLY_OVERDUE_MINUTES) return "critical";
+  if (minutes >= REPLY_TARGET_MINUTES) return "warning";
+  return "neutral";
+}
+
 export const EXPERIENCE_STATE_LABELS: Record<string, string> = {
   active: "Active",
   under_review: "Under review",

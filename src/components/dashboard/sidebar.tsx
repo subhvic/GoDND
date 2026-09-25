@@ -44,7 +44,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { id: "home", label: "Home", icon: Home },
       { id: "experiences", label: "Experiences", icon: Compass, href: "/dashboard/experiences" },
       { id: "bookings", label: "Bookings", icon: CalendarCheck, href: "/dashboard/bookings" },
-      { id: "enquiries", label: "Enquiries", icon: MessagesSquare },
+      { id: "enquiries", label: "Enquiries", icon: MessagesSquare, href: "/dashboard/enquiries" },
     ],
   },
   {

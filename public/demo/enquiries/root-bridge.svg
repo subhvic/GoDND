@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Illustration of a living root bridge over a forest stream">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cfe8dc"/>
+      <stop offset="1" stop-color="#eef6ef"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6fb7b0"/>
+      <stop offset="1" stop-color="#2f7d78"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <path d="M0 250 C120 190 220 230 330 200 C450 165 560 215 800 175 L800 600 L0 600 Z" fill="#7fb38f"/>
+  <path d="M0 300 C140 260 260 300 400 270 C540 240 660 290 800 260 L800 600 L0 600 Z" fill="#4f8f64"/>
+  <path d="M0 470 C160 440 300 470 400 455 C520 438 650 470 800 450 L800 600 L0 600 Z" fill="url(#water)"/>
+  <g fill="none" stroke="#5a3b24" stroke-linecap="round">
+    <path d="M60 360 C200 470 600 470 740 360" stroke-width="18"/>
+    <path d="M60 380 C210 480 590 480 740 380" stroke-width="8" opacity=".7"/>
+    <path d="M60 300 C200 400 600 400 740 300" stroke-width="12"/>
+    <path d="M150 395 L175 330 M250 430 L262 360 M400 440 L400 372 M550 430 L538 360 M650 395 L625 330" stroke-width="6" opacity=".8"/>
+  </g>
+  <g fill="#3a6b47">
+    <circle cx="70" cy="250" r="70"/><circle cx="140" cy="215" r="55"/><circle cx="700" cy="235" r="75"/><circle cx="760" cy="200" r="50"/>
+  </g>
+  <g fill="#e9f3ec" opacity=".8">
+    <ellipse cx="300" cy="520" rx="60" ry="6"/><ellipse cx="520" cy="540" rx="80" ry="7"/>
+  </g>
+</svg>

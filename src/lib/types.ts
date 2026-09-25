@@ -209,3 +209,191 @@ export type BookingPayment = {
   createdAt: string;
   reference: string | null;
 };
+
+/* ==========================================================================
+   Enquiries
+   ========================================================================== */
+
+/**
+ * The seven pipeline stages from the schema (enquiry_status). The operator
+ * moves an enquiry through them by hand, except new → open, which the
+ * bump_enquiry_activity trigger does on the first agent reply.
+ */
+export const ENQUIRY_STATUSES = [
+  "new",
+  "open",
+  "quoted",
+  "negotiating",
+  "won",
+  "lost",
+  "spam",
+] as const;
+
+export type EnquiryStatus = (typeof ENQUIRY_STATUSES)[number];
+
+export const ENQUIRY_STATUS_LABELS: Record<EnquiryStatus, string> = {
+  new: "New",
+  open: "Open",
+  quoted: "Quoted",
+  negotiating: "Negotiating",
+  won: "Won",
+  lost: "Lost",
+  spam: "Spam",
+};
+
+/** One line under each stage in the stage menu, so the choice is obvious. */
+export const ENQUIRY_STATUS_HINTS: Record<EnquiryStatus, string> = {
+  new: "Nobody has replied yet",
+  open: "In conversation",
+  quoted: "A price has been sent",
+  negotiating: "Working out dates or price",
+  won: "Became a booking",
+  lost: "Went elsewhere or went quiet",
+  spam: "Not a real enquiry",
+};
+
+/** Stages that end the conversation's pipeline — they live under Closed. */
+export const CLOSED_ENQUIRY_STATUSES: EnquiryStatus[] = ["won", "lost", "spam"];
+
+export type EnquirySource =
+  | "marketplace"
+  | "website"
+  | "manual"
+  | "whatsapp"
+  | "phone"
+  | "referral";
+
+export const ENQUIRY_SOURCE_LABELS: Record<EnquirySource, string> = {
+  marketplace: "GoDND marketplace",
+  website: "Your website",
+  manual: "Logged by your team",
+  whatsapp: "WhatsApp",
+  phone: "Phone call",
+  referral: "Referral",
+};
+
+export type EnquiryPriority = "low" | "normal" | "high";
+
+/**
+ * The inbox is split by whose move it is, not by pipeline stage: the one
+ * question an operator opens Enquiries to answer is "who is waiting on me?".
+ * The three views are disjoint, so the counts add up to the whole inbox.
+ */
+export const ENQUIRY_VIEWS = [
+  { key: "needs_reply", label: "Needs reply" },
+  { key: "replied", label: "Replied" },
+  { key: "closed", label: "Closed" },
+] as const;
+
+export type EnquiryViewKey = (typeof ENQUIRY_VIEWS)[number]["key"];
+
+export const LOST_REASONS = [
+  "Price too high",
+  "Dates not available",
+  "Booked with someone else",
+  "Stopped replying",
+  "Changed their plans",
+] as const;
+
+/** A priced offer, sent in the thread as a structured attachment. */
+export type EnquiryQuote = {
+  kind: "quote";
+  experienceId: string | null;
+  experienceTitle: string;
+  startDate: string | null;
+  adults: number;
+  children: number;
+  infants: number;
+  totalMinor: number;
+  currency: string;
+  validUntil: string | null;
+  note: string | null;
+};
+
+export type EnquiryAttachment =
+  | { kind: "image"; url: string; name: string }
+  | {
+      kind: "file";
+      url: string;
+      name: string;
+      sizeBytes: number | null;
+      mimeType: string | null;
+    }
+  | EnquiryQuote;
+
+export type EnquirySenderKind = "traveller" | "agent" | "system";
+
+export type EnquiryMessage = {
+  id: string;
+  senderKind: EnquirySenderKind;
+  senderId: string | null;
+  /** Resolved for display; null for system events. */
+  senderName: string | null;
+  body: string | null;
+  attachments: EnquiryAttachment[];
+  /** Team-only note. Never shown to the traveller (enforced by RLS). */
+  isInternal: boolean;
+  /** Agent messages: when the traveller read it. Traveller messages: when the team did. */
+  readAt: string | null;
+  createdAt: string;
+};
+
+export type TeamMember = {
+  id: string;
+  name: string;
+  role: string;
+  isYou?: boolean;
+};
+
+/** The last public message, as the inbox list previews it. */
+export type EnquiryPreview = {
+  body: string | null;
+  senderKind: "traveller" | "agent";
+  senderId: string | null;
+  senderName: string | null;
+  createdAt: string;
+  attachmentKind: EnquiryAttachment["kind"] | null;
+};
+
+/** A row in the inbox list. */
+export type EnquiryRow = {
+  id: string;
+  reference: string;              // ENQ-000142
+  status: EnquiryStatus;
+  priority: EnquiryPriority;
+  source: EnquirySource;
+  contactName: string;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  /** True when the traveller has a GoDND account and sees replies in-app. */
+  hasAccount: boolean;
+  experienceId: string | null;
+  experienceTitle: string | null;
+  adults: number;
+  children: number;
+  infants: number;
+  preferredStart: string | null;
+  flexibleDates: boolean;
+  budgetMinor: number | null;
+  currency: string;
+  /** What they wrote on the enquiry form. */
+  message: string | null;
+  assignee: TeamMember | null;
+  createdAt: string;
+  lastMessageAt: string | null;
+  unreadCount: number;
+  lastMessage: EnquiryPreview | null;
+  /**
+   * When the operator's turn started — the first traveller message after the
+   * last reply, or the enquiry itself if nobody has replied. Null when the
+   * ball is in the traveller's court.
+   */
+  awaitingReplySince: string | null;
+};
+
+export type EnquiryDetail = EnquiryRow & {
+  lostReason: string | null;
+  /** Chronological, oldest first. Includes internal notes and system events. */
+  messages: EnquiryMessage[];
+  booking: { id: string; reference: string } | null;
+};
