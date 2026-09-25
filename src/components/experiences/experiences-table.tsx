@@ -17,7 +17,7 @@ import {
   type ExperienceRow,
   type ExperienceTabKey,
 } from "@/lib/types";
-import { cn, formatDate, formatDuration, formatMoney } from "@/lib/utils";
+import { cn, formatDate, formatDuration, formatGroupSize, formatMoney } from "@/lib/utils";
 
 /**
  * The Experiences list (source: Panel › DataTable).
@@ -140,19 +140,13 @@ function Row({
         </span>
       </th>
       <td className="left">{EXPERIENCE_KIND_LABELS[row.kind]}</td>
-      <td>{formatGroupSize(row)}</td>
+      <td>{formatGroupSize(row.groupSize, row.groupSizing)}</td>
       <td>{formatDuration(row.durationDays, row.durationNights)}</td>
       <td className="left">{row.location.join(", ") || "—"}</td>
       <td>{formatDate(row.nextAvailableOn)}</td>
       <td className="primary font-medium">{formatMoney(row.basePriceMinor, row.currency)}</td>
     </tr>
   );
-}
-
-/** "4 · Fixed", "8 · Flexible" */
-function formatGroupSize(row: ExperienceRow) {
-  if (!row.groupSize) return "—";
-  return `${row.groupSize} · ${row.groupSizing === "fixed" ? "Fixed" : "Flexible"}`;
 }
 
 const TAB_HINT: Record<ExperienceTabKey, string> = {

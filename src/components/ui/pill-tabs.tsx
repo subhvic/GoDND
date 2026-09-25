@@ -9,9 +9,21 @@ import { cn } from "@/lib/utils";
  *
  * Two modes. Link tabs, for tabs that are server state (a list filter): each
  * one is a real URL, so it survives a refresh and opens in a new tab. Button
- * tabs, for tabs that are purely local view state.
+ * tabs, for tabs that are purely local view state. Given both an href and
+ * onChange, a tab is a link that upgrades to local state once hydrated —
+ * for URL state the client can apply without a round trip.
  */
-export type PillTab = { id: string; label: string; count?: number; href?: string; icon?: React.ReactNode };
+export type PillTab = {
+  id: string;
+  label: string;
+  count?: number;
+  /** Colors the count when it needs attention, e.g. overdue replies. */
+  countTone?: "critical" | "warning";
+  /** Spoken after the count, e.g. "2 overdue". */
+  countLabel?: string;
+  href?: string;
+  icon?: React.ReactNode;
+};
 
 export function PillTabs({
   tabs,
@@ -35,7 +47,12 @@ export function PillTabs({
           <>
             {tab.icon ?? null}
             {tab.label}
-            {tab.count != null ? <span className="count">{tab.count}</span> : null}
+            {tab.count != null ? (
+              <span className={cn("count", tab.countTone)}>
+                {tab.count}
+                {tab.countLabel ? <span className="sr-only"> ({tab.countLabel})</span> : null}
+              </span>
+            ) : null}
           </>
         );
 
@@ -46,6 +63,17 @@ export function PillTabs({
             scroll={false}
             aria-current={isActive ? "page" : undefined}
             className={cn("pill-tab", isActive && "active")}
+            onClick={
+              onChange
+                ? (event) => {
+                    // Both given: a real link until the page hydrates (and
+                    // for open-in-new-tab), local state after that.
+                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+                    event.preventDefault();
+                    onChange(tab.id);
+                  }
+                : undefined
+            }
           >
             {content}
           </Link>

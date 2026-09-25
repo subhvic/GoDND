@@ -9,6 +9,8 @@ import type {
   BookingRow,
   BookingStatus,
   BookingTabKey,
+  LatestBookingRow,
+  Route,
 } from "@/lib/types";
 import { BOOKING_TAB_STATUSES } from "@/lib/types";
 
@@ -53,14 +55,83 @@ export async function listBookings({
   const supabase = await createServerSupabase();
   const { data, error } = await supabase
     .from("bookings")
-    .select("id, reference, status, is_marketplace, experience_id, lead_name, lead_email, lead_phone, travel_start, travel_end, adults, children, infants, currency, total_minor, paid_minor, refunded_minor, commission_minor, created_at, experience_snapshot")
+    .select(BOOKING_COLUMNS)
     .order("travel_start", { ascending: true, nullsFirst: false });
 
   if (error) {
     throw new Error(`listBookings failed: ${error.message}`);
   }
 
-  const rows: BookingRow[] = (data ?? []).map((row) => ({
+  const rows = (data ?? []).map((row) => toBookingRow(row as BookingRecord));
+
+  return applyFilters(rows, { tab, search, page, pageSize, isDemoData: false });
+}
+
+/**
+ * Home's "Latest bookings": the most recently made, whatever their state
+ * (a draft checkout is not a booking yet, so those stay out).
+ *
+ * Where the trip goes is read from the booking's own snapshot first — the
+ * experience as it was sold — and only falls back to the live experience
+ * for bookings made before snapshots carried it.
+ */
+export async function listLatestBookings(limit = 4): Promise<LatestBookingRow[]> {
+  if (!isSupabaseConfigured()) {
+    return DEMO_ROWS.filter((row) => row.status !== "draft")
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, limit)
+      .map((row) => ({ ...row, ...(DEMO_PLACES[row.experienceId ?? ""] ?? NO_PLACE) }));
+  }
+
+  const supabase = await createServerSupabase();
+  const { data, error } = await supabase
+    .from("bookings")
+    .select(
+      `${BOOKING_COLUMNS},
+       experience:experiences ( pickup_location, dropoff_location, experience_regions ( regions ( name ) ) )`,
+    )
+    .neq("status", "draft")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw new Error(`listLatestBookings failed: ${error.message}`);
+
+  return (data ?? []).map((raw) => {
+    const record = raw as unknown as BookingRecord & {
+      experience: {
+        pickup_location: string | null;
+        dropoff_location: string | null;
+        experience_regions: { regions: { name: string } | null }[] | null;
+      } | null;
+    };
+    const snapshot = (record.experience_snapshot ?? {}) as {
+      location?: string[];
+      pickup_location?: string;
+      dropoff_location?: string;
+    };
+    const live = record.experience;
+    const from = snapshot.pickup_location ?? live?.pickup_location ?? null;
+    const to = snapshot.dropoff_location ?? live?.dropoff_location ?? null;
+
+    return {
+      ...toBookingRow(record),
+      location:
+        snapshot.location ??
+        (live?.experience_regions ?? [])
+          .map((link) => link.regions?.name)
+          .filter((name): name is string => Boolean(name)),
+      route: from && to ? { from, to } : null,
+    };
+  });
+}
+
+const BOOKING_COLUMNS =
+  "id, reference, status, is_marketplace, experience_id, lead_name, lead_email, lead_phone, travel_start, travel_end, adults, children, infants, currency, total_minor, paid_minor, refunded_minor, commission_minor, created_at, experience_snapshot";
+
+type BookingRecord = Record<string, unknown> & { experience_snapshot?: unknown };
+
+function toBookingRow(row: BookingRecord): BookingRow {
+  return {
     id: row.id as string,
     reference: row.reference as string,
     status: row.status as BookingStatus,
@@ -83,9 +154,7 @@ export async function listBookings({
     refundedMinor: Number(row.refunded_minor) || 0,
     commissionMinor: Number(row.commission_minor) || 0,
     createdAt: row.created_at as string,
-  }));
-
-  return applyFilters(rows, { tab, search, page, pageSize, isDemoData: false });
+  };
 }
 
 export async function getBooking(id: string): Promise<BookingDetail | null> {
@@ -183,6 +252,16 @@ function demoDetail(id: string): BookingDetail | null {
 }
 
 /* --- Fixture rows ------------------------------------------------------- */
+
+/** Where each demo experience runs — what a booking's snapshot would carry. */
+const DEMO_PLACES: Record<string, { location: string[]; route: Route | null }> = {
+  "demo-1": { location: ["Meghalaya", "Assam"], route: { from: "Guwahati", to: "Shillong" } },
+  "demo-2": { location: ["Arunachal Pradesh"], route: { from: "Guwahati", to: "Itanagar" } },
+  "demo-3": { location: ["Assam"], route: { from: "Dibrugarh", to: "Jorhat" } },
+  "demo-4": { location: ["Meghalaya"], route: { from: "Shillong", to: "Shillong" } },
+};
+
+const NO_PLACE: { location: string[]; route: Route | null } = { location: [], route: null };
 
 const DEMO_ROWS: BookingRow[] = [
   {

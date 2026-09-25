@@ -31,6 +31,9 @@
   --slate-125: #E2E7F0;
   --slate-150: #DBE1EC;
   --slate-200: #C4CCDA;
+  /* The lightest step that clears 3:1 on white (3.06:1) — for control
+     boundaries that must be found without help from a label. */
+  --slate-400: #8A94A6;
   --slate-500: #64748B;
   --slate-550: #5F687B;
   --slate-600: #4A5468;
@@ -136,6 +139,10 @@
   --info-tint: rgba(37, 99, 235, .10);
   /* Focus ring shared by every text input / select */
   --focus-ring: 0 0 0 3px rgba(4, 120, 87, .18);
+  /* Boundary of a control that IS the affordance — the six one-time-code
+     boxes have no fill and no placeholder, so their edge alone says "type
+     here" and must meet WCAG 1.4.11's 3:1. */
+  --border-control: var(--slate-400);
 
   /* Overlay elevation and helpers */
   --shadow-pop: 0 12px 32px rgba(15, 23, 42, .14), 0 2px 6px rgba(15, 23, 42, .06);
@@ -147,4 +154,29 @@
   --scrim: rgba(15, 23, 42, .32);
   --swatch-edge: rgba(15, 23, 42, .12);
   --topbar-bg: rgba(255, 255, 255, .82);
+
+  /* Charts. Categorical slots in fixed order, never cycled: a series keeps
+     its hue whatever else is plotted. The pair was run through the dataviz
+     palette validator against --card — CVD ΔE 25.2, normal-vision ΔE 34.7,
+     both ≥3:1 on white — so identity survives every form of colour
+     blindness. Grid and cursor sit one step off the surface: recessive. */
+  --chart-1: var(--emerald-600);
+  --chart-2: var(--violet-600);
+  --chart-grid: var(--slate-75);
+  --chart-cursor: var(--slate-200);
+
+  /* Sign-in hero. The handoff file uses a photograph here; until it is
+     exported, an illustrated ridge-line of the Khasi hills stands in. Every
+     step is mixed from the brand and slate primitives so the scene re-tints
+     with the brand rather than carrying a palette of its own. Back to front:
+     the far ridges fade into mist, the near ones sink into shadow. */
+  --hero-sky-top: color-mix(in oklab, var(--emerald-800) 58%, var(--slate-900));
+  --hero-sky-bottom: color-mix(in oklab, var(--emerald-50) 72%, var(--emerald-600));
+  --hero-glow: var(--emerald-50);
+  --hero-ridge-1: color-mix(in oklab, var(--emerald-600) 34%, var(--slate-150));
+  --hero-ridge-2: color-mix(in oklab, var(--emerald-600) 52%, var(--slate-500));
+  --hero-ridge-3: color-mix(in oklab, var(--emerald-700) 64%, var(--slate-600));
+  --hero-ridge-4: color-mix(in oklab, var(--emerald-800) 62%, var(--slate-900));
+  --hero-ridge-5: color-mix(in oklab, var(--emerald-800) 36%, var(--slate-900));
+  --hero-mist: var(--white);
 }
