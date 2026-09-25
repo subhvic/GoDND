@@ -1,5 +1,6 @@
 "use client";
 
+import { useTransition } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -12,12 +13,14 @@ import {
   Globe,
   HelpCircle,
   Home,
+  LogOut,
   MessagesSquare,
   Receipt,
   Settings,
   type LucideIcon,
 } from "lucide-react";
 
+import { signOut } from "@/app/login/actions";
 import { LogoIcon, LogoWordmark } from "@/components/brand/logo";
 import {
   DropdownMenu,
@@ -35,13 +38,20 @@ import { cn } from "@/lib/utils";
  * the reference does for Service Graph and SLOs: an operator sees the whole
  * shape of the product, and nothing pretends to work when it does not.
  */
-type NavItem = { id: string; label: string; icon: LucideIcon; href?: string };
+type NavItem = {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  href?: string;
+  /** Active only on its own path — Home's /dashboard prefixes every page. */
+  exact?: boolean;
+};
 
 const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Workspace",
     items: [
-      { id: "home", label: "Home", icon: Home },
+      { id: "home", label: "Home", icon: Home, href: "/dashboard", exact: true },
       { id: "experiences", label: "Experiences", icon: Compass, href: "/dashboard/experiences" },
       { id: "bookings", label: "Bookings", icon: CalendarCheck, href: "/dashboard/bookings" },
       { id: "enquiries", label: "Enquiries", icon: MessagesSquare },
@@ -86,7 +96,7 @@ export function Sidebar({
   return (
     <nav className="nav" aria-label="Main">
       <div className="nav-top">
-        <Link href="/dashboard/experiences" aria-label="GoDND home" className="flex items-center gap-[12px]">
+        <Link href="/dashboard" aria-label="GoDND home" className="flex items-center gap-[12px]">
           <LogoIcon size={27} />
           <span className="nav-wordmark">
             <LogoWordmark className="text-[16px]" />
@@ -115,11 +125,17 @@ export function Sidebar({
                   </span>
                 );
               }
-              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const active = item.exact
+                ? pathname === item.href
+                : pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
                 <Link
                   key={item.id}
                   href={item.href}
+                  // The collapsed rail hides .nav-text with display:none,
+                  // which also removes it from the accessible name — the
+                  // label has to ride on the link itself.
+                  aria-label={item.label}
                   aria-current={active ? "page" : undefined}
                   className={cn("nav-item", active && "active")}
                 >
@@ -156,6 +172,8 @@ export function Sidebar({
 }
 
 function AccountMenu({ user }: { user: SidebarUser }) {
+  const [signingOut, startSignOut] = useTransition();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -190,10 +208,13 @@ function AccountMenu({ user }: { user: SidebarUser }) {
         </DropdownMenuSection>
 
         <DropdownMenuSection>
-          {/* Sign-in is not wired yet; the item is present but inert rather
-              than missing, so its place in the menu is settled. */}
-          <DropdownMenuItem danger disabled>
-            Log out
+          <DropdownMenuItem
+            danger
+            disabled={signingOut}
+            onSelect={() => startSignOut(() => signOut())}
+          >
+            {signingOut ? "Logging out…" : "Log out"}
+            <LogOut aria-hidden className="size-[14px]" />
           </DropdownMenuItem>
         </DropdownMenuSection>
       </DropdownMenuContent>

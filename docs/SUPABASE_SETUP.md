@@ -107,6 +107,32 @@ On Vercel, **Settings → Environment Variables**, add the same three keys.
 Set them for Production, Preview, **and** Development so previews connect
 too. Trigger a redeploy. The banner will go away on the deployment as well.
 
+## 8. Turn on email sign-in
+
+The portal signs operators in with their email address and a six-digit code
+(`/login`). Once the keys are set, every `/dashboard` URL redirects there until
+there is a session, and back to where the operator was going afterwards.
+
+1. **Authentication → Providers → Email**: enabled (the default).
+2. **Authentication → Email Templates → Magic Link**: the body must contain
+   `{{ .Token }}` — for example, *"Your GoDND Portal code is {{ .Token }}. It
+   expires in 10 minutes."* Supabase's default template sends a link instead,
+   and an operator who receives a link has no code to type.
+3. **Authentication → Providers → Email → Email OTP Expiration**: 600 seconds
+   is plenty; the default hour is longer than a code needs to live. Keep the
+   OTP length at 6 — the login screen draws six boxes.
+4. **Authentication → SMTP Settings**: add your own SMTP provider before
+   launch. The built-in sender is for trying things out and only sends a
+   handful of emails an hour, across the whole project.
+5. **Accounts are invited, never self-created.** The login page asks for a
+   code with `shouldCreateUser: false`, so an unknown address simply receives
+   nothing (the screen doesn't say whether the address exists — that would let
+   anyone probe for operator emails). Create operators under **Authentication
+   → Users → Invite user**, then give them an `agency_members` row.
+
+Without the keys, the portal runs as a walkable preview instead: the dashboard
+stays open, and `/login` accepts the code **123456** without sending anything.
+
 ## Troubleshooting
 
 - **The check passes locally but the app still shows the banner.**
@@ -116,6 +142,6 @@ too. Trigger a redeploy. The banner will go away on the deployment as well.
   to `Project Settings → API → CORS`. Vercel preview URLs need a wildcard
   entry (`*.vercel.app`) or a per-preview add.
 - **RLS denies every query.**
-  Expected in a fresh project until an operator profile exists. The
-  wizard's Save-as-Draft creates the row; sign in through the (not yet
-  built) login page or seed a row directly in Studio for testing.
+  Expected in a fresh project until an operator profile exists. Invite the
+  operator (step 8), sign in at `/login`, and make sure their
+  `agency_members` row is `active` — RLS scopes every read to it.

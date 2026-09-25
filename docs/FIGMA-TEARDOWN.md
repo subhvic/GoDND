@@ -181,3 +181,38 @@ counters, and tenant isolation under RLS — the owning member sees their
 experience, an unrelated signed-in user sees zero rows.
 
 No UI has been built yet. That waits on the decisions in §2 and §3.
+
+---
+
+## 6. The *Login & Home* page (built)
+
+Read from the page's full node tree (`2025:16134`). Figma's screenshot and
+asset endpoints were out of reach, so structure, copy and geometry come from
+the file, while colour and type come from the product's design system (as
+every other built screen does).
+
+**Login Flow** — six frames: email → invalid email → code → incorrect code →
+code filled. Split screen (image 728 / form 712), the "GoDND | Portal" lockup,
+content hung 80px in, 36px between blocks, 12px from a control to its
+message, six 40px code boxes 30px apart. Built at `/login`.
+
+**Home** — two frames (Monthly and Weekly): *My Experience Funnel* (six
+tiles), *Conversion Graph*, *Latest Bookings*, *Recently Created
+Experiences*. Built at `/dashboard`.
+
+**Forgot Password / Change Password** — drawn in *Section 1*, off to the side,
+still on placeholder imagery, and belonging to a password login that the
+polished Login Flow replaced with a one-time code. Not built: in a
+passwordless portal there is no password to forget. **Decision needed** if
+these are meant for a future password option.
+
+Where the build departs from the drawing, and why:
+
+| Drawing | Built | Why |
+|---|---|---|
+| Code step: "…sent to your email." | Names the address, with *Change email* | The drawn step is a dead end after a typo |
+| *Resend OTP* | Counts down 60s first | Supabase refuses a second email sooner; a button that fails is worse than one that waits |
+| "Itineraries Active" | "Active experiences" | The file's own word, used by the graph's legend beside it |
+| "Canc. Ratio 1:44" | "1 in 44 reservations" | Reads without decoding ratio notation |
+| Graph: "11 active" beside "18 bookings" | Plots *experiences booked* (distinct) against active | Legend says "Experiences Booked"; bookings outnumber experiences 5–10×, so the active line would flatten on a shared axis — and a second axis invents correlations |
+| Photograph (left half) | Illustrated Khasi hills (`AuthHero`) | The photo couldn't be exported; swapping it in is a one-component change |

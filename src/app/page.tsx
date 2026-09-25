@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { headers } from "next/headers";
-import { ArrowRight, BookOpen, Compass, Globe, LayoutDashboard, Store } from "lucide-react";
+import { ArrowRight, BookOpen, Compass, Globe, LayoutDashboard, LogIn, SquarePlus, Store } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
 import { buttonClass } from "@/components/ui/button";
@@ -59,16 +59,32 @@ export default async function HomePage() {
 
           <ul className="m-0 mt-[12px] grid list-none gap-[12px] p-0 sm:grid-cols-2">
             <EntryCard
-              href="/dashboard/experiences"
+              href="/login"
+              icon={LogIn}
+              title="Portal sign-in"
+              body="Email, then a one-time code — the operator’s way into the portal."
+              available={isDeployment}
+              unavailableNote="On portal.godnd.co"
+            />
+            <EntryCard
+              href="/dashboard"
               icon={LayoutDashboard}
               title="Operator portal"
+              body="Home — the experience funnel, conversion graph, latest bookings and new experiences."
+              available={isDeployment}
+              unavailableNote="On portal.godnd.co"
+            />
+            <EntryCard
+              href="/dashboard/experiences"
+              icon={Compass}
+              title="Experiences"
               body="Experiences list with status tabs, search, and a record drawer."
               available={isDeployment}
               unavailableNote="On portal.godnd.co"
             />
             <EntryCard
               href="/dashboard/experiences/new/basic-info"
-              icon={Compass}
+              icon={SquarePlus}
               title="Add new experience"
               body="The seven-step builder: itinerary, crew, pricing, availability, policies, media."
               available={isDeployment}

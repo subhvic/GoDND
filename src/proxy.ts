@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { isAuthConfigured, safeNextPath } from "@/lib/auth/config";
+import { readSession, redirectKeepingSession } from "@/lib/supabase/proxy";
 import { resolveTenant } from "@/lib/tenant/resolve";
 
 /**
@@ -32,11 +34,11 @@ export async function proxy(request: NextRequest) {
 
   // On a preview deployment every surface is reachable by path, so a reviewer
   // can open /dashboard and /sites/<slug> from one generated URL.
-  if (tenant.kind === "preview") return NextResponse.next();
+  if (tenant.kind === "preview") return gatePortal(request);
 
   if (tenant.kind === "tenant") {
     // A tenant must never reach the portal or another tenant's tree.
-    if (url.pathname.startsWith("/dashboard") || url.pathname.startsWith("/sites")) {
+    if (isPortalPath(url.pathname) || url.pathname.startsWith("/sites")) {
       return new NextResponse(null, { status: 404 });
     }
 
@@ -55,15 +57,63 @@ export async function proxy(request: NextRequest) {
     if (url.pathname === "/") {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
-    return NextResponse.next();
+    return gatePortal(request);
   }
 
-  // Marketplace host: the portal and tenant trees are not addressable here.
-  if (url.pathname.startsWith("/dashboard") || url.pathname.startsWith("/sites")) {
+  // Marketplace host: the portal (its sign-in included) and the tenant trees
+  // are not addressable here.
+  if (isPortalPath(url.pathname) || url.pathname.startsWith("/sites")) {
     return new NextResponse(null, { status: 404 });
   }
 
   return NextResponse.next();
+}
+
+/** The operator portal: the dashboard and its sign-in page. */
+function isPortalPath(pathname: string): boolean {
+  return pathname.startsWith("/dashboard") || pathname === "/login";
+}
+
+/**
+ * Keeps the dashboard behind a session once auth exists.
+ *
+ * Signed out on /dashboard/* → /login?next=<where they were going>.
+ * Signed in on /login → straight on to the dashboard.
+ *
+ * This is the optimistic check the Next docs describe — a cookie read plus a
+ * JWT verification, no database. The real boundary is still RLS: every
+ * query runs under the caller's session, so a request that slipped past
+ * here would see nothing. Without Supabase keys there is no session to
+ * check, and the portal stays open as a walkable preview.
+ */
+async function gatePortal(request: NextRequest): Promise<NextResponse> {
+  const { pathname, search, searchParams } = request.nextUrl;
+  const isDashboard = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+  const isLogin = pathname === "/login";
+
+  if (!isAuthConfigured() || (!isDashboard && !isLogin)) return NextResponse.next();
+
+  let session: Awaited<ReturnType<typeof readSession>>;
+  try {
+    session = await readSession(request);
+  } catch {
+    // Fail closed: if the session can't be read, the dashboard can't be
+    // entered. The login page itself still renders.
+    session = { response: NextResponse.next(), signedIn: false };
+  }
+
+  if (isDashboard && !session.signedIn) {
+    const login = new URL("/login", request.url);
+    login.searchParams.set("next", `${pathname}${search}`);
+    return redirectKeepingSession(login, session.response);
+  }
+
+  if (isLogin && session.signedIn) {
+    const destination = safeNextPath(searchParams.get("next"));
+    return redirectKeepingSession(new URL(destination, request.url), session.response);
+  }
+
+  return session.response;
 }
 
 export const config = {

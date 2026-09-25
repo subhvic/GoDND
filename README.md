@@ -31,6 +31,15 @@ Local multi-tenancy uses `*.localhost`, so the three surfaces are reachable as:
 | Operator portal | `http://app.localhost:3000` |
 | A tenant's site | `http://<agency-slug>.localhost:3000` |
 
+## Signing in
+
+Operators sign in at `/login` with their email address and a six-digit code
+(Supabase email OTP), and land on Home. With Supabase configured, every
+`/dashboard` URL redirects to `/login?next=…` until there is a session. Without
+it, the portal is a walkable preview: the dashboard stays open and the login
+flow accepts **123456**. Setup, including the email template the code needs,
+is step 8 of [`docs/SUPABASE_SETUP.md`](docs/SUPABASE_SETUP.md).
+
 ## Database
 
 Migrations live in `supabase/migrations/` and apply in order. They have been
