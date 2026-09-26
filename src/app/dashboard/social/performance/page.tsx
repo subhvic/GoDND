@@ -9,7 +9,6 @@ import { PageBar } from "@/components/ui/page-bar";
 import { Panel } from "@/components/ui/panel";
 import {
   deriveActions,
-  listCampaigns,
   listChannels,
   listPosts,
   summarise,
@@ -38,14 +37,10 @@ export const dynamic = "force-dynamic";
  * underneath, so any recommendation can be checked against them.
  */
 export default async function PerformancePage() {
-  const [{ channels }, { posts }, { campaigns }] = await Promise.all([
-    listChannels(),
-    listPosts(),
-    listCampaigns(),
-  ]);
+  const [{ channels }, { posts }] = await Promise.all([listChannels(), listPosts()]);
 
   const summary = summarise(channels, posts);
-  const actions = deriveActions(channels, posts, campaigns);
+  const actions = deriveActions(channels, posts);
 
   const published = posts
     .filter((post) => post.status === "published" && post.metrics)

@@ -202,6 +202,41 @@ export type SocialPost = {
 /* Ads                                                                         */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Ads are run where operators already run them — Meta Ads Manager, Google Ads —
+ * and read into GoDND, never created here. Two reasons this is the right shape:
+ *
+ *   1. Those campaign builders are better than anything we would write, and an
+ *      operator's existing audiences and pixel history live there already.
+ *   2. Reading insights needs a far lighter permission than managing campaigns
+ *      (Meta: ads_read against ads_management; Google: a read-only developer
+ *      token), which is weeks off the review and most of the risk.
+ *
+ * What GoDND adds is the half the ad platforms cannot see: which clicks became
+ * bookings, and whether the departure being promoted still has seats.
+ */
+export const AD_PLATFORMS = ["meta", "google", "x"] as const;
+export type AdPlatform = (typeof AD_PLATFORMS)[number];
+
+export const AD_PLATFORM_LABELS: Record<AdPlatform, string> = {
+  meta: "Meta",
+  google: "Google",
+  x: "X",
+};
+
+/** A linked ad account, read-only. */
+export type AdAccount = {
+  id: string;
+  platform: AdPlatform;
+  /** The account name as the platform shows it. */
+  name: string;
+  /** The platform's own account reference, e.g. act_1029384756. */
+  externalId: string;
+  currency: string;
+  status: "connected" | "needs_reauth" | "disconnected";
+  lastSyncedAt: string | null;
+};
+
 export const CAMPAIGN_OBJECTIVES = ["awareness", "traffic", "bookings"] as const;
 export type CampaignObjective = (typeof CAMPAIGN_OBJECTIVES)[number];
 
@@ -211,31 +246,54 @@ export const OBJECTIVE_LABELS: Record<CampaignObjective, string> = {
   bookings: "Bookings",
 };
 
-export const CAMPAIGN_STATUSES = [
-  "draft",
-  "in_review",
-  "active",
-  "paused",
-  "ended",
-] as const;
+/** Mirrors the platform's own states — GoDND has no say in these. */
+export const CAMPAIGN_STATUSES = ["active", "paused", "ended"] as const;
 export type CampaignStatus = (typeof CAMPAIGN_STATUSES)[number];
 
 export const CAMPAIGN_STATUS_LABELS: Record<CampaignStatus, string> = {
-  draft: "Draft",
-  in_review: "In review",
   active: "Active",
   paused: "Paused",
   ended: "Ended",
 };
 
+/**
+ * Whether a campaign's clicks can be traced to bookings.
+ *
+ * This is the load-bearing field of the whole Ads screen. Spend and clicks
+ * arrive from the platform whatever happens; "did it sell anything" only works
+ * when the destination URL carries GoDND's tracking, and a campaign built in
+ * Meta Ads Manager has no reason to. Untracked spend is not a rendering detail
+ * to grey out — it is the single thing most worth telling the operator, because
+ * every rupee of it is unmeasurable until they fix the link.
+ *
+ *   tracked     the link carries our parameters and points at this experience
+ *   untracked   no tracking: spend is visible, bookings can never be attributed
+ *   mismatched  tracked, but pointing at a different experience than the
+ *               campaign claims — usually a copied campaign whose link was
+ *               never updated, which silently credits the wrong trip
+ */
+export const TRACKING_STATES = ["tracked", "untracked", "mismatched"] as const;
+export type TrackingState = (typeof TRACKING_STATES)[number];
+
+export const TRACKING_LABELS: Record<TrackingState, string> = {
+  tracked: "Tracked",
+  untracked: "No tracking",
+  mismatched: "Wrong link",
+};
+
 export type AdCampaign = {
   id: string;
   name: string;
-  platforms: SocialPlatform[];
+  platform: AdPlatform;
+  accountId: string;
   objective: CampaignObjective;
   status: CampaignStatus;
+  /** Which experience this promotes, resolved from the destination link. */
   experienceId: string | null;
   experienceTitle: string | null;
+  tracking: TrackingState;
+  /** Deep link back to the platform, since editing happens there. */
+  permalink: string | null;
   currency: string;
   budgetMinor: number;
   spentMinor: number;
@@ -243,9 +301,9 @@ export type AdCampaign = {
   endDate: string | null;
   reach: number;
   clicks: number;
-  /** Bookings the platform attributed to this campaign. */
-  attributedBookings: number;
-  attributedRevenueMinor: number;
+  /** Bookings GoDND traced to this campaign. Null when it is not tracked. */
+  attributedBookings: number | null;
+  attributedRevenueMinor: number | null;
 };
 
 /** Click-through rate as a fraction, from the raw counts. */
@@ -253,14 +311,18 @@ export const campaignCtr = (campaign: AdCampaign) =>
   campaign.reach === 0 ? 0 : campaign.clicks / campaign.reach;
 
 /**
- * Return on ad spend. Returns null rather than Infinity when nothing has been
- * spent: "no spend yet" and "infinite return" are different answers, and only
- * one of them is true.
+ * Return on ad spend. Null covers two different unknowns that must not be
+ * drawn as zero: nothing spent yet, and spend that cannot be attributed
+ * because the campaign carries no tracking.
  */
 export const campaignRoas = (campaign: AdCampaign) =>
-  campaign.spentMinor === 0
+  campaign.spentMinor === 0 || campaign.attributedRevenueMinor == null
     ? null
     : campaign.attributedRevenueMinor / campaign.spentMinor;
+
+/** Cost per booking, or null when it cannot be known. */
+export const campaignCostPerBooking = (campaign: AdCampaign) =>
+  !campaign.attributedBookings ? null : campaign.spentMinor / campaign.attributedBookings;
 
 /* -------------------------------------------------------------------------- */
 /* Growth actions                                                              */

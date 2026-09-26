@@ -1,8 +1,13 @@
 import "server-only";
 
+import { formatDate } from "@/lib/utils";
+
 import {
+  AD_PLATFORM_LABELS,
+  campaignCostPerBooking,
   campaignRoas,
   FORMAT_LABELS,
+  type AdAccount,
   type PostFormat,
   type AdCampaign,
   type GrowthAction,
@@ -352,15 +357,44 @@ export async function getPost(id: string): Promise<SocialPost | null> {
 /* Campaigns                                                                   */
 /* -------------------------------------------------------------------------- */
 
+const DEMO_AD_ACCOUNTS: AdAccount[] = [
+  {
+    id: "acct-meta",
+    platform: "meta",
+    name: "Wander Beyond — Meta Ads",
+    externalId: "act_1029384756",
+    currency: "INR",
+    status: "connected",
+    lastSyncedAt: dayOffset(0, 6, 30),
+  },
+  {
+    id: "acct-google",
+    platform: "google",
+    name: "Wander Beyond — Google Ads",
+    externalId: "412-885-9930",
+    currency: "INR",
+    status: "connected",
+    lastSyncedAt: dayOffset(0, 6, 30),
+  },
+];
+
+/**
+ * Campaigns as they arrive from the platforms. Note that two of them are not
+ * tracked: that is the normal state of a campaign built in Ads Manager by
+ * someone who was not thinking about GoDND, and the screen exists to catch it.
+ */
 const DEMO_CAMPAIGNS: AdCampaign[] = [
   {
     id: "camp-1",
     name: "Meghalaya week — April departures",
-    platforms: ["instagram", "facebook"],
+    platform: "meta",
+    accountId: "acct-meta",
     objective: "bookings",
     status: "active",
     experienceId: "exp-1",
     experienceTitle: "7 Day Immersive Experience in Meghalaya",
+    tracking: "tracked",
+    permalink: "https://adsmanager.facebook.com/adsmanager",
     currency: "INR",
     budgetMinor: 4000000,
     spentMinor: 2637000,
@@ -368,35 +402,62 @@ const DEMO_CAMPAIGNS: AdCampaign[] = [
     endDate: dayOffset(12),
     reach: 96400,
     clicks: 3180,
-    attributedBookings: 11,
-    attributedRevenueMinor: 73700000,
+    attributedBookings: 3,
+    attributedRevenueMinor: 20100000,
   },
   {
     id: "camp-2",
-    name: "Arunachal cycling — cold audience",
-    platforms: ["facebook"],
+    name: "Search — northeast india tour packages",
+    platform: "google",
+    accountId: "acct-google",
     objective: "traffic",
     status: "active",
-    experienceId: "exp-2",
-    experienceTitle: "Cycling & Camping Expedition in Arunachal",
+    experienceId: null,
+    experienceTitle: null,
+    tracking: "untracked",
+    permalink: "https://ads.google.com/aw/campaigns",
     currency: "INR",
     budgetMinor: 1500000,
     spentMinor: 1382000,
     startDate: dayOffset(-24),
-    endDate: dayOffset(2),
+    endDate: null,
     reach: 71200,
-    clicks: 986,
-    attributedBookings: 1,
-    attributedRevenueMinor: 2450000,
+    clicks: 2140,
+    attributedBookings: null,
+    attributedRevenueMinor: null,
   },
   {
     id: "camp-3",
+    name: "Arunachal cycling — cold audience",
+    platform: "meta",
+    accountId: "acct-meta",
+    objective: "bookings",
+    status: "active",
+    experienceId: "exp-2",
+    experienceTitle: "Cycling & Camping Expedition in Arunachal",
+    tracking: "mismatched",
+    permalink: "https://adsmanager.facebook.com/adsmanager",
+    currency: "INR",
+    budgetMinor: 1200000,
+    spentMinor: 903000,
+    startDate: dayOffset(-15),
+    endDate: dayOffset(5),
+    reach: 41800,
+    clicks: 712,
+    attributedBookings: 0,
+    attributedRevenueMinor: 0,
+  },
+  {
+    id: "camp-4",
     name: "Brand awareness — Northeast",
-    platforms: ["instagram"],
+    platform: "meta",
+    accountId: "acct-meta",
     objective: "awareness",
     status: "paused",
     experienceId: null,
     experienceTitle: null,
+    tracking: "untracked",
+    permalink: "https://adsmanager.facebook.com/adsmanager",
     currency: "INR",
     budgetMinor: 1000000,
     spentMinor: 612000,
@@ -404,28 +465,41 @@ const DEMO_CAMPAIGNS: AdCampaign[] = [
     endDate: dayOffset(-10),
     reach: 48900,
     clicks: 412,
-    attributedBookings: 0,
-    attributedRevenueMinor: 0,
+    attributedBookings: null,
+    attributedRevenueMinor: null,
   },
   {
-    id: "camp-4",
+    id: "camp-5",
     name: "Assam tea estate — retargeting",
-    platforms: ["instagram", "facebook"],
+    platform: "meta",
+    accountId: "acct-meta",
     objective: "bookings",
-    status: "draft",
+    status: "active",
     experienceId: "exp-3",
     experienceTitle: "Rafting, Camping & Cycling in Upper Assam",
+    tracking: "tracked",
+    permalink: "https://adsmanager.facebook.com/adsmanager",
     currency: "INR",
-    budgetMinor: 2000000,
-    spentMinor: 0,
-    startDate: dayOffset(3),
-    endDate: dayOffset(33),
-    reach: 0,
-    clicks: 0,
-    attributedBookings: 0,
-    attributedRevenueMinor: 0,
+    budgetMinor: 1600000,
+    spentMinor: 1240000,
+    startDate: dayOffset(-9),
+    endDate: dayOffset(21),
+    reach: 18200,
+    clicks: 604,
+    attributedBookings: 1,
+    attributedRevenueMinor: 9800000,
   },
 ];
+
+export async function listAdAccounts(): Promise<{
+  accounts: AdAccount[];
+  isDemoData: boolean;
+}> {
+  if (!isSupabaseConfigured()) {
+    return { accounts: DEMO_AD_ACCOUNTS, isDemoData: true };
+  }
+  return { accounts: [], isDemoData: false };
+}
 
 export async function listCampaigns(): Promise<{
   campaigns: AdCampaign[];
@@ -450,7 +524,6 @@ export async function listCampaigns(): Promise<{
 export function deriveActions(
   channels: SocialChannel[],
   posts: SocialPost[],
-  campaigns: AdCampaign[],
 ): GrowthAction[] {
   const actions: GrowthAction[] = [];
 
@@ -526,22 +599,6 @@ export function deriveActions(
     }
   }
 
-  /* Ad spend with nothing to show for it. */
-  for (const campaign of campaigns) {
-    if (campaign.status !== "active") continue;
-    const roas = campaignRoas(campaign);
-    if (roas !== null && roas < 1 && campaign.spentMinor > 500000) {
-      actions.push({
-        id: `roas-${campaign.id}`,
-        title: `"${campaign.name}" is spending more than it returns`,
-        evidence: `₹${Math.round(campaign.spentMinor / 100).toLocaleString("en-IN")} spent, ₹${Math.round(campaign.attributedRevenueMinor / 100).toLocaleString("en-IN")} attributed across ${campaign.attributedBookings} booking${campaign.attributedBookings === 1 ? "" : "s"}.`,
-        severity: "warning",
-        href: "/dashboard/social/ads",
-        actionLabel: "Review campaign",
-      });
-    }
-  }
-
   const disconnected = channels.filter((channel) => channel.status === "disconnected");
   if (disconnected.length > 0) {
     actions.push({
@@ -598,4 +655,144 @@ export function summarise(
     scheduledCount: posts.filter((post) => post.status === "scheduled").length,
     trend: [820, 1140, 980, 1620, 2310, 1890, 3120, 2740, 4100, 3860, 5200, 4780],
   };
+}
+
+/* ------------------------------------------------------------------------ */
+/* Ad insights                                                               */
+/* ------------------------------------------------------------------------ */
+
+/**
+ * What GoDND can say about ad spend that Meta and Google cannot.
+ *
+ * The platforms optimise towards a click. They do not know the trip has eight
+ * seats, that six are sold, or that the departure is in nine days — so they
+ * will happily keep spending on a departure that cannot take another booking,
+ * and report it as a success. Those cross-references are the reason this
+ * screen exists rather than a bookmark to Ads Manager.
+ *
+ * Ordered by what costs the operator money soonest: spend that cannot be
+ * measured, then spend that is measurably wasted, then opportunities missed.
+ */
+export function deriveAdActions(
+  campaigns: AdCampaign[],
+  experiences: { id: string; title: string; groupSize: number | null; nextAvailableOn: string | null }[],
+  bookings: { experienceId: string | null; travelStart: string | null; status: string }[],
+): GrowthAction[] {
+  const actions: GrowthAction[] = [];
+  const live = campaigns.filter((campaign) => campaign.status === "active");
+  const money = (minor: number) => `₹${Math.round(minor / 100).toLocaleString("en-IN")}`;
+
+  /* 1. Spend that can never be attributed, because the link carries nothing. */
+  const untracked = campaigns.filter((campaign) => campaign.tracking === "untracked");
+  const untrackedSpend = untracked.reduce((sum, campaign) => sum + campaign.spentMinor, 0);
+  if (untracked.length > 0) {
+    actions.push({
+      id: "untracked-spend",
+      title: `${money(untrackedSpend)} of ad spend cannot be traced to bookings`,
+      evidence: (() => {
+        const platforms = [...new Set(untracked.map((campaign) => campaign.platform))];
+        const where =
+          platforms.length === 1
+            ? `in ${AD_PLATFORM_LABELS[platforms[0]]}`
+            : `in ${platforms.map((platform) => AD_PLATFORM_LABELS[platform]).join(" and ")}`;
+        return `${untracked.length} campaign${untracked.length === 1 ? "" : "s"} send${untracked.length === 1 ? "s" : ""} traffic to links without GoDND tracking, so clicks arrive but nothing connects them to a booking. Swapping in the tracked link ${where} fixes it for everything that runs afterwards.`;
+      })(),
+      severity: "critical",
+      href: "/dashboard/social/ads",
+      actionLabel: "Fix links",
+    });
+  }
+
+  /* 2. Tracked, but pointing at the wrong trip — worse than untracked, because
+        it produces numbers that look right and credit the wrong experience. */
+  for (const campaign of campaigns.filter((item) => item.tracking === "mismatched")) {
+    actions.push({
+      id: `mismatch-${campaign.id}`,
+      title: `"${campaign.name}" links to a different experience than it advertises`,
+      evidence: `Its creative promotes ${campaign.experienceTitle ?? "one experience"} but the destination link points somewhere else, so any bookings it produces are credited to the wrong trip.`,
+      severity: "critical",
+      href: "/dashboard/social/ads",
+      actionLabel: "Review link",
+    });
+  }
+
+  /* 3. Spend that is measurably losing money. Only claimed where tracking
+        makes the claim safe to make. */
+  for (const campaign of live) {
+    if (campaign.tracking !== "tracked") continue;
+    const roas = campaignRoas(campaign);
+    if (roas !== null && roas < 1 && campaign.spentMinor > 300000) {
+      actions.push({
+        id: `roas-${campaign.id}`,
+        title: `"${campaign.name}" returns less than it spends`,
+        evidence: `${money(campaign.spentMinor)} spent for ${money(campaign.attributedRevenueMinor ?? 0)} of bookings.`,
+        severity: "warning",
+        href: "/dashboard/social/ads",
+        actionLabel: "Review campaign",
+      });
+    }
+  }
+
+  /* 4 and 5. The inventory cross-reference: seats sold on the next departure,
+        against what is being spent to promote it. */
+  const seatsTaken = (experienceId: string, departure: string | null) =>
+    bookings.filter(
+      (booking) =>
+        booking.experienceId === experienceId &&
+        booking.status !== "cancelled" &&
+        booking.status !== "refunded" &&
+        (departure == null || booking.travelStart === departure),
+    ).length;
+
+  for (const experience of experiences) {
+    if (!experience.groupSize || !experience.nextAvailableOn) continue;
+    const taken = seatsTaken(experience.id, experience.nextAvailableOn);
+    const left = experience.groupSize - taken;
+    const days = Math.round(
+      (new Date(experience.nextAvailableOn).getTime() - Date.now()) / 86_400_000,
+    );
+    if (days < 0) continue;
+
+    const promoting = live.filter((campaign) => campaign.experienceId === experience.id);
+    const spend = promoting.reduce((sum, campaign) => sum + campaign.spentMinor, 0);
+
+    if (left <= 0 && promoting.length > 0) {
+      actions.push({
+        id: `sold-out-${experience.id}`,
+        title: `Still paying to promote "${experience.title}", which is full`,
+        evidence: `All ${experience.groupSize} seats on the ${formatDate(experience.nextAvailableOn)} departure are taken, and ${money(spend)} has gone to campaigns pointing at it. Meta and Google have no way to know the trip is sold out.`,
+        severity: "warning",
+        href: "/dashboard/social/ads",
+        actionLabel: "Pause campaign",
+      });
+    } else if (left > 0 && days <= 21 && promoting.length === 0 && taken > 0) {
+      const fill = Math.round((taken / experience.groupSize) * 100);
+      actions.push({
+        id: `unsupported-${experience.id}`,
+        title: `"${experience.title}" departs in ${days} day${days === 1 ? "" : "s"} with ${left} seat${left === 1 ? "" : "s"} unsold`,
+        evidence: `${fill}% full and nothing is promoting it. A departure this close either fills now or runs under capacity.`,
+        severity: "info",
+        href: "/dashboard/social/studio",
+        actionLabel: "Promote it",
+      });
+    }
+  }
+
+  /* 6. The one worth copying, named with the number that makes it worth it. */
+  const best = live
+    .filter((campaign) => campaign.tracking === "tracked" && campaign.attributedBookings)
+    .map((campaign) => ({ campaign, cost: campaignCostPerBooking(campaign)! }))
+    .sort((a, b) => a.cost - b.cost)[0];
+  if (best && best.cost > 0) {
+    actions.push({
+      id: `best-${best.campaign.id}`,
+      title: `"${best.campaign.name}" brings a booking for ${money(best.cost)}`,
+      evidence: `${best.campaign.attributedBookings} booking${best.campaign.attributedBookings === 1 ? "" : "s"} from ${money(best.campaign.spentMinor)} of spend — your cheapest paid booking. Worth copying its audience before raising budget anywhere else.`,
+      severity: "info",
+      href: "/dashboard/social/ads",
+      actionLabel: "View campaign",
+    });
+  }
+
+  return actions;
 }

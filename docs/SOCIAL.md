@@ -102,13 +102,31 @@ deterministic rules from the platforms' own published limits. A model can
 propose a better hook; only a rule can promise the caption will not be cut in
 half.
 
-### 5. Ads → **direct platform APIs, last**
+### 5. Ads → **read-only, from Meta and Google**
 
-Meta Marketing API and X Ads API. Aggregators mostly do not cover ads properly.
-This is the heaviest lift — ad account linking, billing, creative specs,
-targeting, and a much stricter review — and should start read-only (import
-spend and results for campaigns created in Meta's own tools) before campaign
-creation is attempted in GoDND.
+Campaigns are built where operators already build them — Meta Ads Manager,
+Google Ads — and read into GoDND. Never created here.
+
+Those builders are better than anything we would write, the operator's
+audiences and pixel history already live there, and reading insights needs a
+far lighter permission than managing campaigns (Meta: `ads_read` rather than
+`ads_management`; Google: a read-only developer token). That is weeks off the
+review and most of the support risk: nobody calls GoDND about a campaign GoDND
+did not create.
+
+What we add is the half the platforms cannot see. Meta knows the click. GoDND
+knows whether it became a booking, and whether the departure being promoted
+still has seats — so it can say "you are paying to fill a trip that is already
+full", which no ad platform will ever tell an operator.
+
+**The dependency this creates:** attribution only works when the campaign's
+destination URL carries GoDND's tracking, and a campaign built natively has no
+reason to. So link tracking is a first-class state on every campaign
+(`tracked` / `untracked` / `mismatched`), untracked spend gets its own headline
+number, and "unknown" is never drawn as zero. A mismatched link — tracked, but
+pointing at a different experience than the ad promotes — is treated as worse
+than no tracking, because it produces numbers that look right while crediting
+the wrong trip.
 
 ### 6. MCP → **an agent surface over our own schema, once it is stable**
 
@@ -136,7 +154,7 @@ definitions every sprint. It is phase 5, not phase 1.
 | AI drafting | **Claude API + own context** | The moat: structured trip data nobody else holds |
 | Quality checks | **Own rules** | Deterministic; useful before any model spend |
 | Publish + basic insights | **Aggregator → direct** | Speed now, cost later, behind one interface |
-| Ads | **Direct (Meta, X)** | Aggregators do not cover it; read-only first |
+| Ads | **Read-only (Meta, Google)** | Campaigns run natively; GoDND adds booking attribution |
 | Agent access | **MCP, over our schema** | Only worth it once the schema is settled |
 
 ---
@@ -157,8 +175,10 @@ fresh clone and switch to live data when the keys land.
 - **Calendar** — month grid, channel filter, status-coloured chips, a detail
   drawer with caption and metrics, a separate shelf for unscheduled drafts, and
   a banner for posts that failed to publish.
-- **Ads** — campaign table with spend against budget, CTR, attributed bookings
-  and ROAS, plus a warning when no connected channel can run ads at all.
+- **Ads** — campaigns imported read-only from Meta and Google, each linking
+  back to the platform where it is edited. Link-tracking state per campaign,
+  unmeasurable spend as its own KPI, and an insight list that cross-references
+  seats sold and departure dates against what is being spent.
 - **Performance** — KPI row, a "what to do next" list where every item carries
   the numbers it was derived from, and published posts ranked by reach.
 
@@ -241,13 +261,21 @@ The section is UI over fixtures until this lands.
 
 ### Phase 6 — Ads
 
-19. **Read-only import first.** Pull campaigns created in Meta Ads Manager and
-    show them with GoDND's booking attribution. Useful immediately, and far
-    less risky than creation. Gated to the Ads tier (decision 4).
-20. **Ad account linking** and the billing consent flow.
-21. **Campaign creation** from an experience — audience, budget, creative from
-    the experience media.
-22. **X Ads,** only if Meta proves the demand.
+19. **Ad account linking,** read-only: Meta `ads_read` and a Google Ads
+    read-only developer token. No billing consent needed, which removes the
+    heaviest part of the flow.
+20. **Campaign and insights sync** into `ad_campaigns` / `ad_campaign_metrics`.
+21. **Link tracking detection.** Parse each campaign's destination URL, resolve
+    it to an experience, and classify it tracked / untracked / mismatched.
+    Without this the rest of the screen is a spend dashboard.
+22. **A tracked-link builder** — the operator copies a ready-made URL for the
+    experience and pastes it into Ads Manager. This is the whole fix for
+    untracked spend, and it is one screen.
+23. **Inventory-aware insights** against live seat counts and departures.
+24. Gated to the Ads tier (decision 4).
+
+Campaign *creation* inside GoDND is explicitly not on this roadmap. Revisit only
+if operators ask for it repeatedly after using the read-only version.
 
 ### Deliberately not doing
 
@@ -310,9 +338,13 @@ the agency carries the liability, so the agency writes the final words. It also
 sets the phase 4 bar — the model has to make the blank page disappear, not the
 task.
 
-### 4. Ads is a paid tier above the base plan
+### 4. Ads is read-only, on a paid tier above the base plan
 
-A flat monthly add-on, not bundled and not a percentage of spend. A cut of spend
+Operators create ad accounts and campaigns natively on Meta and Google. GoDND
+reads the results back and layers on what those platforms cannot know: booking
+attribution, and seats against spend. No campaign builder here.
+
+Packaging is a flat monthly add-on, not bundled and not a percentage of spend. A cut of spend
 is the media-agency model, and operators route around it at exactly the volume
 where it would start to matter. A flat tier self-selects operators with a real
 budget, who generate less support load per rupee — and ad support is the

@@ -182,10 +182,59 @@ test.describe("performance", () => {
 });
 
 test.describe("ads", () => {
-  test("a campaign returning less than it spends is flagged red", async ({ page }) => {
+  test("campaigns are read, not created", async ({ page }) => {
     await page.goto(`${GROW}/ads`);
-    const row = page.locator("tbody tr", { hasText: "Brand awareness" });
-    await expect(row.locator(".text-critical-fg")).toContainText("0.0×");
+    // No campaign builder: the action is connecting an account, and each row
+    // links back to the platform where it is actually edited.
+    await expect(page.getByRole("button", { name: /New campaign/ })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /Connect ad account/ })).toBeVisible();
+
+    const link = page.getByRole("link", { name: /Meghalaya week/ });
+    await expect(link).toHaveAttribute("target", "_blank");
+    await expect(link).toHaveAttribute("href", /adsmanager\.facebook\.com/);
+  });
+
+  test("untracked spend is never drawn as zero bookings", async ({ page }) => {
+    await page.goto(`${GROW}/ads`);
+    // "Unknown" and "0" are different answers. A campaign with no tracking
+    // must not look like a campaign that sold nothing.
+    const untracked = page.locator("tbody tr", { hasText: "northeast india tour packages" });
+    await expect(untracked.locator(".badge.warning")).toHaveText("No tracking");
+    await expect(untracked).toContainText("Unknown");
+
+    const tracked = page.locator("tbody tr", { hasText: "Meghalaya week" });
+    await expect(tracked).not.toContainText("Unknown");
+  });
+
+  test("unmeasurable spend gets its own headline number", async ({ page }) => {
+    await page.goto(`${GROW}/ads`);
+    const card = page.locator(".kpi-card", { hasText: "Unmeasurable spend" });
+    await expect(card).toContainText("% of spend cannot be tied to bookings");
+    await expect(card.locator(".kpi-chip")).toBeVisible();
+  });
+
+  test("a link pointing at the wrong experience is called out as worse than none", async ({ page }) => {
+    await page.goto(`${GROW}/ads`);
+    const row = page.locator("tbody tr", { hasText: "Arunachal cycling" });
+    await expect(row.locator(".badge.critical")).toHaveText("Wrong link");
+
+    const insight = page.locator(".action-row", { hasText: "links to a different experience" });
+    await expect(insight).toBeVisible();
+    await expect(insight.locator(".action-dot.critical")).toBeVisible();
+  });
+
+  test("insights cross-reference seats and departures, which no ad platform can", async ({ page }) => {
+    await page.goto(`${GROW}/ads`);
+    const insights = page.locator(".action-row");
+    expect(await insights.count()).toBeGreaterThan(0);
+
+    // Untracked spend leads: it cannot be judged at all, so it outranks
+    // spend that is merely performing badly.
+    await expect(insights.first()).toContainText("cannot be traced to bookings");
+
+    for (const insight of await insights.all()) {
+      await expect(insight.locator(".action-evidence")).not.toBeEmpty();
+    }
   });
 
   test("spend is shown against budget, not on its own", async ({ page }) => {
