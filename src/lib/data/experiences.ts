@@ -233,6 +233,16 @@ function toExperienceRow(record: ExperienceRecord): ExperienceRow {
  * drawn in the handoff file.
  * ------------------------------------------------------------------------ */
 
+/**
+ * Fixture departures are relative to today. Hardcoded dates go stale and the
+ * table ends up offering a next availability that has already passed.
+ */
+function inDays(offset: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() + offset);
+  return date.toISOString().slice(0, 10);
+}
+
 const DEMO: ExperienceRow[] = [
   {
     id: "demo-1",
@@ -247,7 +257,7 @@ const DEMO: ExperienceRow[] = [
     durationDays: 7,
     durationNights: 6,
     location: ["Meghalaya", "Assam"],
-    nextAvailableOn: "2026-05-15",
+    nextAvailableOn: inDays(9),
     basePriceMinor: 6700000,
     currency: "INR",
   },
@@ -264,7 +274,7 @@ const DEMO: ExperienceRow[] = [
     durationDays: 4,
     durationNights: 3,
     location: ["Arunachal Pradesh"],
-    nextAvailableOn: "2026-04-02",
+    nextAvailableOn: inDays(6),
     basePriceMinor: 2450000,
     currency: "INR",
   },
@@ -281,7 +291,7 @@ const DEMO: ExperienceRow[] = [
     durationDays: 10,
     durationNights: 9,
     location: ["Assam"],
-    nextAvailableOn: "2026-06-11",
+    nextAvailableOn: inDays(26),
     basePriceMinor: 9800000,
     currency: "INR",
   },
@@ -298,7 +308,7 @@ const DEMO: ExperienceRow[] = [
     durationDays: 3,
     durationNights: 2,
     location: ["Meghalaya"],
-    nextAvailableOn: "2026-03-28",
+    nextAvailableOn: inDays(18),
     basePriceMinor: 1850000,
     currency: "INR",
   },
@@ -316,7 +326,7 @@ const DEMO: ExperienceRow[] = [
     durationNights: 4,
     location: ["Meghalaya"],
     // Departures are set before submitting; they open once it's approved.
-    nextAvailableOn: "2026-10-18",
+    nextAvailableOn: inDays(74),
     basePriceMinor: 3200000,
     currency: "INR",
   },

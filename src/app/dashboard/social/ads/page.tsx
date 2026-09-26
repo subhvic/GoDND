@@ -9,7 +9,7 @@ import { Notice } from "@/components/ui/notice";
 import { PageBar } from "@/components/ui/page-bar";
 import { Panel } from "@/components/ui/panel";
 import { deriveAdActions, listAdAccounts, listCampaigns } from "@/lib/data/social";
-import { listBookings } from "@/lib/data/bookings";
+import { listAllBookings } from "@/lib/data/bookings";
 import { listExperiences } from "@/lib/data/experiences";
 import { statusForCampaign } from "@/lib/status";
 import {
@@ -48,12 +48,14 @@ export const dynamic = "force-dynamic";
  * all. Only then the numbers, and the campaign list last.
  */
 export default async function AdsPage() {
+  // Every booking, not one tab: seats sold on a departure is a count across
+  // the whole list, and the deriver filters out the cancelled ones itself.
   const [{ accounts }, { campaigns }, { rows: experiences }, { rows: bookings }] =
     await Promise.all([
       listAdAccounts(),
       listCampaigns(),
       listExperiences({ tab: "active", pageSize: 50 }),
-      listBookings({ tab: "upcoming", pageSize: 100 }),
+      listAllBookings(),
     ]);
 
   const insights = deriveAdActions(campaigns, experiences, bookings);

@@ -223,6 +223,18 @@ test.describe("ads", () => {
     await expect(insight.locator(".action-dot.critical")).toBeVisible();
   });
 
+  test("an unpromoted departure close to running is surfaced", async ({ page }) => {
+    await page.goto(`${GROW}/ads`);
+    // The cross-reference that justifies the screen: seats sold and days to
+    // departure, against what is being spent. Meta and Google know none of it.
+    // This died silently once when campaign fixtures pointed at experience ids
+    // that did not exist, so it is asserted rather than assumed.
+    const insight = page.locator(".action-row", { hasText: /departs in \d+ days? with/ });
+    await expect(insight).toBeVisible();
+    await expect(insight.locator(".action-evidence")).toContainText("nothing is promoting it");
+    await expect(insight.getByRole("link", { name: /Promote it/ })).toBeVisible();
+  });
+
   test("insights cross-reference seats and departures, which no ad platform can", async ({ page }) => {
     await page.goto(`${GROW}/ads`);
     const insights = page.locator(".action-row");

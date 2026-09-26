@@ -155,7 +155,7 @@ const DEMO_POSTS: SocialPost[] = [
     body: "Nobody builds these. They're grown.\n\nThe Umshiang double-decker takes two generations of Khasi families to train into place — and you cross it on day four of our Meghalaya week.\n\nFull itinerary in bio.\n\n#meghalaya #livingrootbridges #northeastindia #slowtravel #khasihills",
     format: "reel",
     platforms: ["instagram"],
-    experienceId: "exp-1",
+    experienceId: "demo-1",
     experienceTitle: "7 Day Immersive Experience in Meghalaya",
     imageIds: [],
     status: "published",
@@ -170,7 +170,7 @@ const DEMO_POSTS: SocialPost[] = [
     body: "The water is not edited.\n\nDawki's Umngot river runs clear enough to see the riverbed six metres down — best between November and February, which is exactly when we run it.\n\n#dawki #umngot #meghalaya #northeastindia",
     format: "carousel",
     platforms: ["instagram", "facebook"],
-    experienceId: "exp-1",
+    experienceId: "demo-1",
     experienceTitle: "7 Day Immersive Experience in Meghalaya",
     imageIds: [],
     status: "published",
@@ -185,7 +185,7 @@ const DEMO_POSTS: SocialPost[] = [
     body: "Four days, three nights, one mountain road that nobody posts about.\n\nOur Arunachal cycling expedition opens for April departures today. Eight seats.\n\n#arunachalpradesh #cycletouring #northeastindia",
     format: "post",
     platforms: ["instagram", "facebook"],
-    experienceId: "exp-2",
+    experienceId: "demo-2",
     experienceTitle: "Cycling & Camping Expedition in Arunachal",
     imageIds: [],
     status: "published",
@@ -200,7 +200,7 @@ const DEMO_POSTS: SocialPost[] = [
     body: "Priya sent us this from the Upper Assam trip. Swipe for the stretch of the Brahmaputra nobody expects.",
     format: "story",
     platforms: ["instagram"],
-    experienceId: "exp-3",
+    experienceId: "demo-3",
     experienceTitle: "Rafting, Camping & Cycling in Upper Assam",
     imageIds: [],
     status: "published",
@@ -216,7 +216,7 @@ const DEMO_POSTS: SocialPost[] = [
     body: "The lake is twenty minutes from Shillong and nobody is there at 5am.\n\nDay one of the Meghalaya week starts here, before the town wakes up.\n\n#shillong #umiamlake #meghalaya #northeastindia #sunrise",
     format: "reel",
     platforms: ["instagram"],
-    experienceId: "exp-1",
+    experienceId: "demo-1",
     experienceTitle: "7 Day Immersive Experience in Meghalaya",
     imageIds: [],
     status: "published",
@@ -233,7 +233,7 @@ const DEMO_POSTS: SocialPost[] = [
     body: "Monsoon in the Khasi hills is not a problem to plan around. It is the reason to come.\n\nJune departures are open.",
     format: "post",
     platforms: ["facebook"],
-    experienceId: "exp-1",
+    experienceId: "demo-1",
     experienceTitle: "7 Day Immersive Experience in Meghalaya",
     imageIds: [],
     status: "failed",
@@ -251,7 +251,7 @@ const DEMO_POSTS: SocialPost[] = [
     body: "3,500 steps down. The same 3,500 back up.\n\nNongriat is the hardest day of the Meghalaya week and the one every guest talks about afterwards.\n\n#nongriat #meghalaya #trekking #northeastindia",
     format: "reel",
     platforms: ["instagram"],
-    experienceId: "exp-1",
+    experienceId: "demo-1",
     experienceTitle: "7 Day Immersive Experience in Meghalaya",
     imageIds: [],
     status: "scheduled",
@@ -266,7 +266,7 @@ const DEMO_POSTS: SocialPost[] = [
     body: "Second flush, picked the morning you arrive.\n\nThe Upper Assam trip stays two nights on a working estate outside Jorhat.\n\n#assam #teaestate #jorhat #northeastindia",
     format: "carousel",
     platforms: ["instagram", "facebook"],
-    experienceId: "exp-3",
+    experienceId: "demo-3",
     experienceTitle: "Rafting, Camping & Cycling in Upper Assam",
     imageIds: [],
     status: "scheduled",
@@ -281,7 +281,7 @@ const DEMO_POSTS: SocialPost[] = [
     body: "Three seats left on the April 2 departure.",
     format: "story",
     platforms: ["instagram"],
-    experienceId: "exp-2",
+    experienceId: "demo-2",
     experienceTitle: "Cycling & Camping Expedition in Arunachal",
     imageIds: [],
     status: "scheduled",
@@ -313,7 +313,7 @@ const DEMO_POSTS: SocialPost[] = [
     body: "A shorter way in: three days, two nights, the Khasi hills without the trek.",
     format: "post",
     platforms: ["instagram"],
-    experienceId: "exp-4",
+    experienceId: "demo-4",
     experienceTitle: "Raw Experience in Meghalaya",
     imageIds: [],
     status: "draft",
@@ -391,7 +391,7 @@ const DEMO_CAMPAIGNS: AdCampaign[] = [
     accountId: "acct-meta",
     objective: "bookings",
     status: "active",
-    experienceId: "exp-1",
+    experienceId: "demo-1",
     experienceTitle: "7 Day Immersive Experience in Meghalaya",
     tracking: "tracked",
     permalink: "https://adsmanager.facebook.com/adsmanager",
@@ -433,7 +433,7 @@ const DEMO_CAMPAIGNS: AdCampaign[] = [
     accountId: "acct-meta",
     objective: "bookings",
     status: "active",
-    experienceId: "exp-2",
+    experienceId: "demo-2",
     experienceTitle: "Cycling & Camping Expedition in Arunachal",
     tracking: "mismatched",
     permalink: "https://adsmanager.facebook.com/adsmanager",
@@ -475,7 +475,7 @@ const DEMO_CAMPAIGNS: AdCampaign[] = [
     accountId: "acct-meta",
     objective: "bookings",
     status: "active",
-    experienceId: "exp-3",
+    experienceId: "demo-3",
     experienceTitle: "Rafting, Camping & Cycling in Upper Assam",
     tracking: "tracked",
     permalink: "https://adsmanager.facebook.com/adsmanager",
@@ -735,13 +735,14 @@ export function deriveAdActions(
 
   /* 4 and 5. The inventory cross-reference: seats sold on the next departure,
         against what is being spent to promote it. */
+  const onDay = (value: string | null) => value?.slice(0, 10) ?? null;
   const seatsTaken = (experienceId: string, departure: string | null) =>
     bookings.filter(
       (booking) =>
         booking.experienceId === experienceId &&
         booking.status !== "cancelled" &&
         booking.status !== "refunded" &&
-        (departure == null || booking.travelStart === departure),
+        (departure == null || onDay(booking.travelStart) === onDay(departure)),
     ).length;
 
   for (const experience of experiences) {
@@ -749,7 +750,8 @@ export function deriveAdActions(
     const taken = seatsTaken(experience.id, experience.nextAvailableOn);
     const left = experience.groupSize - taken;
     const days = Math.round(
-      (new Date(experience.nextAvailableOn).getTime() - Date.now()) / 86_400_000,
+      (new Date(`${onDay(experience.nextAvailableOn)}T00:00:00`).getTime() - Date.now()) /
+        86_400_000,
     );
     if (days < 0) continue;
 
