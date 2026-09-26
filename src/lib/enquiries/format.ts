@@ -1,76 +1,17 @@
 /**
- * Time and group formatting for the enquiry inbox and thread.
- *
- * Every function takes `now` explicitly and formats in one fixed time zone,
- * and none of them uses Intl for dates. All three choices serve the same
- * end: the server renders the first paint and the browser hydrates it, so
- * the two must produce identical strings.
- *
- *   - Reading the clock separately on each side drifts "Just now" into "1m".
- *   - Formatting in each side's own zone turns 10:32 am into 4:02 pm.
- *   - Intl itself differs between runtimes: Node and Chromium ship different
- *     ICU data, so the same call renders "Monday, 21 Sept" on one and
- *     "Monday 21 Sept" on the other, and React discards the markup.
- *
- * The zone is the operator's — GoDND trades in India, so IST — until
- * agencies carry a zone of their own. IST has no daylight saving, so a fixed
- * +05:30 offset is exact.
+ * Time and group formatting for the enquiry inbox and thread. The zone and
+ * hydration rules live in lib/time.ts, shared with Bookings.
  */
 
-export const OPERATOR_TIME_ZONE = "Asia/Kolkata";
-const OFFSET_MINUTES = 330;
+import { WEEKDAYS, daysBetween, formatClock, formatDay, fullDate, parts, shortDate } from "@/lib/time";
 
-const MINUTE = 60_000;
-const DAY = 24 * 60 * MINUTE;
-
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-const toDate = (value: string | Date) => (typeof value === "string" ? new Date(value) : value);
-
-type Parts = { year: number; month: number; day: number; weekday: number; hour: number; minute: number };
-
-/** Wall-clock parts in the operator's zone. */
-function parts(value: string | Date): Parts {
-  const shifted = new Date(toDate(value).getTime() + OFFSET_MINUTES * MINUTE);
-  return {
-    year: shifted.getUTCFullYear(),
-    month: shifted.getUTCMonth(),
-    day: shifted.getUTCDate(),
-    weekday: shifted.getUTCDay(),
-    hour: shifted.getUTCHours(),
-    minute: shifted.getUTCMinutes(),
-  };
-}
-
-const pad = (value: number) => String(value).padStart(2, "0");
-
-/** "2026-09-25" in the operator's zone — the key two timestamps share a day by. */
-export function dayKey(value: string | Date): string {
-  const { year, month, day } = parts(value);
-  return `${year}-${pad(month + 1)}-${pad(day)}`;
-}
-
-function daysBetween(value: string | Date, now: Date): number {
-  const a = Date.parse(`${dayKey(value)}T00:00:00Z`);
-  const b = Date.parse(`${dayKey(now)}T00:00:00Z`);
-  return Math.round((b - a) / DAY);
-}
-
-const shortDate = (p: Parts) => `${p.day} ${MONTHS[p.month]}`;
-const fullDate = (p: Parts) => `${p.day} ${MONTHS[p.month]} ${p.year}`;
-
-/** "10:32 am" */
-export function formatClock(value: string | Date): string {
-  const { hour, minute } = parts(value);
-  const twelve = hour % 12 === 0 ? 12 : hour % 12;
-  return `${twelve}:${pad(minute)} ${hour < 12 ? "am" : "pm"}`;
-}
-
-/** "25 Sep 2026, 10:32 am" — for titles and screen readers. */
-export function formatFullDateTime(value: string | Date): string {
-  return `${fullDate(parts(value))}, ${formatClock(value)}`;
-}
+export {
+  OPERATOR_TIME_ZONE,
+  dayKey,
+  formatClock,
+  formatFullDateTime,
+  minutesSince,
+} from "@/lib/time";
 
 /**
  * The inbox's right-hand timestamp: the time today, "Yesterday", a weekday
@@ -93,11 +34,6 @@ export function formatDayDivider(value: string | Date, now: Date): string {
   if (days === 1) return "Yesterday";
   const p = parts(value);
   return p.year === parts(now).year ? `${WEEKDAYS[p.weekday]}, ${shortDate(p)}` : fullDate(p);
-}
-
-/** Minutes elapsed, never negative (clock skew between server and browser). */
-export function minutesSince(value: string | Date, now: Date): number {
-  return Math.max(0, Math.floor((now.getTime() - toDate(value).getTime()) / MINUTE));
 }
 
 /**
@@ -139,8 +75,7 @@ export function formatGuestCount(adults: number, children: number, infants: numb
 
 /** "12 Oct" this year, "12 Oct 2027" otherwise — for travel dates. */
 export function formatTravelDate(value: string, now: Date): string {
-  const p = parts(value);
-  return p.year === parts(now).year ? shortDate(p) : fullDate(p);
+  return formatDay(value, now);
 }
 
 /** "AK" from "Ananya Kapoor"; one letter for a single name. */

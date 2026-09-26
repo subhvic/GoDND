@@ -58,12 +58,13 @@ test.describe("home", () => {
     const latest = page.getByRole("region", { name: "Latest bookings" });
 
     await expect(latest.locator("tbody tr")).toHaveCount(4);
-    // Newest first: Priya booked on 20 Mar, the latest in the fixture.
-    await expect(latest.locator("tbody tr").first()).toContainText("Priya Sengupta");
-    await expect(latest.locator("tbody tr").first()).toContainText("Guwahati");
+    // Newest first: the sample data is dated relative to today, and Karan
+    // booked yesterday (still awaiting payment).
+    await expect(latest.locator("tbody tr").first()).toContainText("Karan Bose");
+    await expect(latest.locator("tbody tr").first()).toContainText("Shillong");
 
-    await latest.getByRole("button", { name: "Priya Sengupta" }).click();
-    await expect(page.getByRole("dialog", { name: "Priya Sengupta" })).toBeVisible();
+    await latest.getByRole("button", { name: "Karan Bose" }).click();
+    await expect(page.getByRole("dialog", { name: "Karan Bose" })).toBeVisible();
 
     await expect(latest.getByRole("link", { name: "See all bookings" })).toHaveAttribute(
       "href",
@@ -93,7 +94,7 @@ test.describe("home", () => {
     await page.goto("/dashboard");
     await page
       .getByRole("region", { name: "Latest bookings" })
-      .getByRole("button", { name: "Priya Sengupta" })
+      .getByRole("button", { name: "Karan Bose" })
       .click();
     await expect(page.getByRole("dialog")).toHaveCount(1);
 

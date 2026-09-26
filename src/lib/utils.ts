@@ -9,12 +9,13 @@ export function cn(...inputs: ClassValue[]) {
  * Money is stored as integer paise. Rendering goes through here so a stray
  * float never reaches a screen an operator quotes from.
  */
-export function formatMoney(minor: number | null | undefined, currency = "INR") {
+export function formatMoney(minor: number | null | undefined, currency = "INR", digits = 0) {
   if (minor == null) return "—";
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
   }).format(minor / 100);
 }
 

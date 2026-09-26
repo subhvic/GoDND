@@ -90,10 +90,10 @@ export type ApprovalEvent = {
    ========================================================================== */
 
 /**
- * The eight-state booking lifecycle from the schema, plus the grouping the
- * operator sees on the list. The DB carries every distinct state; the UI
- * collapses them into four tabs because "confirmed / paid / partially_paid"
- * are all just "upcoming, money is coming" to an operator scanning the list.
+ * The eight-state booking lifecycle from the schema. The operator never sees
+ * these as tabs: the list groups bookings into phases (BOOKING_TABS), and
+ * one of those — Ongoing — comes from the dates, not the status. See
+ * docs/BOOKING-JOURNEYS.md.
  */
 export const BOOKING_STATUSES = [
   "draft",
@@ -119,22 +119,17 @@ export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
   refunded: "Refunded",
 };
 
+/** The five phases, in the order a booking lives through them. */
 export const BOOKING_TABS = [
-  { key: "upcoming", label: "Upcoming" },
   { key: "awaiting", label: "Awaiting payment" },
+  { key: "upcoming", label: "Upcoming" },
+  { key: "ongoing", label: "Ongoing" },
   { key: "completed", label: "Completed" },
   { key: "cancelled", label: "Cancelled" },
 ] as const;
 
 export type BookingTabKey = (typeof BOOKING_TABS)[number]["key"];
-
-/** Which DB statuses land under which operator-facing tab. */
-export const BOOKING_TAB_STATUSES: Record<BookingTabKey, BookingStatus[]> = {
-  upcoming: ["confirmed", "paid", "partially_paid"],
-  awaiting: ["pending_payment", "draft"],
-  completed: ["completed"],
-  cancelled: ["cancelled", "refunded"],
-};
+export type BookingPhase = BookingTabKey;
 
 export type BookingRow = {
   id: string;
@@ -143,6 +138,8 @@ export type BookingRow = {
   isMarketplace: boolean;
   experienceTitle: string;
   experienceId: string | null;
+  /** The enquiry this booking came from, when there was one. */
+  enquiryId: string | null;
   leadName: string;
   leadEmail: string | null;
   leadPhone: string | null;
@@ -155,16 +152,30 @@ export type BookingRow = {
   totalMinor: number;
   paidMinor: number;
   refundedMinor: number;
+  /** Promised back to the guest at cancellation and not yet refunded. */
+  refundOwedMinor: number;
   commissionMinor: number;
+  /** When the balance must be in, for part-paid and unpaid bookings. */
+  balanceDueAt: string | null;
   createdAt: string;
 };
 
+export type PermitStatus = "not_needed" | "pending" | "applied" | "issued";
+
+export type CancelCategory =
+  | "guest_request"
+  | "operator"
+  | "weather"
+  | "minimum_not_met"
+  | "no_payment"
+  | "other";
+
 export type BookingDetail = BookingRow & {
-  /** Other travellers on the same booking, in seat order. */
-  guests: BookingGuest[];
+  /** One per traveller the guest has named, in seat order. May be fewer than the seats booked. */
+  travellers: BookingTraveller[];
   /** Chronological, oldest first. */
   timeline: BookingEvent[];
-  /** Payments recorded against this booking. */
+  /** Money in and money back, oldest first. */
   payments: BookingPayment[];
   /** Snapshot of what the operator sold at the time of booking. */
   experienceSnapshot: {
@@ -172,42 +183,98 @@ export type BookingDetail = BookingRow & {
     location: string[];
     thumbnailNote: string | null;
   };
-  cancellationReason: string | null;
+  /** Who runs the trip on the ground. */
+  captain: { name: string; phone: string | null } | null;
+  /** Inner Line Permit — required to enter Arunachal, Nagaland, Mizoram and Manipur. */
+  permitStatus: PermitStatus;
+  briefingSentAt: string | null;
+  reviewRequestedAt: string | null;
+  completedAt: string | null;
+  cancellation: {
+    category: CancelCategory;
+    reason: string;
+    cancelledAt: string;
+    by: string | null;
+  } | null;
+  review: BookingReview | null;
+  payout: BookingPayout | null;
   notes: string | null;
 };
 
-export type BookingGuest = {
+export type BookingTraveller = {
   id: string;
   fullName: string;
   ageBucket: "adult" | "child" | "infant";
   role: "lead" | "guest";
+  idType: "aadhaar" | "passport" | "voter" | "dl" | null;
+  idNumber: string | null;
+  mealPref: string | null;
+  medicalNotes: string | null;
+  checkedInAt: string | null;
 };
+
+export type BookingEventKind =
+  | "created"
+  | "payment_captured"
+  | "confirmed"
+  | "reminder_sent"
+  | "briefing_sent"
+  | "message_sent"
+  | "travellers_updated"
+  | "permit_updated"
+  | "dates_changed"
+  | "checked_in"
+  | "trip_update"
+  | "incident"
+  | "completed"
+  | "review_requested"
+  | "review_received"
+  | "review_replied"
+  | "cancelled"
+  | "refund_pending"
+  | "refunded"
+  | "note";
 
 export type BookingEvent = {
   id: string;
-  kind:
-    | "created"
-    | "payment_captured"
-    | "confirmed"
-    | "reminder_sent"
-    | "checked_in"
-    | "completed"
-    | "cancelled"
-    | "refunded"
-    | "note";
+  kind: BookingEventKind;
   label: string;
   detail?: string | null;
   amountMinor?: number | null;
+  /** Who did it; null for the guest or the system. */
+  actor?: string | null;
   createdAt: string;
 };
 
+export type PaymentMethod = "razorpay" | "upi" | "cash" | "bank_transfer" | "card" | "other";
+
 export type BookingPayment = {
   id: string;
-  method: "razorpay" | "cash" | "bank_transfer" | "other";
+  direction: "inbound" | "refund";
+  method: PaymentMethod;
   status: "authorized" | "captured" | "failed" | "refunded";
+  /** Always positive; direction says which way it went. */
   amountMinor: number;
   createdAt: string;
   reference: string | null;
+  /** GoDND collected it (marketplace) rather than the operator. */
+  collectedByPlatform: boolean;
+};
+
+export type BookingReview = {
+  rating: number;
+  title: string | null;
+  body: string | null;
+  createdAt: string;
+  reply: string | null;
+  repliedAt: string | null;
+};
+
+export type BookingPayout = {
+  status: "pending" | "processing" | "paid" | "on_hold";
+  reference: string | null;
+  netMinor: number;
+  paidAt: string | null;
 };
 
 /* ==========================================================================

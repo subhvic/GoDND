@@ -18,7 +18,7 @@
   }
   .mobile-bar, .nav .nav-close, .nav-scrim { display: none; }
   .nav-top { display: flex; align-items: center; gap: 12px; padding: 8px 16px 16px; height: 64px; flex-shrink: 0; }
-  .nav-wordmark { display: block; line-height: 0; }
+  .nav-brand { display: flex; align-items: center; min-width: 0; line-height: 0; }
   .nav-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 6px 10px 8px; }
   .nav-group-label {
     font-size: 10px; font-weight: 600; letter-spacing: .9px; text-transform: uppercase;
@@ -69,6 +69,9 @@
       padding: 0 var(--gutter); border-bottom: 1px solid var(--border-subtle); background: var(--canvas);
     }
     .nav {
+      /* Wider than the rail so the logo lockup and the close button share
+         the top row without shrinking the logo. */
+      width: 240px; max-width: 86vw;
       position: fixed; inset: 0 auto 0 0; z-index: 50; box-shadow: var(--shadow-pop);
       transform: translateX(-100%); visibility: hidden;
       transition: transform .2s ease, visibility 0s linear .2s;
@@ -103,7 +106,7 @@
     font-size: 11.5px; color: var(--text-muted);
     padding: 0 4px;
   }
-  .card-crumbs-left { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; }
+  .card-crumbs-left { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; padding: 4px 0; }
   .card-crumbs-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
   .card-crumbs a { color: var(--text-secondary); text-decoration: none; cursor: pointer; }
   .card-crumbs a:hover { color: var(--text-primary); text-decoration: underline; }
@@ -280,7 +283,7 @@
   .badge.critical { background: var(--critical-tint); color: var(--critical-fg); }
   .badge.warning { background: var(--warning-tint); color: var(--warning-fg); }
   .badge.healthy { background: var(--healthy-tint); color: var(--healthy-fg); }
-  .badge.info { background: var(--info-tint); color: var(--brand-on-muted); }
+  .badge.info { background: var(--info-tint); color: var(--info-fg); }
   .badge.neutral { background: var(--panel); color: var(--text-secondary); }
 
   /* Status badge — solid fill, white text. The fill alone
@@ -719,13 +722,8 @@
   .auth-panel { min-width: 0; display: flex; justify-content: center; padding: 32px 20px 40px; }
   .auth-panel-inner { width: 100%; max-width: 409px; }
 
-  .auth-lockup { display: flex; align-items: center; gap: 12px; color: var(--text-primary); }
-  .auth-lockup-mark { width: 36px; height: 36px; }
-  .auth-lockup-wordmark { font-size: 32px; font-weight: 600; line-height: 1.2; letter-spacing: -.8px; }
-  .auth-lockup-product {
-    margin-left: 2px; padding-left: 14px; border-left: 1px solid var(--border-strong);
-    font-size: 26px; font-weight: 300; line-height: 1.2; color: var(--text-secondary);
-  }
+  /* The logo file, sized by height; width follows its 179:27 ratio. */
+  .auth-lockup { display: block; height: 36px; width: auto; }
 
   .auth-content { margin-top: 40px; }
   .auth-title { margin: 0; font-size: 28px; font-weight: 600; line-height: 1.2; letter-spacing: -.4px; color: var(--text-primary); }
@@ -748,10 +746,7 @@
     .auth-hero { height: auto; }
     .auth-hero svg { inset: 0; width: 100%; height: 100%; aspect-ratio: auto; transform: none; }
     .auth-panel { justify-content: flex-start; padding: clamp(48px, 20dvh, 176px) 40px 48px clamp(40px, 11.2%, 80px); }
-    .auth-lockup { gap: 17px; }
-    .auth-lockup-mark { width: 52px; height: 52px; }
-    .auth-lockup-wordmark { font-size: 49px; letter-spacing: -1.2px; }
-    .auth-lockup-product { padding-left: 22px; font-size: 39px; }
+    .auth-lockup { height: 52px; }
     .auth-content { margin-top: 60px; }
     .auth-input { font-size: 14px; }
   }

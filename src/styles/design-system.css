@@ -2,7 +2,7 @@
    DESIGN SYSTEM reference page  (route: /design-system)
    Self-contained documentation shell — consumes the same tokens it documents.
    Ported from the CubeAPM reference page; the only change is that the code
-   and numeral styling uses Rubik rather than a monospace face.
+   and numeral styling uses Roboto rather than a monospace face.
    ============================================================================ */
 @layer components {
   .ds-root { height: 100dvh; overflow-y: auto; background: var(--canvas); color: var(--text-primary); }

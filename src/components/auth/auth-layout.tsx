@@ -1,5 +1,5 @@
 import { AuthHero } from "@/components/auth/auth-hero";
-import { LogoIcon } from "@/components/brand/logo";
+import { LogoLockup } from "@/components/brand/logo";
 
 /**
  * The sign-in frame from the handoff file: the image half, and the panel
@@ -22,16 +22,10 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * The mark, the wordmark, and the product name set lighter behind a
- * hairline. It says which GoDND this is — the operator portal, not the
- * traveller marketplace — before the form asks for anything.
+ * The full "GoDND | Portal" lockup. It says which GoDND this is — the
+ * operator portal, not the traveller marketplace — before the form asks
+ * for anything.
  */
 function PortalLockup() {
-  return (
-    <p className="auth-lockup m-0">
-      <LogoIcon size={52} className="auth-lockup-mark" />
-      <span className="auth-lockup-wordmark">GoDND</span>
-      <span className="auth-lockup-product">Portal</span>
-    </p>
-  );
+  return <LogoLockup height={36} label="GoDND Portal" className="auth-lockup" />;
 }
