@@ -6,6 +6,7 @@ import { useHomeRecords } from "@/components/home/home-records";
 import { RouteLine } from "@/components/home/route-line";
 import { SectionHead } from "@/components/home/section-head";
 import { EmptyState } from "@/components/ui/empty-state";
+import { phaseForBooking, tripDay } from "@/lib/bookings/phase";
 import type { LatestBookingRow } from "@/lib/types";
 import { cn, formatDate, formatDateTimeParts } from "@/lib/utils";
 
@@ -15,7 +16,7 @@ import { cn, formatDate, formatDateTimeParts } from "@/lib/utils";
  * booked (date over time), and when the trip starts. A name opens the same
  * booking drawer the Bookings list uses.
  */
-export function LatestBookings({ rows }: { rows: LatestBookingRow[] }) {
+export function LatestBookings({ rows, today }: { rows: LatestBookingRow[]; today: string }) {
   const { openId, openBooking } = useHomeRecords();
 
   return (
@@ -89,7 +90,9 @@ export function LatestBookings({ rows }: { rows: LatestBookingRow[] }) {
                           "—"
                         )}
                       </td>
-                      <td className="text-text-primary">{formatDate(row.travelStart)}</td>
+                      <td className="text-text-primary">
+                        <TripStart row={row} today={today} />
+                      </td>
                     </tr>
                   );
                 })}
@@ -99,5 +102,23 @@ export function LatestBookings({ rows }: { rows: LatestBookingRow[] }) {
         )}
       </div>
     </section>
+  );
+}
+
+/**
+ * "Trip starts" — except for a trip already under way, which says so: a
+ * booking on the road today is the one row on Home an operator most needs
+ * to tell apart.
+ */
+function TripStart({ row, today }: { row: LatestBookingRow; today: string }) {
+  const day = phaseForBooking(row, today) === "ongoing" ? tripDay(row, today) : null;
+  if (!day) return <>{formatDate(row.travelStart)}</>;
+  return (
+    <span className="cell-stack">
+      <span className="badge info">On trip</span>
+      <span className="cell-sub">
+        Day {day.day} of {day.of}
+      </span>
+    </span>
   );
 }

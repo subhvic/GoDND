@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
-import { Rubik } from "next/font/google";
+import { Roboto } from "next/font/google";
 
 import "./globals.css";
 
-// Rubik is the only typeface in the system. It is a variable font, so every
-// weight the scale uses (300–700) comes from one file.
-const rubik = Rubik({
-  variable: "--font-rubik",
-  subsets: ["latin"],
+// Roboto is the only typeface in the system. It is a variable font, so every
+// weight the scale uses (300–700) comes from one file. latin-ext carries the
+// rupee sign (U+20B9), which is on nearly every screen — without it ₹ falls
+// back to a system face beside Roboto digits.
+const roboto = Roboto({
+  variable: "--font-roboto",
+  subsets: ["latin", "latin-ext"],
   display: "swap",
 });
 
@@ -22,7 +24,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={rubik.variable}>
+    <html lang="en" className={roboto.variable}>
       <body>{children}</body>
     </html>
   );

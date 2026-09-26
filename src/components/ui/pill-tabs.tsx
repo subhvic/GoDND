@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -39,8 +40,30 @@ export function PillTabs({
   label: string;
   className?: string;
 }) {
+  const navRef = useRef<HTMLElement>(null);
+  const settled = useRef(false);
+
+  // On a phone the bar scrolls sideways; keep the active tab in view —
+  // landing on ?tab=cancelled shouldn't leave it off the edge. Scrolls only
+  // the bar (never the page), instantly on load and smoothly after.
+  useEffect(() => {
+    const nav = navRef.current;
+    const tab = nav?.querySelector<HTMLElement>(".pill-tab.active");
+    if (!nav || !tab || nav.scrollWidth <= nav.clientWidth) return;
+    const left = tab.getBoundingClientRect().left - nav.getBoundingClientRect().left + nav.scrollLeft;
+    const visible = left >= nav.scrollLeft && left + tab.offsetWidth <= nav.scrollLeft + nav.clientWidth;
+    if (!visible) {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      nav.scrollTo({
+        left: left - (nav.clientWidth - tab.offsetWidth) / 2,
+        behavior: settled.current && !reduce ? "smooth" : "auto",
+      });
+    }
+    settled.current = true;
+  }, [active]);
+
   return (
-    <nav aria-label={label} className={cn("pill-tabs", className)}>
+    <nav ref={navRef} aria-label={label} className={cn("pill-tabs", className)}>
       {tabs.map((tab) => {
         const isActive = tab.id === active;
         const content = (
