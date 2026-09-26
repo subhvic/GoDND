@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 /**
- * The Grow section: Channels, Studio, Calendar, Ads, Performance.
+ * The Growth section: SM Channels, Studio, Calendar, Performance, Ads Overview.
  *
  * What is worth guarding here is the reasoning, not the layout. Three claims
  * the section makes and must keep making:
@@ -16,13 +16,13 @@ import { expect, test } from "@playwright/test";
 const GROW = "/dashboard/social";
 
 test.describe("navigation", () => {
-  test("Grow sits between doing the work and measuring it", async ({ page }) => {
+  test("Growth sits between doing the work and measuring it", async ({ page }) => {
     await page.goto(`${GROW}/channels`);
     const nav = page.getByRole("navigation", { name: "Main" });
-    for (const label of ["Channels", "Studio", "Calendar", "Ads", "Performance"]) {
+    for (const label of ["SM Channels", "Studio", "Calendar", "Performance", "Ads Overview"]) {
       await expect(nav.getByRole("link", { name: label })).toBeVisible();
     }
-    await expect(nav.getByRole("link", { name: "Channels" })).toHaveAttribute(
+    await expect(nav.getByRole("link", { name: "SM Channels" })).toHaveAttribute(
       "aria-current",
       "page",
     );

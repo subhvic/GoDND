@@ -80,7 +80,7 @@ export default async function AdsPage() {
   return (
     <>
       <PageBar
-        crumbs={[{ label: "GoDND", href: "/dashboard" }, { label: "Ads" }]}
+        crumbs={[{ label: "Growth" }, { label: "Ads Overview" }]}
         actions={
           <button type="button" disabled className={buttonClass()}>
             <Link2 aria-hidden />

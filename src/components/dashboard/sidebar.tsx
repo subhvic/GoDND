@@ -51,40 +51,49 @@ type NavItem = {
   exact?: boolean;
 };
 
+/**
+ * Three strategic groups mirror how an operator thinks about the product:
+ *
+ * - Dashboard is the day-to-day workspace: the records they act on
+ *   (Experiences, Bookings, Enquiries) plus the money and account settings
+ *   that hang off those records.
+ * - Growth is the outward-facing motion: where posts get made, scheduled
+ *   and measured, and where paid reach is bought.
+ * - Website is the destination those channels drive to — how the site
+ *   looks, how it's wired up, and what it earns.
+ *
+ * Items without a route yet are shown disabled rather than hidden, so an
+ * operator sees the whole shape of the product and nothing pretends to
+ * work when it does not.
+ */
 const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
-    label: "Workspace",
+    label: "Dashboard",
     items: [
       { id: "home", label: "Home", icon: Home, href: "/dashboard", exact: true },
       { id: "experiences", label: "Experiences", icon: Compass, href: "/dashboard/experiences" },
       { id: "bookings", label: "Bookings", icon: CalendarCheck, href: "/dashboard/bookings" },
       { id: "enquiries", label: "Enquiries", icon: MessagesSquare, href: "/dashboard/enquiries" },
+      { id: "transactions", label: "Transactions", icon: Receipt },
+      { id: "settings", label: "Settings", icon: Settings },
     ],
   },
   {
-    // Social sits between doing the work and measuring it: everything here
-    // starts from an experience that already exists in Workspace.
-    label: "Grow",
+    label: "Growth",
     items: [
-      { id: "channels", label: "Channels", icon: Link2, href: "/dashboard/social/channels" },
+      { id: "channels", label: "SM Channels", icon: Link2, href: "/dashboard/social/channels" },
       { id: "studio", label: "Studio", icon: Sparkles, href: "/dashboard/social/studio" },
       { id: "calendar", label: "Calendar", icon: CalendarRange, href: "/dashboard/social/calendar" },
-      { id: "ads", label: "Ads", icon: Megaphone, href: "/dashboard/social/ads" },
       { id: "reach", label: "Performance", icon: TrendingUp, href: "/dashboard/social/performance" },
+      { id: "ads", label: "Ads Overview", icon: Megaphone, href: "/dashboard/social/ads" },
     ],
   },
   {
-    label: "Analyze",
+    label: "Website",
     items: [
+      { id: "template", label: "Template", icon: Globe },
+      { id: "configurations", label: "Configurations", icon: Settings },
       { id: "insights", label: "Insights", icon: BarChart3 },
-      { id: "transactions", label: "Transactions", icon: Receipt },
-    ],
-  },
-  {
-    label: "Manage",
-    items: [
-      { id: "website", label: "Website", icon: Globe },
-      { id: "settings", label: "Settings", icon: Settings },
     ],
   },
 ];

@@ -112,6 +112,18 @@
   .card-crumbs a:hover { color: var(--text-primary); text-decoration: underline; }
   .card-crumbs .sep { color: var(--border-strong); font-size: 10px; }
   .card-crumbs .current { color: var(--text-primary); font-size: 14px; font-weight: 600; letter-spacing: -.2px; margin: 0; }
+  /* Back arrow sits before the trail — a real square target rather than a
+     bare icon, so it stays reachable on touch and reads as clickable. */
+  .card-crumbs-back {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; margin-right: 2px; padding: 0;
+    background: transparent; border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm); color: var(--text-secondary);
+    cursor: pointer; flex-shrink: 0;
+  }
+  .card-crumbs-back:hover { color: var(--text-primary); border-color: var(--border-strong); background: var(--panel); }
+  .card-crumbs-back:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+  .card-crumbs-back svg { width: 14px; height: 14px; }
 
   /* ============ BUTTONS ============ */
   .hbtn {

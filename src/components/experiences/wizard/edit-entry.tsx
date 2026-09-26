@@ -73,7 +73,7 @@ export function EditEntry({
     <>
       <PageBar
         crumbs={[
-          { label: "GoDND", href: "/dashboard" },
+          { label: "Dashboard", href: "/dashboard" },
           { label: "Experiences", href: "/dashboard/experiences" },
           { label: title.length > 40 ? `${title.slice(0, 40)}…` : title },
           { label: "Edit" },
@@ -118,7 +118,7 @@ function ArchivedBlock({
     <>
       <PageBar
         crumbs={[
-          { label: "GoDND", href: "/dashboard" },
+          { label: "Dashboard", href: "/dashboard" },
           { label: "Experiences", href: "/dashboard/experiences" },
           { label: title.length > 40 ? `${title.slice(0, 40)}…` : title },
           { label: "Edit" },

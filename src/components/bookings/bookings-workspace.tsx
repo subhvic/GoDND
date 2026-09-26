@@ -153,7 +153,7 @@ export function BookingsWorkspace({
   return (
     <>
       <PageBar
-        crumbs={[{ label: "GoDND", href: "/dashboard" }, { label: "Bookings" }]}
+        crumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Bookings" }]}
         actions={
           <div className="search-wrap hidden w-[280px] md:block">
             <SearchIcon />

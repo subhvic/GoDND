@@ -42,7 +42,7 @@ export default async function ExperiencesPage(
   return (
     <>
       <PageBar
-        crumbs={[{ label: "GoDND", href: "/dashboard" }, { label: "Experiences" }]}
+        crumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Experiences" }]}
         actions={
           <>
             <SearchInput

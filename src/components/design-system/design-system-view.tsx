@@ -1418,10 +1418,16 @@ function Navigation() {
           </span>
         </div>
       </Spec>
-      <Spec title="Breadcrumb" note=".card-crumbs · the last crumb is the page heading">
+      <Spec title="Breadcrumb" note=".card-crumbs · back arrow steps up one level; the last crumb is the page heading">
         <div className="card-crumbs m-0 border-0 p-0">
           <div className="card-crumbs-left">
-            <a href="#c-nav">GoDND</a>
+            <button type="button" className="card-crumbs-back" aria-label="Go back">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M19 12H5" />
+                <path d="M12 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <a href="#c-nav">Dashboard</a>
             <span className="sep" aria-hidden>
               /
             </span>

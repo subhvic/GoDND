@@ -58,7 +58,7 @@ export default async function PerformancePage() {
   return (
     <>
       <PageBar
-        crumbs={[{ label: "GoDND", href: "/dashboard" }, { label: "Performance" }]}
+        crumbs={[{ label: "Growth" }, { label: "Performance" }]}
       />
 
       <div className="surface-card">
