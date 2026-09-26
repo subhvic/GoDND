@@ -103,7 +103,7 @@ export function SubmittedScreen() {
     <>
       <PageBar
         crumbs={[
-          { label: "GoDND", href: "/dashboard" },
+          { label: "Dashboard", href: "/dashboard" },
           { label: "Experiences", href: "/dashboard/experiences" },
           { label: "Sent for approval" },
         ]}

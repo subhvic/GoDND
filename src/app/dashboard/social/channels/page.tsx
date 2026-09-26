@@ -49,8 +49,8 @@ export default async function ChannelsPage() {
     <>
       <PageBar
         crumbs={[
-          { label: "GoDND", href: "/dashboard" },
-          { label: "Channels" },
+          { label: "Growth" },
+          { label: "SM Channels" },
         ]}
       />
 

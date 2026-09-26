@@ -144,7 +144,7 @@ export function ReviewScreen() {
       <>
         <PageBar
           crumbs={[
-            { label: "GoDND", href: "/dashboard" },
+            { label: "Dashboard", href: "/dashboard" },
             { label: "Experiences", href: "/dashboard/experiences" },
             { label: "New experience", href: "/dashboard/experiences/new" },
             { label: "Review" },
@@ -234,7 +234,7 @@ export function ReviewScreen() {
     <>
       <PageBar
         crumbs={[
-          { label: "GoDND", href: "/dashboard" },
+          { label: "Dashboard", href: "/dashboard" },
           { label: "Experiences", href: "/dashboard/experiences" },
           { label: "New experience", href: "/dashboard/experiences/new" },
           { label: "Review" },

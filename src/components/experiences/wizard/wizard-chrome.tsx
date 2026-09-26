@@ -111,12 +111,12 @@ export function WizardPageBar({ current }: { current: WizardStepSlug }) {
       crumbs={
         isEditing
           ? [
-              { label: "GoDND", href: "/dashboard" },
+              { label: "Dashboard", href: "/dashboard" },
               { label: "Experiences", href: "/dashboard/experiences" },
               { label: "Edit experience" },
             ]
           : [
-              { label: "GoDND", href: "/dashboard" },
+              { label: "Dashboard", href: "/dashboard" },
               { label: "Experiences", href: "/dashboard/experiences" },
               { label: "New experience", href: "/dashboard/experiences/new" },
             ]

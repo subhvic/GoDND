@@ -37,7 +37,7 @@ export default async function EnquiriesLayout({
       serverNow={inbox.now}
     >
       <PageBar
-        crumbs={[{ label: "GoDND", href: "/dashboard" }, { label: "Enquiries" }]}
+        crumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Enquiries" }]}
         actions={<LogEnquiryButton />}
       />
       <div className="surface-card">

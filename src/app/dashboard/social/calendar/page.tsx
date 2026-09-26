@@ -20,7 +20,7 @@ export default async function CalendarPage() {
   return (
     <>
       <PageBar
-        crumbs={[{ label: "GoDND", href: "/dashboard" }, { label: "Calendar" }]}
+        crumbs={[{ label: "Growth" }, { label: "Calendar" }]}
         actions={
           <Link
             href="/dashboard/social/studio"

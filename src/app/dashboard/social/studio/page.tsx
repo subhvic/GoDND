@@ -32,7 +32,7 @@ export default async function StudioPage() {
   return (
     <>
       <PageBar
-        crumbs={[{ label: "GoDND", href: "/dashboard" }, { label: "Studio" }]}
+        crumbs={[{ label: "Growth" }, { label: "Studio" }]}
       />
 
       <div className="surface-card">

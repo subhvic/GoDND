@@ -139,7 +139,7 @@ export function NewExperienceIntro() {
     <>
       <PageBar
         crumbs={[
-          { label: "GoDND", href: "/dashboard" },
+          { label: "Dashboard", href: "/dashboard" },
           { label: "Experiences", href: "/dashboard/experiences" },
           { label: "New experience" },
         ]}
