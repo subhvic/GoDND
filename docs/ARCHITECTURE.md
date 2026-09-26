@@ -141,7 +141,7 @@ customer.
 | Approval pipeline + revisions | **Yes** | Schema verified |
 | Bookings, Insights, Transactions | **Yes** | Schema verified |
 | Marketplace star-marking | **No — gap 1** | Schema ready, needs design |
-| Enquiries + realtime chat | **No — gap 2** | Schema ready, needs design |
+| Enquiries + realtime chat | **No — gap 2** | Built from the system (see FIGMA-TEARDOWN §2) |
 | White-label site + theming | **No — gap 3** | Schema ready, needs design |
 | Custom domains | **No — gap 3** | Schema + proxy done |
 | GST invoices | **No — gap 4** | Schema ready, needs design |

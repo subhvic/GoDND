@@ -112,6 +112,29 @@ your brand carries the marketplace listing, not their site.
 anywhere in the file. This is a whole nav item and a substantial module.
 Schema and realtime are in place; the screens need designing.
 
+*Update — built without a frame to follow.* `/dashboard/enquiries` is designed
+from the portal's own system (tokens, pill tabs, drawer, form atoms), not from
+the handoff file, so it should be reconciled against any Enquiries frames
+added to Figma since this teardown. What it commits to:
+
+- **Split by whose move it is**, not by stage: *Needs reply* (longest wait
+  first, overdue past 24h in red), *Replied*, *Closed*. The seven-stage
+  pipeline (new → open → quoted → negotiating → won / lost / spam) is a
+  property of the thread, changed from its header.
+- **The enquiry opens the thread** as a structured card (trip, dates, group,
+  budget, their words); quotes are sent as priced cards, not free text.
+- **Internal notes live in the thread** (violet, team-only via RLS), and stage
+  / assignment changes leave a history line.
+- **Reachability is explicit**: a phone-only lead can't be "replied to" — the
+  box switches to notes and offers Call / WhatsApp instead.
+- **Phones get a native-app pattern**: list and thread are separate screens,
+  the thread fills the viewport and rides above the keyboard, details are a
+  full-screen sheet.
+
+Migration `0006_enquiry_chat.sql` adds the tables to the Realtime
+publication, a `mark_enquiry_read` RPC, and stops internal notes from moving
+an enquiry out of New.
+
 **Gap 3 — The white-label consumer site.** The file has an Experience Landing
 Page, but nothing that lets an operator *control* their site: no theme editor, no
 page manager, no domain settings. "Manage consumer side website look and feel"

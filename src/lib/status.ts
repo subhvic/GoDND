@@ -71,6 +71,40 @@ export function statusForBooking(state: string): Status {
   }
 }
 
+/**
+ * An enquiry's pipeline stage. Amber is "nobody has answered this yet", green
+ * is a won deal, blue is a conversation in flight, grey is set aside.
+ */
+export function statusForEnquiry(state: string): Status {
+  switch (state) {
+    case "new":
+      return "warning";
+    case "open":
+    case "quoted":
+    case "negotiating":
+      return "info";
+    case "won":
+      return "healthy";
+    default:
+      return "neutral";
+  }
+}
+
+/**
+ * How long a traveller has waited for a reply. Replies inside two hours
+ * convert best for travel leads; past a day the lead has usually gone cold.
+ * The thresholds live here so the list, the thread and any future KPI read
+ * the same clock.
+ */
+export const REPLY_TARGET_MINUTES = 120;
+export const REPLY_OVERDUE_MINUTES = 24 * 60;
+
+export function statusForWaiting(minutes: number): Status {
+  if (minutes >= REPLY_OVERDUE_MINUTES) return "critical";
+  if (minutes >= REPLY_TARGET_MINUTES) return "warning";
+  return "neutral";
+}
+
 export const EXPERIENCE_STATE_LABELS: Record<string, string> = {
   active: "Active",
   under_review: "Under review",
@@ -89,4 +123,54 @@ export function severityRank(status: Status): number {
 
 export function worstStatus(...statuses: Status[]): Status {
   return SEVERITY_ORDER.find((s) => statuses.includes(s)) ?? "neutral";
+}
+
+/**
+ * A social connection, read as "can this channel publish right now?" — amber
+ * once a token is close enough to expiry that a scheduled post could outlive
+ * it, red once posting is already broken, grey for a channel never connected
+ * (nothing is wrong with an account the operator chose not to link).
+ */
+export function statusForChannel(state: string): Status {
+  switch (state) {
+    case "connected":
+      return "healthy";
+    case "expiring":
+      return "warning";
+    case "needs_reauth":
+      return "critical";
+    default:
+      return "neutral";
+  }
+}
+
+/**
+ * A post's lifecycle. Green is "it went out", amber is "it is going out and
+ * still could be stopped", red is a publish that failed and is losing the
+ * slot it was written for.
+ */
+export function statusForPost(state: string): Status {
+  switch (state) {
+    case "published":
+      return "healthy";
+    case "scheduled":
+    case "publishing":
+      return "warning";
+    case "failed":
+      return "critical";
+    default:
+      return "neutral";
+  }
+}
+
+/** A campaign, read as "is money moving?" — spend is the thing to notice. */
+export function statusForCampaign(state: string): Status {
+  switch (state) {
+    case "active":
+      return "healthy";
+    case "in_review":
+      return "warning";
+    default:
+      return "neutral";
+  }
 }

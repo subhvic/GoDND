@@ -516,3 +516,42 @@ export async function getExperience(
     ],
   };
 }
+
+/**
+ * The operator's sellable experiences, for pickers (a quote, a logged
+ * enquiry). Active only: quoting something that cannot be booked sets up a
+ * conversation that ends in an apology.
+ */
+export type ExperienceOption = {
+  id: string;
+  title: string;
+  basePriceMinor: number | null;
+  currency: string;
+};
+
+export async function listExperienceOptions(): Promise<ExperienceOption[]> {
+  if (!isSupabaseConfigured()) {
+    return DEMO.filter((row) => row.status === "active").map((row) => ({
+      id: row.id,
+      title: row.title,
+      basePriceMinor: row.basePriceMinor,
+      currency: row.currency,
+    }));
+  }
+
+  const supabase = await createServerSupabase();
+  const { data, error } = await supabase
+    .from("experiences")
+    .select("id, title, base_price_minor, currency")
+    .eq("status", "active")
+    .order("title");
+
+  if (error) throw new Error(`Failed to load experiences: ${error.message}`);
+
+  return (data ?? []).map((row) => ({
+    id: row.id as string,
+    title: row.title as string,
+    basePriceMinor: (row.base_price_minor as number | null) ?? null,
+    currency: (row.currency as string) || "INR",
+  }));
+}

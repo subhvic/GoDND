@@ -7,6 +7,11 @@ import {
   BarChart3,
   BookOpen,
   CalendarCheck,
+  CalendarRange,
+  Link2,
+  Megaphone,
+  Sparkles,
+  TrendingUp,
   Compass,
   Globe,
   HelpCircle,
@@ -53,7 +58,19 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { id: "home", label: "Home", icon: Home, href: "/dashboard", exact: true },
       { id: "experiences", label: "Experiences", icon: Compass, href: "/dashboard/experiences" },
       { id: "bookings", label: "Bookings", icon: CalendarCheck, href: "/dashboard/bookings" },
-      { id: "enquiries", label: "Enquiries", icon: MessagesSquare },
+      { id: "enquiries", label: "Enquiries", icon: MessagesSquare, href: "/dashboard/enquiries" },
+    ],
+  },
+  {
+    // Social sits between doing the work and measuring it: everything here
+    // starts from an experience that already exists in Workspace.
+    label: "Grow",
+    items: [
+      { id: "channels", label: "Channels", icon: Link2, href: "/dashboard/social/channels" },
+      { id: "studio", label: "Studio", icon: Sparkles, href: "/dashboard/social/studio" },
+      { id: "calendar", label: "Calendar", icon: CalendarRange, href: "/dashboard/social/calendar" },
+      { id: "ads", label: "Ads", icon: Megaphone, href: "/dashboard/social/ads" },
+      { id: "reach", label: "Performance", icon: TrendingUp, href: "/dashboard/social/performance" },
     ],
   },
   {
