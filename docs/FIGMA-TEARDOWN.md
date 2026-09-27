@@ -239,3 +239,76 @@ Where the build departs from the drawing, and why:
 | "Canc. Ratio 1:44" | "1 in 44 reservations" | Reads without decoding ratio notation |
 | Graph: "11 active" beside "18 bookings" | Plots *experiences booked* (distinct) against active | Legend says "Experiences Booked"; bookings outnumber experiences 5–10×, so the active line would flatten on a shared axis — and a second axis invents correlations |
 | Photograph (left half) | Illustrated Khasi hills (`AuthHero`) | The photo couldn't be exported; swapping it in is a one-component change |
+
+---
+
+## 7. Settings and Insights (built)
+
+**Source.** One frame could be read before the Figma MCP's Starter-plan
+allowance (20 reads a month) ran out: *Vendor Admin – Operational Details –
+Filled* (`2106:34840`). It fixes the pattern for all seven sections — the
+section rail with a tick or warning per row and an arrow on the current one,
+the seven-segment bar, "Step 5 of 7", the red "yet to be submitted" pill, and
+Previous Step / Next Step. The other six sections' fields and the whole of
+Insights are **derived**, not traced, and should be reconciled against their
+frames when the allowance resets.
+
+### Settings — `/dashboard/settings/{section}`
+
+Opens on the first section that needs the operator. The five business
+sections (Basic Info, Compliance, Financial Details, Certifications &
+Accreditations, Operational Details) are sent to GoDND and verified; My
+Profile and My Team save directly.
+
+| Journey | What happens |
+|---|---|
+| Empty / draft | Red pill; *Save draft* stores anything, *Submit & next step* validates and moves on |
+| Submitted | Clock in the rail, blue pill with the date; read-only |
+| Verified | Tick, green pill; *Edit details* warns, then *Submit changes* or *Cancel* — a verified section never holds a draft |
+| Changes requested | GoDND's note as a critical notice; the flagged certificate is outlined |
+| Leaving mid-edit | Any link — rail, sidebar, breadcrumb — asks before discarding |
+| Bank account change | Confirmation: payouts pause until the new account is verified |
+| Sign-in email change | A code to the new address proves it before it replaces the old one |
+| Team | Invite (with what each role can do), resend, withdraw, change role, remove; the owner and your own row are locked |
+
+Validation is Indian-format and specific: PAN holder letter against the form
+of business, the GSTIN check digit and its embedded PAN, IFSC with the bank
+named, 6-digit PIN, CIN / LLPIN / Udyam by legal form.
+
+Migration `0008_vendor_settings.sql` holds each section in
+`agency_profile_sections`. Operators write only through
+`save_profile_section()`, which can't mark anything verified; GoDND's
+`review_profile_section()` verifies, and only then copies the details onto the
+public `agencies` row. Bank details are hidden from roles without finance
+access (their status isn't). A trigger keeps the owner irremovable and stops
+self-role changes; removing a member unassigns their enquiries.
+`accept_agency_invites()` runs at sign-in. Documents go to a private
+`agency-documents` bucket, `{agency}/{section}/{file}`.
+
+**Departures from the frame**
+
+| Frame | Built | Why |
+|---|---|---|
+| Rail: tick or warning | Adds a clock for "GoDND is verifying" | Submitted isn't verified, and nothing is asked of the operator |
+| Bar fills by position | Fills by completion | Position is already the rail's active row |
+| Unlabelled company-name title | Labelled "Company name" | An unlabelled input reads as a heading |
+| "Any other relevant certifications" required | Optional | An operator with none couldn't proceed |
+| Dark active rail row | The wizard rail's style | The frame's rows are the same "Itinerary Sub-tab" component |
+
+**Decisions needed:** the role list and what each may do (drawn nowhere in
+the file); whether an unverified profile should block *Review & send* on a
+new experience (today it doesn't); ownership transfer.
+
+### Insights — `/dashboard/insights`
+
+Built without a readable frame, from what Home links to it ("See all
+insights", "See details") and the data the portal holds. Findings come first,
+each with the numbers behind it (the Performance page's rule), then booking
+value, bookings, guests and cancellation rate against the previous period, a
+value-by-day/week/month chart, sources (marketplace vs own channels, enquiry
+win rate), reviews, and a per-experience table that keeps idle experiences
+listed. Periods are whole India days so the bars add up to the headline;
+the sample data is pinned to Home's own figures where the two overlap.
+
+It sits under **Website** in the nav, as asked; its content is about bookings
+and experiences, so Dashboard may be the more natural home.

@@ -84,7 +84,7 @@ export function ConversionChart({
             options={INTERVALS}
           />
         }
-        link={{ label: "See details", unavailable: "Insights isn’t built yet" }}
+        link={{ label: "See details", href: "/dashboard/insights" }}
       />
 
       <div className="panel chart-card">

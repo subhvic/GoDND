@@ -81,7 +81,7 @@ export function ExperienceFunnel({
             options={FUNNEL_PERIODS.map((entry) => ({ value: entry.key, label: entry.label }))}
           />
         }
-        link={{ label: "See all insights", unavailable: "Insights isn’t built yet" }}
+        link={{ label: "See all insights", href: "/dashboard/insights" }}
       />
 
       <ul className="stat-group" aria-live="polite">

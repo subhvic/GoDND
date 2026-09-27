@@ -107,6 +107,10 @@ export async function verifyOtp(input: {
     return { ok: false, message: "Incorrect OTP" };
   }
 
+  // Someone invited from My Team becomes a member the first time they sign
+  // in (0008). Best effort: a failure here must not block the sign-in.
+  await supabase.rpc("accept_agency_invites");
+
   // The session cookies were written by the Supabase client above.
   redirect(destination);
 }

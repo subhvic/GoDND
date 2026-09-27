@@ -75,7 +75,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { id: "bookings", label: "Bookings", icon: CalendarCheck, href: "/dashboard/bookings" },
       { id: "enquiries", label: "Enquiries", icon: MessagesSquare, href: "/dashboard/enquiries" },
       { id: "transactions", label: "Transactions", icon: Receipt },
-      { id: "settings", label: "Settings", icon: Settings },
+      { id: "settings", label: "Settings", icon: Settings, href: "/dashboard/settings" },
     ],
   },
   {
@@ -93,7 +93,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { id: "template", label: "Template", icon: Globe },
       { id: "configurations", label: "Configurations", icon: Settings },
-      { id: "insights", label: "Insights", icon: BarChart3 },
+      { id: "insights", label: "Insights", icon: BarChart3, href: "/dashboard/insights" },
     ],
   },
 ];
