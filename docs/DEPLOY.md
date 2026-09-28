@@ -136,12 +136,20 @@ rather than through the app — no Supabase project required:
 
 ```bash
 createdb godnd_verify
+psql -d godnd_verify -c "create role anon nologin; create role authenticated nologin;"
 psql -d godnd_verify -f supabase/tests/00_auth_stub.sql
 for f in supabase/migrations/*.sql; do
   psql -v ON_ERROR_STOP=1 -d godnd_verify -f "$f"
 done
 psql -d godnd_verify -f supabase/tests/draft-persistence.sql
+psql -d godnd_verify -f supabase/tests/vendor-settings.sql
 ```
+
+`vendor-settings.sql` covers Settings: who may write which section, that
+bank details stay hidden from roles without finance access, that only GoDND
+verifies (and only verified details reach the public agency row), and the
+team rules — the owner can't be removed, nobody changes their own role, and
+a removed member's enquiries are unassigned.
 
 The test runs in a transaction and rolls back, so it is safe to re-run. It
 pins the properties that matter: the fan-out across ten tables is atomic,
