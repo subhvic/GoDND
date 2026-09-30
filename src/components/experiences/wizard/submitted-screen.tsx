@@ -108,17 +108,15 @@ export function SubmittedScreen() {
           { label: "Sent for approval" },
         ]}
       />
-      <main className="surface-card">
-        <div className="card-scroll">
-          <div className="mx-auto max-w-[820px] pb-[40px]">
-            {state === null || state.flash ? (
-              <Confirmation flash={state?.flash ?? null} />
-            ) : (
-              <StaleAccess />
-            )}
-          </div>
+      <div className="body-scroll">
+        <div className="mx-auto max-w-[820px] pb-[40px]">
+          {state === null || state.flash ? (
+            <Confirmation flash={state?.flash ?? null} />
+          ) : (
+            <StaleAccess />
+          )}
         </div>
-      </main>
+      </div>
     </>
   );
 }

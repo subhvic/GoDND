@@ -50,10 +50,8 @@ export default async function ExperiencesPage(
         }
       />
 
-      <div className="surface-card">
-        <div className="card-scroll">
-          <ExperiencesBoard lanes={cards} search={search} focus={focus} />
-        </div>
+      <div className="body-scroll">
+        <ExperiencesBoard lanes={cards} search={search} focus={focus} />
       </div>
     </>
   );

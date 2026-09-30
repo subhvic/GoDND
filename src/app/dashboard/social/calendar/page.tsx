@@ -33,10 +33,8 @@ export default async function CalendarPage() {
         }
       />
 
-      <div className="surface-card">
-        <div className="card-scroll">
-          <CalendarView posts={posts} />
-        </div>
+      <div className="body-scroll">
+        <CalendarView posts={posts} />
       </div>
     </>
   );

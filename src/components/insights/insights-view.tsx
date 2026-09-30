@@ -54,26 +54,24 @@ export function InsightsView({ report, initialPeriod }: { report: InsightsReport
         }
       />
 
-      <div className="surface-card">
-        <div className="card-scroll">
-          <div className="insights">
-            <p className="sr-only" aria-live="polite">
-              Showing {current.label.toLowerCase()}, {current.rangeLabel}.
-            </p>
-            <Headline report={current} />
-            <Actions report={current} />
-            <ValueChart report={current} />
-            <div className="insights-split">
-              <Sources report={current} />
-              <Reviews report={current} unanswered={report.unanswered.count} />
-            </div>
-            <ExperienceTable report={current} />
-            {report.isDemoData ? (
-              <p className="m-0 field-hint">
-                Sample figures for a preview workspace. Real ones appear once bookings are taken through GoDND.
-              </p>
-            ) : null}
+      <div className="body-scroll">
+        <div className="insights">
+          <p className="sr-only" aria-live="polite">
+            Showing {current.label.toLowerCase()}, {current.rangeLabel}.
+          </p>
+          <Headline report={current} />
+          <Actions report={current} />
+          <ValueChart report={current} />
+          <div className="insights-split">
+            <Sources report={current} />
+            <Reviews report={current} unanswered={report.unanswered.count} />
           </div>
+          <ExperienceTable report={current} />
+          {report.isDemoData ? (
+            <p className="m-0 field-hint">
+              Sample figures for a preview workspace. Real ones appear once bookings are taken through GoDND.
+            </p>
+          ) : null}
         </div>
       </div>
     </>

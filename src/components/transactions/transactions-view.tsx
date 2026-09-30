@@ -81,35 +81,33 @@ export function TransactionsView({ data, tab }: { data: TransactionsData; tab: T
         }
       />
 
-      <div className="surface-card">
-        <div className="card-scroll">
-          <div className="money">
-            <BankNotice data={data} />
-            <Headline data={data} />
+      <div className="body-scroll">
+        <div className="money">
+          <BankNotice data={data} />
+          <Headline data={data} />
 
-            <PillTabs
-              label="Transaction records"
-              active={tab}
-              tabs={TRANSACTION_TABS.map((entry) => ({
-                id: entry.key,
-                label: entry.label,
-                count: counts[entry.key],
-                countTone: entry.key === "refunds" && data.summary.refundsOwedCount > 0 ? "warning" : undefined,
-                href: hrefWith({ tab: entry.key === "payouts" ? null : entry.key }),
-              }))}
-            />
+          <PillTabs
+            label="Transaction records"
+            active={tab}
+            tabs={TRANSACTION_TABS.map((entry) => ({
+              id: entry.key,
+              label: entry.label,
+              count: counts[entry.key],
+              countTone: entry.key === "refunds" && data.summary.refundsOwedCount > 0 ? "warning" : undefined,
+              href: hrefWith({ tab: entry.key === "payouts" ? null : entry.key }),
+            }))}
+          />
 
-            {tab === "payouts" ? <Payouts data={data} onOpen={setOpenPayout} /> : null}
-            {tab === "payments" ? <Payments rows={data.payments} /> : null}
-            {tab === "invoices" ? <Invoices rows={data.invoices} /> : null}
-            {tab === "refunds" ? <Refunds rows={data.refunds} /> : null}
+          {tab === "payouts" ? <Payouts data={data} onOpen={setOpenPayout} /> : null}
+          {tab === "payments" ? <Payments rows={data.payments} /> : null}
+          {tab === "invoices" ? <Invoices rows={data.invoices} /> : null}
+          {tab === "refunds" ? <Refunds rows={data.refunds} /> : null}
 
-            {data.isDemoData ? (
-              <p className="m-0 field-hint">
-                Sample figures for a preview workspace, derived from the same bookings Insights counts.
-              </p>
-            ) : null}
-          </div>
+          {data.isDemoData ? (
+            <p className="m-0 field-hint">
+              Sample figures for a preview workspace, derived from the same bookings Insights counts.
+            </p>
+          ) : null}
         </div>
       </div>
 

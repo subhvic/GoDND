@@ -90,129 +90,127 @@ export default async function AdsPage() {
         }
       />
 
-      <div className="surface-card">
-        <div className="card-scroll">
-          {accounts.length === 0 ? (
-            <Notice status="info" title="No ad account connected" className="mb-[16px]">
-              Keep running campaigns in Meta Ads Manager and Google Ads. Connect
-              the account here and GoDND reads the results back, alongside the
-              bookings they produced.
-            </Notice>
-          ) : null}
+      <div className="body-scroll">
+        {accounts.length === 0 ? (
+          <Notice status="info" title="No ad account connected" className="mb-[16px]">
+            Keep running campaigns in Meta Ads Manager and Google Ads. Connect
+            the account here and GoDND reads the results back, alongside the
+            bookings they produced.
+          </Notice>
+        ) : null}
 
-          <div className="grid gap-[10px] [grid-template-columns:repeat(auto-fit,minmax(190px,1fr))]">
-            <KpiCard
-              label="Measured spend"
-              value={formatMoney(trackedSpend)}
-              status="neutral"
-              comparison={`of ${formatMoney(totalSpend)} total across ${campaigns.length} campaign${campaigns.length === 1 ? "" : "s"}`}
-            />
-            <KpiCard
-              label="Return on ad spend"
-              value={roas == null ? "—" : `${roas.toFixed(1)}×`}
-              status={roas == null ? "neutral" : roas >= 2 ? "healthy" : "warning"}
-              comparison={
-                roas == null
-                  ? "nothing measurable spent yet"
-                  : `${formatMoney(revenue)} of bookings traced back`
-              }
-            />
-            <KpiCard
-              label="Cost per booking"
-              value={bookingsWon === 0 ? "—" : formatMoney(Math.round(trackedSpend / bookingsWon))}
-              status={bookingsWon === 0 ? "neutral" : "healthy"}
-              comparison={
-                bookingsWon === 0
-                  ? "no bookings traced to ads yet"
-                  : `${bookingsWon} booking${bookingsWon === 1 ? "" : "s"} from paid traffic`
-              }
-            />
-            <KpiCard
-              label="Unmeasurable spend"
-              value={formatMoney(untrackedSpend)}
-              status={untrackedShare > 0.2 ? "critical" : untrackedShare > 0 ? "warning" : "healthy"}
-              comparison={
-                untrackedSpend === 0
-                  ? "every campaign is tracked"
-                  : `${Math.round(untrackedShare * 100)}% of spend cannot be tied to bookings`
-              }
-            />
-          </div>
-
-          <Panel
-            title="What to do next"
-            hint="from your spend, your seats and your departures"
-            className="mt-[16px]"
-          >
-            <div className="panel-body">
-              {insights.length === 0 ? (
-                <p className="m-0 text-[12.5px] text-text-muted">
-                  Nothing to flag. Every campaign is tracked and earning.
-                </p>
-              ) : (
-                <ul className="m-0 list-none p-0">
-                  {insights.map((insight) => (
-                    <InsightRow key={insight.id} insight={insight} />
-                  ))}
-                </ul>
-              )}
-            </div>
-          </Panel>
-
-          {accounts.length > 0 ? (
-            <Panel title="Ad accounts" hint="read-only" className="mt-[16px]">
-              <div className="panel-body flex flex-wrap gap-[10px]">
-                {accounts.map((account) => (
-                  <AccountChip key={account.id} account={account} />
-                ))}
-              </div>
-            </Panel>
-          ) : null}
-
-          <Panel
-            title="Campaigns"
-            hint="created in the platform, read here"
-            className="mt-[16px]"
-          >
-            <div className="overflow-x-auto">
-              <table className="data-table min-w-[980px]">
-                <caption className="sr-only">
-                  Ad campaigns imported from connected accounts
-                </caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Campaign</th>
-                    <th scope="col" className="left">Objective</th>
-                    <th scope="col" className="left">Runs</th>
-                    <th scope="col">Spent</th>
-                    <th scope="col">CTR</th>
-                    <th scope="col">Bookings</th>
-                    <th scope="col">Cost each</th>
-                    <th scope="col">ROAS</th>
-                    <th scope="col" className="left">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {campaigns.length === 0 ? (
-                    <tr className="empty-row">
-                      <td colSpan={9}>
-                        <EmptyState
-                          icon={Megaphone}
-                          title="No campaigns found"
-                          description="Campaigns from your connected Meta and Google accounts appear here within an hour of the first sync."
-                        />
-                      </td>
-                    </tr>
-                  ) : (
-                    campaigns.map((campaign) => (
-                      <CampaignRow key={campaign.id} campaign={campaign} />
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </Panel>
+        <div className="grid gap-[10px] [grid-template-columns:repeat(auto-fit,minmax(190px,1fr))]">
+          <KpiCard
+            label="Measured spend"
+            value={formatMoney(trackedSpend)}
+            status="neutral"
+            comparison={`of ${formatMoney(totalSpend)} total across ${campaigns.length} campaign${campaigns.length === 1 ? "" : "s"}`}
+          />
+          <KpiCard
+            label="Return on ad spend"
+            value={roas == null ? "—" : `${roas.toFixed(1)}×`}
+            status={roas == null ? "neutral" : roas >= 2 ? "healthy" : "warning"}
+            comparison={
+              roas == null
+                ? "nothing measurable spent yet"
+                : `${formatMoney(revenue)} of bookings traced back`
+            }
+          />
+          <KpiCard
+            label="Cost per booking"
+            value={bookingsWon === 0 ? "—" : formatMoney(Math.round(trackedSpend / bookingsWon))}
+            status={bookingsWon === 0 ? "neutral" : "healthy"}
+            comparison={
+              bookingsWon === 0
+                ? "no bookings traced to ads yet"
+                : `${bookingsWon} booking${bookingsWon === 1 ? "" : "s"} from paid traffic`
+            }
+          />
+          <KpiCard
+            label="Unmeasurable spend"
+            value={formatMoney(untrackedSpend)}
+            status={untrackedShare > 0.2 ? "critical" : untrackedShare > 0 ? "warning" : "healthy"}
+            comparison={
+              untrackedSpend === 0
+                ? "every campaign is tracked"
+                : `${Math.round(untrackedShare * 100)}% of spend cannot be tied to bookings`
+            }
+          />
         </div>
+
+        <Panel
+          title="What to do next"
+          hint="from your spend, your seats and your departures"
+          className="mt-[16px]"
+        >
+          <div className="panel-body">
+            {insights.length === 0 ? (
+              <p className="m-0 text-[12.5px] text-text-muted">
+                Nothing to flag. Every campaign is tracked and earning.
+              </p>
+            ) : (
+              <ul className="m-0 list-none p-0">
+                {insights.map((insight) => (
+                  <InsightRow key={insight.id} insight={insight} />
+                ))}
+              </ul>
+            )}
+          </div>
+        </Panel>
+
+        {accounts.length > 0 ? (
+          <Panel title="Ad accounts" hint="read-only" className="mt-[16px]">
+            <div className="panel-body flex flex-wrap gap-[10px]">
+              {accounts.map((account) => (
+                <AccountChip key={account.id} account={account} />
+              ))}
+            </div>
+          </Panel>
+        ) : null}
+
+        <Panel
+          title="Campaigns"
+          hint="created in the platform, read here"
+          className="mt-[16px]"
+        >
+          <div className="overflow-x-auto">
+            <table className="data-table min-w-[980px]">
+              <caption className="sr-only">
+                Ad campaigns imported from connected accounts
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Campaign</th>
+                  <th scope="col" className="left">Objective</th>
+                  <th scope="col" className="left">Runs</th>
+                  <th scope="col">Spent</th>
+                  <th scope="col">CTR</th>
+                  <th scope="col">Bookings</th>
+                  <th scope="col">Cost each</th>
+                  <th scope="col">ROAS</th>
+                  <th scope="col" className="left">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {campaigns.length === 0 ? (
+                  <tr className="empty-row">
+                    <td colSpan={9}>
+                      <EmptyState
+                        icon={Megaphone}
+                        title="No campaigns found"
+                        description="Campaigns from your connected Meta and Google accounts appear here within an hour of the first sync."
+                      />
+                    </td>
+                  </tr>
+                ) : (
+                  campaigns.map((campaign) => (
+                    <CampaignRow key={campaign.id} campaign={campaign} />
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
       </div>
     </>
   );

@@ -40,9 +40,7 @@ export default async function EnquiriesLayout({
         crumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Enquiries" }]}
         actions={<LogEnquiryButton />}
       />
-      <div className="surface-card">
-        <InboxShell>{children}</InboxShell>
-      </div>
+      <InboxShell>{children}</InboxShell>
     </InboxProvider>
   );
 }

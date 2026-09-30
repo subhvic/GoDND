@@ -169,8 +169,8 @@ export function BookingsWorkspace({
         }
       />
 
-      <div className="surface-card bookings-workspace" data-hydrated={hydrated ? "" : undefined}>
-        <div className="card-scroll">
+      <div className="bookings-workspace" data-hydrated={hydrated ? "" : undefined}>
+        <div className="body-scroll">
           <div className="search-wrap mb-[14px] w-full md:hidden">
             <SearchIcon />
             <input

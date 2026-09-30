@@ -99,7 +99,7 @@
   /* Printing an invoice prints the invoice, not the portal around it. */
   @media print {
     .nav, .mobile-bar, .card-crumbs, .no-print { display: none !important; }
-    .app, .main, .surface-card, .card-scroll { display: block !important; overflow: visible !important; height: auto !important; background: #fff !important; box-shadow: none !important; padding: 0 !important; }
+    .app, .main, .body-scroll { display: block !important; overflow: visible !important; height: auto !important; background: #fff !important; box-shadow: none !important; border: 0 !important; padding: 0 !important; }
     .invoice-doc { max-width: none; margin: 0; padding: 0; border: 0; }
     .data-table tbody tr:hover { background: none !important; }
   }
