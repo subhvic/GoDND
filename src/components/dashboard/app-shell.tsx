@@ -19,8 +19,8 @@ function subscribePhone(callback: () => void) {
 
 /**
  * App shell (source: App.jsx): a flex row of the navigation rail and the main
- * column. Pages render their own .surface-card inside .main, because the card
- * is where layouts differ — a list, or a rail plus a form.
+ * column. .main is the body layer — the white card the page renders straight
+ * into, and the landmark, so a page never opens a <main> or a card of its own.
  *
  * The rail is always expanded: labels stay visible, so no item needs a tooltip
  * to be found. On phones a 178px rail beside the page would leave the page
@@ -104,9 +104,9 @@ export function AppShell({
       />
       {navOpen ? <div className="nav-scrim" aria-hidden onClick={closeNav} /> : null}
 
-      <div className="main" inert={navOpen || undefined}>
+      <main className="main" inert={navOpen || undefined}>
         {children}
-      </div>
+      </main>
 
       {toast ? (
         <div className="toast-bar floating" role="status">

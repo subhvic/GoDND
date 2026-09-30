@@ -79,32 +79,43 @@
     .app.nav-open .nav { transform: none; visibility: visible; transition: transform .2s ease; }
     .nav .nav-close { display: inline-flex; margin-left: auto; }
     .app.nav-open .nav-scrim { display: block; position: fixed; inset: 0; z-index: 40; background: var(--scrim); }
+    /* The rail is an overlay here, not a column beside the body, so the seam
+       between them has nothing to divide. */
+    .main { border-left: 0; }
   }
   @media (max-width: 767px) and (prefers-reduced-motion: reduce) {
     .nav, .app.nav-open .nav { transition: none; }
   }
 
   /* ============ MAIN ============ */
+  /* The body layer: one white card filling the main column edge to edge, square
+     at every corner and flat — it is the page's ground, not a card floating on
+     the canvas, so the canvas now shows only behind the nav rail and a hairline
+     marks the seam. Pages render straight into it.
+     It never scrolls itself: overflow stays hidden so the page bar keeps its
+     place and an overlay (the booking drawer) has a containing block that does
+     not slide. The page puts one scrolling region inside instead. */
   .main {
-    flex: 1; display: flex; flex-direction: column; min-width: 0;
-    padding: 10px var(--gutter) 0 12px; gap: 10px; background: var(--canvas);
+    flex: 1; min-width: 0; min-height: 0;
+    display: flex; flex-direction: column; position: relative;
+    background: var(--card); border-left: 1px solid var(--border-subtle);
+    overflow: hidden;
   }
-  /* The one floating surface card everything lives inside. Flush to the
-     bottom of the viewport, rounded only at the top. */
-  .surface-card {
-    flex: 1; min-height: 0; background: var(--card); border: none;
-    border-radius: var(--radius-card) var(--radius-card) 0 0;
-    display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--card-shadow);
-    position: relative;
-  }
-  .surface-card.has-rail { flex-direction: row; }
-  .card-scroll { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; padding: 12px 16px 24px 12px; display: flex; flex-direction: column; }
+  /* The body's scrolling column — what .card-scroll was, one layer up now that
+     the card around it is gone. A page whose own layout fills the height (the
+     inbox, a rail page, the bookings workspace) skips it and sits flush. */
+  .body-scroll { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; padding: 12px 16px 24px 12px; display: flex; flex-direction: column; }
+  /* A rail beside the body: the rail runs the full height, the column next to
+     it scrolls. Replaces .surface-card.has-rail. */
+  .body-rail { flex: 1; min-width: 0; min-height: 0; display: flex; }
 
-  /* Page bar: breadcrumb trail left, page controls right — floats on canvas */
+  /* Page bar: breadcrumb trail left, page controls right. It sits on the body
+     card now rather than on the canvas, and carries the padding the card no
+     longer has. */
   .card-crumbs {
     display: flex; align-items: center; justify-content: space-between; gap: 14px;
     font-size: 11.5px; color: var(--text-muted);
-    padding: 0 4px;
+    padding: 10px calc(var(--gutter) + 4px) 12px 16px;
   }
   .card-crumbs-left { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; padding: 4px 0; }
   .card-crumbs-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
@@ -361,7 +372,7 @@
   /* ============ RECORD DRAWER (source: .log-detail) ============
      Overlays the list rather than shrinking it: reflowing the table while
      someone reads one row of it moves the page out from under them. Absolute
-     inside the surface card, which is the clipping boundary. */
+     inside the workspace holding it, which is the clipping boundary. */
   .record-drawer {
     position: absolute; top: 0; right: 0; bottom: 0; z-index: 20;
     width: 560px; max-width: 100%;

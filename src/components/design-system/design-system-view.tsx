@@ -716,7 +716,6 @@ function SpacingRadius() {
             ["--radius-sm", "6px", "Chips, inputs, buttons"],
             ["--radius-md", "9px", "Pill tabs, menus, notices"],
             ["--radius-lg", "10px", "Panels, cards, tables"],
-            ["--radius-card", "12px", "The surface card"],
           ] as const
         ).map(([token, value, use]) => (
           <div key={token} className="ds-radius-item">

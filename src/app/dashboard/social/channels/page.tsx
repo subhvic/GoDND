@@ -54,95 +54,93 @@ export default async function ChannelsPage() {
         ]}
       />
 
-      <div className="surface-card">
-        <div className="card-scroll">
-          {needsAttention.length > 0 ? (
-            <Notice
-              status={
-                needsAttention.some((channel) => channel.status === "needs_reauth")
-                  ? "critical"
-                  : "warning"
-              }
-              title={
-                needsAttention.length === 1
-                  ? `${needsAttention[0].displayName} needs reconnecting`
-                  : `${needsAttention.length} channels need reconnecting`
-              }
-              className="mb-[16px]"
-            >
-              Meta access tokens last 60 days and cannot be renewed once they
-              lapse. Reconnect before the date below and nothing in your
-              calendar is interrupted.
-            </Notice>
-          ) : null}
+      <div className="body-scroll">
+        {needsAttention.length > 0 ? (
+          <Notice
+            status={
+              needsAttention.some((channel) => channel.status === "needs_reauth")
+                ? "critical"
+                : "warning"
+            }
+            title={
+              needsAttention.length === 1
+                ? `${needsAttention[0].displayName} needs reconnecting`
+                : `${needsAttention.length} channels need reconnecting`
+            }
+            className="mb-[16px]"
+          >
+            Meta access tokens last 60 days and cannot be renewed once they
+            lapse. Reconnect before the date below and nothing in your
+            calendar is interrupted.
+          </Notice>
+        ) : null}
 
+        <Panel
+          title="Connected"
+          hint={`${connected.length} of ${SOCIAL_PLATFORMS.length} platforms`}
+        >
+          <div className="panel-body">
+            {connected.length === 0 ? (
+              <p className="m-0 text-[12.5px] text-text-muted">
+                Nothing connected yet. Link a channel below to start
+                scheduling.
+              </p>
+            ) : (
+              <div className="channel-grid">
+                {connected.map((channel) => (
+                  <ConnectedCard key={channel.id} channel={channel} />
+                ))}
+              </div>
+            )}
+          </div>
+        </Panel>
+
+        {available.length > 0 ? (
           <Panel
-            title="Connected"
-            hint={`${connected.length} of ${SOCIAL_PLATFORMS.length} platforms`}
+            title="Available"
+            hint="each one is another place a departure can fill from"
+            className="mt-[16px]"
           >
             <div className="panel-body">
-              {connected.length === 0 ? (
-                <p className="m-0 text-[12.5px] text-text-muted">
-                  Nothing connected yet. Link a channel below to start
-                  scheduling.
-                </p>
-              ) : (
-                <div className="channel-grid">
-                  {connected.map((channel) => (
-                    <ConnectedCard key={channel.id} channel={channel} />
-                  ))}
-                </div>
-              )}
+              <div className="channel-grid">
+                {available.map((platform) => (
+                  <article
+                    key={platform}
+                    className="channel-card is-disconnected"
+                    aria-label={PLATFORM_LABELS[platform]}
+                  >
+                    <div className="channel-card-head">
+                      <span className="channel-mark">
+                        <PlatformIcon platform={platform} />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="channel-name m-0">{PLATFORM_LABELS[platform]}</p>
+                        <p className="channel-handle m-0">Not connected</p>
+                      </div>
+                    </div>
+                    <p className="m-0 field-hint">{CONNECT_COPY[platform]}</p>
+                    <button
+                      type="button"
+                      disabled
+                      title="Connecting needs the platform app review — see the roadmap"
+                      className={cn(buttonClass({ variant: "primary" }), "mt-auto w-full justify-center")}
+                    >
+                      <Link2 aria-hidden />
+                      Connect {PLATFORM_LABELS[platform]}
+                    </button>
+                  </article>
+                ))}
+              </div>
             </div>
           </Panel>
+        ) : null}
 
-          {available.length > 0 ? (
-            <Panel
-              title="Available"
-              hint="each one is another place a departure can fill from"
-              className="mt-[16px]"
-            >
-              <div className="panel-body">
-                <div className="channel-grid">
-                  {available.map((platform) => (
-                    <article
-                      key={platform}
-                      className="channel-card is-disconnected"
-                      aria-label={PLATFORM_LABELS[platform]}
-                    >
-                      <div className="channel-card-head">
-                        <span className="channel-mark">
-                          <PlatformIcon platform={platform} />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <p className="channel-name m-0">{PLATFORM_LABELS[platform]}</p>
-                          <p className="channel-handle m-0">Not connected</p>
-                        </div>
-                      </div>
-                      <p className="m-0 field-hint">{CONNECT_COPY[platform]}</p>
-                      <button
-                        type="button"
-                        disabled
-                        title="Connecting needs the platform app review — see the roadmap"
-                        className={cn(buttonClass({ variant: "primary" }), "mt-auto w-full justify-center")}
-                      >
-                        <Link2 aria-hidden />
-                        Connect {PLATFORM_LABELS[platform]}
-                      </button>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            </Panel>
-          ) : null}
-
-          {isDemoData ? (
-            <p className="mt-[16px] field-hint">
-              Sample channels. Connecting a real account needs the platform
-              integration — the first milestone on the Grow roadmap.
-            </p>
-          ) : null}
-        </div>
+        {isDemoData ? (
+          <p className="mt-[16px] field-hint">
+            Sample channels. Connecting a real account needs the platform
+            integration — the first milestone on the Grow roadmap.
+          </p>
+        ) : null}
       </div>
     </>
   );

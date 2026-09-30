@@ -61,104 +61,102 @@ export default async function PerformancePage() {
         crumbs={[{ label: "Growth" }, { label: "Performance" }]}
       />
 
-      <div className="surface-card">
-        <div className="card-scroll">
-          <div className="grid gap-[10px] [grid-template-columns:repeat(auto-fit,minmax(190px,1fr))]">
-            <KpiCard
-              label="Reach"
-              value={summary.reach.toLocaleString("en-IN")}
-              status={reachDelta >= 0 ? "healthy" : "warning"}
-              comparison={`${signed(reachDelta)} vs previous 30 days`}
-              trend={summary.trend}
-            />
-            <KpiCard
-              label="Engagement rate"
-              value={(summary.engagementRate * 100).toFixed(1)}
-              unit="%"
-              status={summary.engagementRate >= 0.03 ? "healthy" : "warning"}
-              comparison={
-                summary.engagementRate >= 0.03
-                  ? "above the 3% travel benchmark"
-                  : "below the 3% travel benchmark"
-              }
-            />
-            <KpiCard
-              label="Link clicks"
-              value={summary.linkClicks.toLocaleString("en-IN")}
-              status={clicksDelta >= 0 ? "healthy" : "warning"}
-              comparison={`${signed(clicksDelta)} vs previous 30 days`}
-            />
-            <KpiCard
-              label="Followers"
-              value={summary.followers.toLocaleString("en-IN")}
-              status={summary.followersDelta >= 0 ? "healthy" : "warning"}
-              comparison={`${summary.followersDelta >= 0 ? "+" : ""}${summary.followersDelta.toLocaleString("en-IN")} in 30 days`}
-            />
-          </div>
-
-          <Panel
-            title="What to do next"
-            hint="derived from the numbers below"
-            className="mt-[16px]"
-          >
-            <div className="panel-body">
-              {actions.length === 0 ? (
-                <p className="m-0 text-[12.5px] text-text-muted">
-                  Nothing needs attention. Channels are healthy and every
-                  scheduled post went out.
-                </p>
-              ) : (
-                <ul className="m-0 list-none p-0">
-                  {actions.map((action) => (
-                    <ActionRow key={action.id} action={action} />
-                  ))}
-                </ul>
-              )}
-            </div>
-          </Panel>
-
-          <Panel
-            title="Published posts"
-            hint="best reach first"
-            className="mt-[16px]"
-          >
-            <div className="overflow-x-auto">
-              <table className="data-table min-w-[820px]">
-                <caption className="sr-only">Published posts by reach</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Post</th>
-                    <th scope="col" className="left">Format</th>
-                    <th scope="col">Published</th>
-                    <th scope="col">Reach</th>
-                    <th scope="col">Engagement</th>
-                    <th scope="col">Link clicks</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {published.length === 0 ? (
-                    <tr className="empty-row">
-                      <td colSpan={6}>
-                        <EmptyState
-                          icon={TrendingUp}
-                          title="Nothing published yet"
-                          description="Numbers appear here the day after your first post goes out."
-                          action={
-                            <Link href="/dashboard/social/studio" className={buttonClass({ variant: "primary" })}>
-                              Open Studio
-                            </Link>
-                          }
-                        />
-                      </td>
-                    </tr>
-                  ) : (
-                    published.map((post) => <PostRow key={post.id} post={post} />)
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </Panel>
+      <div className="body-scroll">
+        <div className="grid gap-[10px] [grid-template-columns:repeat(auto-fit,minmax(190px,1fr))]">
+          <KpiCard
+            label="Reach"
+            value={summary.reach.toLocaleString("en-IN")}
+            status={reachDelta >= 0 ? "healthy" : "warning"}
+            comparison={`${signed(reachDelta)} vs previous 30 days`}
+            trend={summary.trend}
+          />
+          <KpiCard
+            label="Engagement rate"
+            value={(summary.engagementRate * 100).toFixed(1)}
+            unit="%"
+            status={summary.engagementRate >= 0.03 ? "healthy" : "warning"}
+            comparison={
+              summary.engagementRate >= 0.03
+                ? "above the 3% travel benchmark"
+                : "below the 3% travel benchmark"
+            }
+          />
+          <KpiCard
+            label="Link clicks"
+            value={summary.linkClicks.toLocaleString("en-IN")}
+            status={clicksDelta >= 0 ? "healthy" : "warning"}
+            comparison={`${signed(clicksDelta)} vs previous 30 days`}
+          />
+          <KpiCard
+            label="Followers"
+            value={summary.followers.toLocaleString("en-IN")}
+            status={summary.followersDelta >= 0 ? "healthy" : "warning"}
+            comparison={`${summary.followersDelta >= 0 ? "+" : ""}${summary.followersDelta.toLocaleString("en-IN")} in 30 days`}
+          />
         </div>
+
+        <Panel
+          title="What to do next"
+          hint="derived from the numbers below"
+          className="mt-[16px]"
+        >
+          <div className="panel-body">
+            {actions.length === 0 ? (
+              <p className="m-0 text-[12.5px] text-text-muted">
+                Nothing needs attention. Channels are healthy and every
+                scheduled post went out.
+              </p>
+            ) : (
+              <ul className="m-0 list-none p-0">
+                {actions.map((action) => (
+                  <ActionRow key={action.id} action={action} />
+                ))}
+              </ul>
+            )}
+          </div>
+        </Panel>
+
+        <Panel
+          title="Published posts"
+          hint="best reach first"
+          className="mt-[16px]"
+        >
+          <div className="overflow-x-auto">
+            <table className="data-table min-w-[820px]">
+              <caption className="sr-only">Published posts by reach</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Post</th>
+                  <th scope="col" className="left">Format</th>
+                  <th scope="col">Published</th>
+                  <th scope="col">Reach</th>
+                  <th scope="col">Engagement</th>
+                  <th scope="col">Link clicks</th>
+                </tr>
+              </thead>
+              <tbody>
+                {published.length === 0 ? (
+                  <tr className="empty-row">
+                    <td colSpan={6}>
+                      <EmptyState
+                        icon={TrendingUp}
+                        title="Nothing published yet"
+                        description="Numbers appear here the day after your first post goes out."
+                        action={
+                          <Link href="/dashboard/social/studio" className={buttonClass({ variant: "primary" })}>
+                            Open Studio
+                          </Link>
+                        }
+                      />
+                    </td>
+                  </tr>
+                ) : (
+                  published.map((post) => <PostRow key={post.id} post={post} />)
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
       </div>
     </>
   );

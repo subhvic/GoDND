@@ -6,15 +6,11 @@
    Every value resolves through tokens.css.
    ============================================================================ */
 @layer components {
-  .xp-board-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 12px; }
-  .xp-board-count { margin: 0; font-size: 11.5px; color: var(--text-muted); }
-
   /* ============ BOARD ============ */
   /* align-items: start so a lane is only as tall as its own cards — with ten
      Active and two Drafts, stretching would draw an eight-card-tall empty
      box beside the drafts. */
-  /* The board is the scroll area, not the page: the search and the count
-     above it stay where the operator left them.
+  /* The board is the scroll area, not the page.
      It scrolls sideways only. Lanes are full height and each lane's cards
      scroll inside it, so ten Active cards never drag the four-card Drafts
      lane off the screen with them — the columns stay side by side, which is

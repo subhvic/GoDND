@@ -150,19 +150,17 @@ export function ReviewScreen() {
             { label: "Review" },
           ]}
         />
-        <main className="surface-card">
-          <div className="card-scroll">
-            <div className="mx-auto max-w-[860px] pb-[40px]">
-              <div className="skeleton h-[24px] w-[60%]" />
-              <div className="skeleton mt-[10px] h-[14px] w-[80%]" />
-              <div className="mt-[24px] space-y-[10px]">
-                {[1, 2, 3, 4].map((n) => (
-                  <div key={n} className="skeleton h-[100px]" />
-                ))}
-              </div>
+        <div className="body-scroll">
+          <div className="mx-auto max-w-[860px] pb-[40px]">
+            <div className="skeleton h-[24px] w-[60%]" />
+            <div className="skeleton mt-[10px] h-[14px] w-[80%]" />
+            <div className="mt-[24px] space-y-[10px]">
+              {[1, 2, 3, 4].map((n) => (
+                <div key={n} className="skeleton h-[100px]" />
+              ))}
             </div>
           </div>
-        </main>
+        </div>
       </>
     );
   }
@@ -240,120 +238,118 @@ export function ReviewScreen() {
           { label: "Review" },
         ]}
       />
-      <main className="surface-card">
-      <div className="card-scroll">
-        <div className="mx-auto max-w-[860px] pb-[100px]">
-          <EditStateBanner />
+    <div className="body-scroll">
+      <div className="mx-auto max-w-[860px] pb-[100px]">
+        <EditStateBanner />
 
-          <p className="m-0 text-[10.5px] font-bold uppercase tracking-[1px] text-brand">
-            {wizard.isEditing ? "Review changes" : "Final look"}
-          </p>
-          <h2 className="m-0 mt-[8px] max-w-[24ch] text-[22px] font-semibold leading-[1.2] tracking-[-0.3px] text-text-primary">
-            {wizard.isEditing
-              ? "Confirm the changes before they queue for review."
-              : "One last look before it goes to review."}
-          </h2>
-          <p className="m-0 mt-[10px] max-w-[64ch] text-[13px] leading-[1.6] text-text-secondary">
-            {wizard.isEditing
-              ? "The version currently on the marketplace doesn’t change until a reviewer approves these. Every section below can still be edited — the wizard will bring you back here when you’re done."
-              : "This is exactly what a reviewer will see. Anything below can be edited — the wizard will bring you back here when you’re done."}
-          </p>
+        <p className="m-0 text-[10.5px] font-bold uppercase tracking-[1px] text-brand">
+          {wizard.isEditing ? "Review changes" : "Final look"}
+        </p>
+        <h2 className="m-0 mt-[8px] max-w-[24ch] text-[22px] font-semibold leading-[1.2] tracking-[-0.3px] text-text-primary">
+          {wizard.isEditing
+            ? "Confirm the changes before they queue for review."
+            : "One last look before it goes to review."}
+        </h2>
+        <p className="m-0 mt-[10px] max-w-[64ch] text-[13px] leading-[1.6] text-text-secondary">
+          {wizard.isEditing
+            ? "The version currently on the marketplace doesn’t change until a reviewer approves these. Every section below can still be edited — the wizard will bring you back here when you’re done."
+            : "This is exactly what a reviewer will see. Anything below can be edited — the wizard will bring you back here when you’re done."}
+        </p>
 
-          {problems.length > 0 ? (
-            <Notice
-              status="warning"
-              title={`${problems.length} ${problems.length === 1 ? "section needs" : "sections need"} attention before you can send`}
-              className="mt-[24px]"
-            >
-              <ul className="m-0 list-none p-0">
-                {problems.map((problem) => {
-                  const step = WIZARD_STEPS.find((s) => s.slug === problem.slug);
-                  return (
-                    <li key={problem.slug} className="mt-[4px]">
-                      <Link
-                        href={`/dashboard/experiences/new/${problem.slug}`}
-                        className="font-semibold text-brand hover:underline"
-                      >
-                        {step?.label}
-                      </Link>
-                      <span className="text-text-secondary">
-                        {" "}— {problem.message}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </Notice>
-          ) : null}
+        {problems.length > 0 ? (
+          <Notice
+            status="warning"
+            title={`${problems.length} ${problems.length === 1 ? "section needs" : "sections need"} attention before you can send`}
+            className="mt-[24px]"
+          >
+            <ul className="m-0 list-none p-0">
+              {problems.map((problem) => {
+                const step = WIZARD_STEPS.find((s) => s.slug === problem.slug);
+                return (
+                  <li key={problem.slug} className="mt-[4px]">
+                    <Link
+                      href={`/dashboard/experiences/new/${problem.slug}`}
+                      className="font-semibold text-brand hover:underline"
+                    >
+                      {step?.label}
+                    </Link>
+                    <span className="text-text-secondary">
+                      {" "}— {problem.message}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </Notice>
+        ) : null}
 
-          {error ? (
-            <Notice status="critical" title="Couldn't send this experience" className="mt-[24px]">
-              {error}
-            </Notice>
-          ) : null}
+        {error ? (
+          <Notice status="critical" title="Couldn't send this experience" className="mt-[24px]">
+            {error}
+          </Notice>
+        ) : null}
 
-          <div className="mt-[28px] space-y-[10px]">
-            <SectionCard slug="basic-info">
-              <BasicInfoSummary draft={wizard.draft.basicInfo} />
-            </SectionCard>
-            <SectionCard slug="itinerary">
-              <ItinerarySummary draft={wizard.draft.itinerary} images={wizard.draft.images} />
-            </SectionCard>
-            <SectionCard slug="crew">
-              <CrewSummary draft={wizard.draft.crew} />
-            </SectionCard>
-            <SectionCard slug="pricing">
-              <PricingSummary
-                draft={wizard.draft.pricing}
-                currency="INR"
-              />
-            </SectionCard>
-            <SectionCard slug="availability">
-              <AvailabilitySummary draft={wizard.draft.availability} />
-            </SectionCard>
-            <SectionCard slug="policies">
-              <PoliciesSummary draft={wizard.draft.policies} />
-            </SectionCard>
-            <SectionCard slug="media">
-              <MediaSummary draft={wizard.draft.media} thumbnail={thumbnail} />
-            </SectionCard>
-          </div>
-        </div>
-
-        {/* Pinned footer, matching the wizard's own footer shape so the flow
-            feels continuous. The primary action is the terminal action of the
-            whole seven-step flow. */}
-        <div className="sticky bottom-0 z-10 ml-[-12px] mr-[-16px] flex items-center justify-between gap-[12px] border-t border-border-subtle bg-card py-[12px] pl-[12px] pr-[16px]">
-          <span className="text-[11.5px] text-text-muted">
-            {wizard.isEditing
-              ? `Reviewing your changes to this experience`
-              : `Final check · step 7 of ${WIZARD_STEPS.length} completed`}
-          </span>
-          <div className="flex items-center gap-[8px]">
-            <Link
-              href="/dashboard/experiences/new/media"
-              className={buttonClass()}
-            >
-              <ArrowLeft aria-hidden />
-              Back to Media
-            </Link>
-            <Button
-              variant="primary"
-              onClick={handleSubmit}
-              disabled={!canSubmit}
-              title={
-                problems.length
-                  ? "Fix the sections flagged above before sending"
-                  : undefined
-              }
-            >
-              <Send aria-hidden />
-              {submitting ? "Sending…" : wizard.isEditing ? "Send changes for review" : "Send for approval"}
-            </Button>
-          </div>
+        <div className="mt-[28px] space-y-[10px]">
+          <SectionCard slug="basic-info">
+            <BasicInfoSummary draft={wizard.draft.basicInfo} />
+          </SectionCard>
+          <SectionCard slug="itinerary">
+            <ItinerarySummary draft={wizard.draft.itinerary} images={wizard.draft.images} />
+          </SectionCard>
+          <SectionCard slug="crew">
+            <CrewSummary draft={wizard.draft.crew} />
+          </SectionCard>
+          <SectionCard slug="pricing">
+            <PricingSummary
+              draft={wizard.draft.pricing}
+              currency="INR"
+            />
+          </SectionCard>
+          <SectionCard slug="availability">
+            <AvailabilitySummary draft={wizard.draft.availability} />
+          </SectionCard>
+          <SectionCard slug="policies">
+            <PoliciesSummary draft={wizard.draft.policies} />
+          </SectionCard>
+          <SectionCard slug="media">
+            <MediaSummary draft={wizard.draft.media} thumbnail={thumbnail} />
+          </SectionCard>
         </div>
       </div>
-      </main>
+
+      {/* Pinned footer, matching the wizard's own footer shape so the flow
+          feels continuous. The primary action is the terminal action of the
+          whole seven-step flow. */}
+      <div className="sticky bottom-0 z-10 ml-[-12px] mr-[-16px] flex items-center justify-between gap-[12px] border-t border-border-subtle bg-card py-[12px] pl-[12px] pr-[16px]">
+        <span className="text-[11.5px] text-text-muted">
+          {wizard.isEditing
+            ? `Reviewing your changes to this experience`
+            : `Final check · step 7 of ${WIZARD_STEPS.length} completed`}
+        </span>
+        <div className="flex items-center gap-[8px]">
+          <Link
+            href="/dashboard/experiences/new/media"
+            className={buttonClass()}
+          >
+            <ArrowLeft aria-hidden />
+            Back to Media
+          </Link>
+          <Button
+            variant="primary"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            title={
+              problems.length
+                ? "Fix the sections flagged above before sending"
+                : undefined
+            }
+          >
+            <Send aria-hidden />
+            {submitting ? "Sending…" : wizard.isEditing ? "Send changes for review" : "Send for approval"}
+          </Button>
+        </div>
+      </div>
+    </div>
     </>
   );
 }

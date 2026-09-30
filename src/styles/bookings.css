@@ -5,6 +5,15 @@
    ============================================================================ */
 @layer components {
 
+  /* The workspace holds the list and the drawer that overlays it, so it is the
+     drawer's containing block and clipping boundary — the job the surface card
+     used to do. It fills the body layer below the page bar, which the drawer
+     must not cover. */
+  .bookings-workspace {
+    flex: 1; min-width: 0; min-height: 0;
+    display: flex; position: relative; overflow: hidden;
+  }
+
   /* ============ LIST ============ */
   .booking-moved {
     display: inline-flex; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 99px;

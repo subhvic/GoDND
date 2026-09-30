@@ -35,10 +35,8 @@ export default async function StudioPage() {
         crumbs={[{ label: "Growth" }, { label: "Studio" }]}
       />
 
-      <div className="surface-card">
-        <div className="card-scroll">
-          <Composer experiences={rows} connected={connected} />
-        </div>
+      <div className="body-scroll">
+        <Composer experiences={rows} connected={connected} />
       </div>
     </>
   );

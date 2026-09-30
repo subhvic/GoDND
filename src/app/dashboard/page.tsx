@@ -43,20 +43,18 @@ export default async function HomePage() {
         }
       />
 
-      <div className="surface-card">
-        <HomeRecordsProvider>
-          <div className="card-scroll">
-            <div className="home">
-              <ExperienceFunnel figures={insights.funnel} />
-              <div className="home-split">
-                <ConversionChart series={insights.conversion} />
-                <LatestBookings rows={latestBookings} today={dayKey(new Date())} />
-              </div>
-              <RecentExperiences rows={recentExperiences} />
+      <HomeRecordsProvider>
+        <div className="body-scroll">
+          <div className="home">
+            <ExperienceFunnel figures={insights.funnel} />
+            <div className="home-split">
+              <ConversionChart series={insights.conversion} />
+              <LatestBookings rows={latestBookings} today={dayKey(new Date())} />
             </div>
+            <RecentExperiences rows={recentExperiences} />
           </div>
-        </HomeRecordsProvider>
-      </div>
+        </div>
+      </HomeRecordsProvider>
     </>
   );
 }

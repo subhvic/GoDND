@@ -22,8 +22,8 @@ const STEP_COMPONENTS: Record<WizardStepSlug, () => React.ReactElement> = {
 };
 
 /**
- * The wizard inside the one surface card: the step rail on the left, the
- * step on the right — the reference's "sidebar inside the card" layout.
+ * The wizard on the body layer: the step rail on the left, the step on the
+ * right — the reference's "sidebar inside the card" layout.
  */
 export function WizardStepScreen({ slug }: { slug: WizardStepSlug }) {
   const { hydrated } = useWizard();
@@ -32,9 +32,9 @@ export function WizardStepScreen({ slug }: { slug: WizardStepSlug }) {
   return (
     <>
       <WizardPageBar current={slug} />
-      <div className="surface-card has-rail">
+      <div className="body-rail">
         <WizardRail current={slug} />
-        <div className="card-scroll pb-0 pl-[20px]">
+        <div className="body-scroll pb-0 pl-[20px]">
           {/* Held until the saved draft has been read back, so each form's
               defaultValues are right on first render. Mounting early and
               resetting afterwards would flash every field empty. */}

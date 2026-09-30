@@ -19,7 +19,7 @@ export default async function ExperiencesPage(
   const search = typeof params.q === "string" ? params.q : "";
   const focus = parseFocus(params.tab);
 
-  const { lanes, total } = await listExperienceBoard({ search });
+  const { lanes } = await listExperienceBoard({ search });
 
   // Signals are worked out here rather than in the client component: they
   // depend on today's date, and a card that renders "Departs in 3 days" on
@@ -50,24 +50,8 @@ export default async function ExperiencesPage(
         }
       />
 
-      <div className="surface-card">
-        <div className="card-scroll">
-          {/* Search stays reachable on phones, where the page bar has no room. */}
-          <div className="xp-board-bar">
-            <SearchInput
-              label="Search experiences"
-              placeholder="Search title or region…"
-              className="w-full md:hidden"
-            />
-            <p className="xp-board-count" aria-live="polite">
-              {search
-                ? `${total} ${total === 1 ? "experience matches" : "experiences match"} “${search}”`
-                : `${total} ${total === 1 ? "experience" : "experiences"}`}
-            </p>
-          </div>
-
-          <ExperiencesBoard lanes={cards} search={search} focus={focus} />
-        </div>
+      <div className="body-scroll">
+        <ExperiencesBoard lanes={cards} search={search} focus={focus} />
       </div>
     </>
   );

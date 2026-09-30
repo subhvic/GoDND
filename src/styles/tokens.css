@@ -106,7 +106,6 @@
   --radius-sm: var(--radius-1);
   --radius-md: var(--radius-2);
   --radius-lg: var(--radius-3);
-  --radius-card: var(--radius-xs);
   /* Layout */
   --nav-w: 178px;
   --gutter: 14px;

@@ -94,7 +94,6 @@ test("search covers regions, not just titles", async ({ page }) => {
 
   const cards = page.locator(".xp-card");
   expect(await cards.count()).toBeGreaterThan(0);
-  await expect(page.locator(".xp-board-count")).toContainText("Nagaland");
   // Every card that survived is in Nagaland, by title or by region.
   await expect(page.locator(".xp-board")).toContainText("Dzukou Valley Trek from Kohima");
 });

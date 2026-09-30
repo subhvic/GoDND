@@ -21,16 +21,16 @@ const SECTIONS: Record<SectionSlug, () => React.ReactElement> = {
 };
 
 /**
- * The rail beside the section, inside the one surface card — the same
- * "sidebar inside the card" layout as the experience wizard. Keyed by the
- * section so each one mounts fresh with its own saved values.
+ * The rail beside the section, on the body layer — the same "sidebar inside
+ * the card" layout as the experience wizard. Keyed by the section so each one
+ * mounts fresh with its own saved values.
  */
 export function SettingsScreen({ slug }: { slug: SectionSlug }) {
   const Section = SECTIONS[slug];
   return (
-    <div className="surface-card has-rail">
+    <div className="body-rail">
       <SettingsRail current={slug} />
-      <div className="card-scroll settings-scroll">
+      <div className="body-scroll settings-scroll">
         <SettingsPicker current={slug} />
         <Section key={slug} />
       </div>

@@ -64,97 +64,95 @@ export function ReviewsView({ list }: { list: ReviewList }) {
         ]}
       />
 
-      <div className="surface-card">
-        <div className="card-scroll">
-          <div className="reviews">
-            <Summary list={list} />
+      <div className="body-scroll">
+        <div className="reviews">
+          <Summary list={list} />
 
-            <div className="reviews-filters">
-              <PillTabs
-                label="Reviews to show"
-                active={list.view}
-                tabs={REVIEW_VIEWS.map((view) => ({
-                  id: view.key,
-                  label: view.label,
-                  count: counts[view.key],
-                  countTone: view.key === "needs_reply" && counts.needs_reply > 0 ? "warning" : undefined,
-                  href: hrefWith({ view: view.key === "needs_reply" ? null : view.key }),
-                }))}
+          <div className="reviews-filters">
+            <PillTabs
+              label="Reviews to show"
+              active={list.view}
+              tabs={REVIEW_VIEWS.map((view) => ({
+                id: view.key,
+                label: view.label,
+                count: counts[view.key],
+                countTone: view.key === "needs_reply" && counts.needs_reply > 0 ? "warning" : undefined,
+                href: hrefWith({ view: view.key === "needs_reply" ? null : view.key }),
+              }))}
+            />
+            <div className="reviews-selects">
+              <InlineSelect
+                label="Experience"
+                value={list.experienceId}
+                onChange={(value) => router.push(hrefWith({ experience: value === "all" ? null : value }))}
+                options={[
+                  { value: "all", label: "All experiences" },
+                  ...list.experiences.map((experience) => ({
+                    value: experience.id,
+                    label: `${experience.title} (${experience.count})`,
+                  })),
+                ]}
               />
-              <div className="reviews-selects">
-                <InlineSelect
-                  label="Experience"
-                  value={list.experienceId}
-                  onChange={(value) => router.push(hrefWith({ experience: value === "all" ? null : value }))}
-                  options={[
-                    { value: "all", label: "All experiences" },
-                    ...list.experiences.map((experience) => ({
-                      value: experience.id,
-                      label: `${experience.title} (${experience.count})`,
-                    })),
-                  ]}
-                />
-                <InlineSelect
-                  label="Rating"
-                  value={list.rating === null ? "all" : String(list.rating)}
-                  onChange={(value) => router.push(hrefWith({ rating: value === "all" ? null : value }))}
-                  options={[
-                    { value: "all", label: "Any rating" },
-                    ...[5, 4, 3, 2, 1].map((rating) => ({
-                      value: String(rating),
-                      label: `${rating} star${rating === 1 ? "" : "s"}`,
-                    })),
-                  ]}
-                />
-              </div>
+              <InlineSelect
+                label="Rating"
+                value={list.rating === null ? "all" : String(list.rating)}
+                onChange={(value) => router.push(hrefWith({ rating: value === "all" ? null : value }))}
+                options={[
+                  { value: "all", label: "Any rating" },
+                  ...[5, 4, 3, 2, 1].map((rating) => ({
+                    value: String(rating),
+                    label: `${rating} star${rating === 1 ? "" : "s"}`,
+                  })),
+                ]}
+              />
             </div>
-
-            {list.rows.length === 0 ? (
-              <Panel>
-                <EmptyState
-                  icon={MessageSquare}
-                  title={emptyTitle(list)}
-                  description={emptyDescription(list)}
-                  action={
-                    list.view !== "all" || list.experienceId !== "all" || list.rating !== null ? (
-                      <Button onClick={() => router.push(pathname + "?view=all")}>Show every review</Button>
-                    ) : undefined
-                  }
-                />
-              </Panel>
-            ) : (
-              <>
-                <p className="reviews-count" aria-live="polite">
-                  {list.total.toLocaleString("en-IN")} review{list.total === 1 ? "" : "s"}
-                  {list.view === "needs_reply" && list.total > 0 ? " — longest wait first" : ""}
-                </p>
-                <ul className="reviews-list">
-                  {list.rows.map((review) => (
-                    <li key={review.id}>
-                      <ReviewCard
-                        review={review}
-                        pending={replies[review.id] ?? null}
-                        onReplied={(reply, repliedAt) =>
-                          setReplies((current) => ({ ...current, [review.id]: { reply, repliedAt } }))
-                        }
-                      />
-                    </li>
-                  ))}
-                </ul>
-                {list.pageCount > 1 ? (
-                  <div className="flex justify-end">
-                    <Pagination page={list.page} pageCount={list.pageCount} />
-                  </div>
-                ) : null}
-              </>
-            )}
-
-            {list.isDemoData ? (
-              <p className="m-0 field-hint">
-                Sample reviews for a preview workspace. Replies aren’t stored here.
-              </p>
-            ) : null}
           </div>
+
+          {list.rows.length === 0 ? (
+            <Panel>
+              <EmptyState
+                icon={MessageSquare}
+                title={emptyTitle(list)}
+                description={emptyDescription(list)}
+                action={
+                  list.view !== "all" || list.experienceId !== "all" || list.rating !== null ? (
+                    <Button onClick={() => router.push(pathname + "?view=all")}>Show every review</Button>
+                  ) : undefined
+                }
+              />
+            </Panel>
+          ) : (
+            <>
+              <p className="reviews-count" aria-live="polite">
+                {list.total.toLocaleString("en-IN")} review{list.total === 1 ? "" : "s"}
+                {list.view === "needs_reply" && list.total > 0 ? " — longest wait first" : ""}
+              </p>
+              <ul className="reviews-list">
+                {list.rows.map((review) => (
+                  <li key={review.id}>
+                    <ReviewCard
+                      review={review}
+                      pending={replies[review.id] ?? null}
+                      onReplied={(reply, repliedAt) =>
+                        setReplies((current) => ({ ...current, [review.id]: { reply, repliedAt } }))
+                      }
+                    />
+                  </li>
+                ))}
+              </ul>
+              {list.pageCount > 1 ? (
+                <div className="flex justify-end">
+                  <Pagination page={list.page} pageCount={list.pageCount} />
+                </div>
+              ) : null}
+            </>
+          )}
+
+          {list.isDemoData ? (
+            <p className="m-0 field-hint">
+              Sample reviews for a preview workspace. Replies aren’t stored here.
+            </p>
+          ) : null}
         </div>
       </div>
     </>

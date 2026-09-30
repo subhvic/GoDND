@@ -30,7 +30,7 @@ test.describe("phone", () => {
 
     await expect(nav).toBeHidden();
     // The page gets the whole width.
-    const cardWidth = await page.locator(".surface-card").evaluate((el) => el.getBoundingClientRect().width);
+    const cardWidth = await page.locator(".main").evaluate((el) => el.getBoundingClientRect().width);
     expect(cardWidth).toBeGreaterThan(340);
 
     await menu.click();
