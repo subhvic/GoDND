@@ -3,6 +3,7 @@ import "server-only";
 import { createServerSupabase } from "@/lib/supabase/server";
 import type {
   ExperienceDetail,
+  ExperienceLaneKey,
   ExperienceRow,
   ExperienceStatus,
   ExperienceTabKey,
@@ -67,7 +68,7 @@ export async function listExperiences({
     .select(
       `id, public_ref, title, kind, status, list_on_marketplace,
        max_group_size, group_sizing, max_parallel_groups,
-       duration_days, duration_nights, base_price_minor, currency,
+       duration_days, duration_nights, base_price_minor, currency, updated_at,
        experience_regions ( regions ( name ) ),
        experience_availability ( start_date )`,
       { count: "exact" },
@@ -95,6 +96,138 @@ export async function listExperiences({
   };
 }
 
+export type ExperienceBoardResult = {
+  lanes: Record<ExperienceLaneKey, ExperienceRow[]>;
+  counts: Record<ExperienceLaneKey, number>;
+  total: number;
+  isDemoData: boolean;
+};
+
+/**
+ * One read for the whole board, capped. The board shows every lane at once,
+ * so paging it would mean six paginations chasing each other; an operator
+ * with more experiences than this has a search problem, not a paging one,
+ * and the filter above the board is what answers it.
+ */
+const BOARD_LIMIT = 400;
+
+/**
+ * Every experience, grouped into the six lanes the board draws.
+ *
+ * Deliberately not `listExperiences` six times: that is six round trips, and
+ * its per-status query cannot return `rejected` at all, which is how an
+ * experience sent back for changes disappeared from this screen.
+ */
+export async function listExperienceBoard(
+  { search = "" }: { search?: string } = {},
+): Promise<ExperienceBoardResult> {
+  if (!isSupabaseConfigured()) {
+    const term = search.trim().toLowerCase();
+    return toBoard(
+      DEMO.filter((row) => !term || matchesSearch(row, term)),
+      true,
+    );
+  }
+
+  const supabase = await createServerSupabase();
+
+  let query = supabase
+    .from("experiences")
+    .select(
+      `id, public_ref, title, kind, status, list_on_marketplace,
+       max_group_size, group_sizing, max_parallel_groups,
+       duration_days, duration_nights, base_price_minor, currency, updated_at,
+       experience_regions ( regions ( name ) ),
+       experience_availability ( start_date )`,
+    )
+    .order("updated_at", { ascending: false })
+    .limit(BOARD_LIMIT);
+
+  if (search.trim()) {
+    query = query.ilike("title", `%${search.trim()}%`);
+  }
+
+  const { data, error } = await query;
+  if (error) throw new Error(`Failed to load experiences: ${error.message}`);
+
+  return toBoard(
+    (data ?? []).map((row) => toExperienceRow(row as unknown as ExperienceRecord)),
+    false,
+  );
+}
+
+/** Title or region — an operator searching "Meghalaya" means the place. */
+function matchesSearch(row: ExperienceRow, term: string): boolean {
+  return (
+    row.title.toLowerCase().includes(term) ||
+    row.location.some((name) => name.toLowerCase().includes(term))
+  );
+}
+
+function toBoard(rows: ExperienceRow[], isDemoData: boolean): ExperienceBoardResult {
+  const lanes: Record<ExperienceLaneKey, ExperienceRow[]> = {
+    draft: [],
+    rejected: [],
+    under_review: [],
+    active: [],
+    disabled: [],
+    archived: [],
+  };
+
+  for (const row of rows) {
+    const lane = lanes[row.status as ExperienceLaneKey];
+    // A status outside the six lanes would otherwise vanish silently, which
+    // is the bug this function exists to stop repeating.
+    if (lane) lane.push(row);
+  }
+
+  for (const key of Object.keys(lanes) as ExperienceLaneKey[]) {
+    lanes[key].sort(laneOrder[key]);
+  }
+
+  const counts = Object.fromEntries(
+    (Object.keys(lanes) as ExperienceLaneKey[]).map((key) => [key, lanes[key].length]),
+  ) as Record<ExperienceLaneKey, number>;
+
+  return {
+    lanes,
+    counts,
+    total: (Object.values(counts) as number[]).reduce((sum, n) => sum + n, 0),
+    isDemoData,
+  };
+}
+
+const olderFirst = (a: ExperienceRow, b: ExperienceRow) =>
+  (a.updatedAt ?? "").localeCompare(b.updatedAt ?? "");
+const newerFirst = (a: ExperienceRow, b: ExperienceRow) =>
+  (b.updatedAt ?? "").localeCompare(a.updatedAt ?? "");
+
+/**
+ * Worst first, lane by lane — the same rule severityRank states for lists.
+ *
+ *   under_review / rejected  longest wait leads. Three days with GoDND is
+ *                            the card you want at the top, not the one
+ *                            submitted this morning.
+ *   active                   an experience with nothing open to book leads:
+ *                            it is live, it is costing the operator nothing
+ *                            to keep, and nobody can buy it. Then soonest
+ *                            departure, because that is the one to staff.
+ *   everything else          most recently touched, which is where an
+ *                            operator left off.
+ */
+const laneOrder: Record<ExperienceLaneKey, (a: ExperienceRow, b: ExperienceRow) => number> = {
+  draft: newerFirst,
+  rejected: olderFirst,
+  under_review: olderFirst,
+  active: (a, b) => {
+    if (!a.nextAvailableOn !== !b.nextAvailableOn) return a.nextAvailableOn ? 1 : -1;
+    if (!a.nextAvailableOn || !b.nextAvailableOn) return newerFirst(a, b);
+    return a.nextAvailableOn.localeCompare(b.nextAvailableOn);
+  },
+  disabled: newerFirst,
+  archived: newerFirst,
+};
+
 /**
  * Home's "Recently created experiences": newest first, every state — a
  * fresh draft is exactly what an operator comes back to finish.
@@ -113,7 +246,7 @@ export async function listRecentExperiences(limit = 3): Promise<RecentExperience
       `id, public_ref, title, kind, status, list_on_marketplace,
        max_group_size, group_sizing, max_parallel_groups,
        duration_days, duration_nights, base_price_minor, currency,
-       pricing_mode, pickup_location, dropoff_location, created_at,
+       pricing_mode, pickup_location, dropoff_location, created_at, updated_at,
        experience_regions ( regions ( name ) ),
        experience_availability ( start_date, end_date, is_open )`,
     )
@@ -196,6 +329,7 @@ type ExperienceRecord = {
   duration_nights: number | null;
   base_price_minor: number | null;
   currency: string;
+  updated_at?: string | null;
   experience_regions?: { regions: { name: string } | null }[] | null;
   experience_availability?: { start_date: string }[] | null;
 };
@@ -224,6 +358,7 @@ function toExperienceRow(record: ExperienceRecord): ExperienceRow {
     nextAvailableOn: upcoming[0] ?? null,
     basePriceMinor: record.base_price_minor,
     currency: record.currency,
+    updatedAt: record.updated_at ?? null,
   };
 }
 
@@ -243,6 +378,18 @@ function inDays(offset: number): string {
   return date.toISOString().slice(0, 10);
 }
 
+/**
+ * The other direction, for "waiting 4 days" and "edited 2 days ago". Same
+ * reason as inDays: a hardcoded timestamp would have a draft edited two years
+ * ago the moment this fixture ages.
+ */
+function daysAgo(offset: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() - offset);
+  date.setHours(11, 20, 0, 0);
+  return date.toISOString();
+}
+
 const DEMO: ExperienceRow[] = [
   {
     id: "demo-1",
@@ -260,6 +407,7 @@ const DEMO: ExperienceRow[] = [
     nextAvailableOn: inDays(9),
     basePriceMinor: 6700000,
     currency: "INR",
+    updatedAt: daysAgo(34),
   },
   {
     id: "demo-2",
@@ -277,6 +425,7 @@ const DEMO: ExperienceRow[] = [
     nextAvailableOn: inDays(6),
     basePriceMinor: 2450000,
     currency: "INR",
+    updatedAt: daysAgo(12),
   },
   {
     id: "demo-3",
@@ -294,6 +443,7 @@ const DEMO: ExperienceRow[] = [
     nextAvailableOn: inDays(26),
     basePriceMinor: 9800000,
     currency: "INR",
+    updatedAt: daysAgo(58),
   },
   {
     id: "demo-4",
@@ -311,6 +461,7 @@ const DEMO: ExperienceRow[] = [
     nextAvailableOn: inDays(18),
     basePriceMinor: 1850000,
     currency: "INR",
+    updatedAt: daysAgo(21),
   },
   {
     id: "demo-5",
@@ -329,6 +480,7 @@ const DEMO: ExperienceRow[] = [
     nextAvailableOn: inDays(74),
     basePriceMinor: 3200000,
     currency: "INR",
+    updatedAt: daysAgo(4),
   },
   {
     id: "demo-6",
@@ -346,6 +498,7 @@ const DEMO: ExperienceRow[] = [
     nextAvailableOn: null,
     basePriceMinor: null,
     currency: "INR",
+    updatedAt: daysAgo(2),
   },
   {
     id: "demo-7",
@@ -363,6 +516,7 @@ const DEMO: ExperienceRow[] = [
     nextAvailableOn: null,
     basePriceMinor: 1400000,
     currency: "INR",
+    updatedAt: daysAgo(96),
   },
   {
     id: "demo-8",
@@ -380,6 +534,7 @@ const DEMO: ExperienceRow[] = [
     nextAvailableOn: null,
     basePriceMinor: 2100000,
     currency: "INR",
+    updatedAt: daysAgo(320),
   },
   {
     // Rejected is one of the six states the drawer’s Edit action supports.
@@ -400,6 +555,307 @@ const DEMO: ExperienceRow[] = [
     nextAvailableOn: null,
     basePriceMinor: 3200000,
     currency: "INR",
+    updatedAt: daysAgo(3),
+  },
+  /* The rows above are the handoff file's. Those below fill the board out
+     to something an operator would recognise — twenty-five experiences
+     across all six lanes, including the three states the table could not
+     express: live with nothing bookable, live but off-marketplace, and a
+     draft stopped before it had a price. */
+  {
+    id: "demo-10",
+    publicRef: "0045844",
+    title: "Dzukou Valley Trek from Kohima",
+    kind: "general",
+    status: "active",
+    listOnMarketplace: true,
+    groupSize: 12,
+    groupSizing: "flexible",
+    maxParallelGroups: 2,
+    durationDays: 3,
+    durationNights: 2,
+    location: ["Nagaland"],
+    nextAvailableOn: inDays(14),
+    basePriceMinor: 1450000,
+    currency: "INR",
+    updatedAt: daysAgo(8),
+  },
+  {
+    id: "demo-11",
+    publicRef: "0045845",
+    title: "Loktak Lake & Floating Islands",
+    kind: "quick",
+    status: "active",
+    listOnMarketplace: true,
+    groupSize: 6,
+    groupSizing: "fixed",
+    maxParallelGroups: null,
+    durationDays: 2,
+    durationNights: 1,
+    location: ["Manipur"],
+    nextAvailableOn: inDays(4),
+    basePriceMinor: 980000,
+    currency: "INR",
+    updatedAt: daysAgo(5),
+  },
+  {
+    id: "demo-12",
+    publicRef: "0045846",
+    title: "Tawang Monastery & Sela Pass Circuit",
+    kind: "super",
+    status: "active",
+    listOnMarketplace: true,
+    groupSize: 8,
+    groupSizing: "flexible",
+    maxParallelGroups: 2,
+    durationDays: 6,
+    durationNights: 5,
+    location: ["Arunachal Pradesh"],
+    nextAvailableOn: inDays(31),
+    basePriceMinor: 4200000,
+    currency: "INR",
+    updatedAt: daysAgo(19),
+  },
+  {
+    // Live, listed, and with nothing open to book. The board calls this
+    // out on the card: the list had no way to show it.
+    id: "demo-13",
+    publicRef: "0045847",
+    title: "Majuli Island Satra & Mask-Making",
+    kind: "general",
+    status: "active",
+    listOnMarketplace: true,
+    groupSize: 10,
+    groupSizing: "flexible",
+    maxParallelGroups: null,
+    durationDays: 3,
+    durationNights: 2,
+    location: ["Assam"],
+    nextAvailableOn: null,
+    basePriceMinor: 1120000,
+    currency: "INR",
+    updatedAt: daysAgo(27),
+  },
+  {
+    // Active but off the marketplace — the operator sells this one
+    // themselves. The card says so rather than letting it read as live.
+    id: "demo-14",
+    publicRef: "0045848",
+    title: "Mawlynnong & Dawki Day Trip",
+    kind: "quick",
+    status: "active",
+    listOnMarketplace: false,
+    groupSize: 4,
+    groupSizing: "fixed",
+    maxParallelGroups: null,
+    durationDays: 1,
+    durationNights: 0,
+    location: ["Meghalaya"],
+    nextAvailableOn: inDays(2),
+    basePriceMinor: 340000,
+    currency: "INR",
+    updatedAt: daysAgo(2),
+  },
+  {
+    id: "demo-15",
+    publicRef: "0045849",
+    title: "Hornbill Festival Week, Kisama",
+    kind: "general_joinee",
+    status: "active",
+    listOnMarketplace: true,
+    groupSize: 16,
+    groupSizing: "flexible",
+    maxParallelGroups: 3,
+    durationDays: 5,
+    durationNights: 4,
+    location: ["Nagaland"],
+    nextAvailableOn: inDays(61),
+    basePriceMinor: 2800000,
+    currency: "INR",
+    updatedAt: daysAgo(41),
+  },
+  {
+    // Nine days with the GoDND team. The review lane sorts on this.
+    id: "demo-16",
+    publicRef: "0045850",
+    title: "Siang River Rafting Expedition",
+    kind: "super",
+    status: "under_review",
+    listOnMarketplace: false,
+    groupSize: 8,
+    groupSizing: "fixed",
+    maxParallelGroups: null,
+    durationDays: 4,
+    durationNights: 3,
+    location: ["Arunachal Pradesh"],
+    nextAvailableOn: null,
+    basePriceMinor: 1950000,
+    currency: "INR",
+    updatedAt: daysAgo(9),
+  },
+  {
+    id: "demo-17",
+    publicRef: "0045851",
+    title: "Unakoti Rock Carvings & Jampui Hills",
+    kind: "general",
+    status: "under_review",
+    listOnMarketplace: false,
+    groupSize: 10,
+    groupSizing: "flexible",
+    maxParallelGroups: null,
+    durationDays: 3,
+    durationNights: 2,
+    location: ["Tripura"],
+    nextAvailableOn: null,
+    basePriceMinor: 1290000,
+    currency: "INR",
+    updatedAt: daysAgo(2),
+  },
+  {
+    id: "demo-18",
+    publicRef: "0045852",
+    title: "Cherrapunji Caves & Waterfalls",
+    kind: "general",
+    status: "draft",
+    listOnMarketplace: false,
+    groupSize: 8,
+    groupSizing: "flexible",
+    maxParallelGroups: null,
+    durationDays: 2,
+    durationNights: 1,
+    location: ["Meghalaya"],
+    nextAvailableOn: null,
+    basePriceMinor: 760000,
+    currency: "INR",
+    updatedAt: daysAgo(6),
+  },
+  {
+    // A draft stopped before pricing — the card shows what is missing
+    // instead of an empty cell, which is what the table did.
+    id: "demo-19",
+    publicRef: "0045853",
+    title: "Aizawl Highlands Homestay Trail",
+    kind: "general",
+    status: "draft",
+    listOnMarketplace: false,
+    groupSize: null,
+    groupSizing: "flexible",
+    maxParallelGroups: null,
+    durationDays: 4,
+    durationNights: 3,
+    location: ["Mizoram"],
+    nextAvailableOn: null,
+    basePriceMinor: null,
+    currency: "INR",
+    updatedAt: daysAgo(11),
+  },
+  {
+    id: "demo-20",
+    publicRef: "0045854",
+    title: "Manas Tiger Reserve Safari",
+    kind: "quick",
+    status: "draft",
+    listOnMarketplace: false,
+    groupSize: 6,
+    groupSizing: "fixed",
+    maxParallelGroups: null,
+    durationDays: 2,
+    durationNights: 1,
+    location: ["Assam"],
+    nextAvailableOn: null,
+    basePriceMinor: 890000,
+    currency: "INR",
+    updatedAt: daysAgo(23),
+  },
+  {
+    id: "demo-21",
+    publicRef: "0045855",
+    title: "Nathu La & Tsomgo Lake Day Run",
+    kind: "quick",
+    status: "rejected",
+    listOnMarketplace: false,
+    groupSize: 4,
+    groupSizing: "fixed",
+    maxParallelGroups: null,
+    durationDays: 1,
+    durationNights: 0,
+    location: ["Sikkim"],
+    nextAvailableOn: null,
+    basePriceMinor: 520000,
+    currency: "INR",
+    updatedAt: daysAgo(6),
+  },
+  {
+    id: "demo-22",
+    publicRef: "0045856",
+    title: "Shillong Cafe & Live Music Crawl",
+    kind: "quick",
+    status: "disabled",
+    listOnMarketplace: false,
+    groupSize: 8,
+    groupSizing: "flexible",
+    maxParallelGroups: null,
+    durationDays: 1,
+    durationNights: 0,
+    location: ["Meghalaya"],
+    nextAvailableOn: null,
+    basePriceMinor: 280000,
+    currency: "INR",
+    updatedAt: daysAgo(74),
+  },
+  {
+    id: "demo-23",
+    publicRef: "0045857",
+    title: "Ziro Rice-Beer & Apatani Village Walk",
+    kind: "general",
+    status: "disabled",
+    listOnMarketplace: false,
+    groupSize: 10,
+    groupSizing: "flexible",
+    maxParallelGroups: null,
+    durationDays: 2,
+    durationNights: 1,
+    location: ["Arunachal Pradesh"],
+    nextAvailableOn: null,
+    basePriceMinor: 840000,
+    currency: "INR",
+    updatedAt: daysAgo(112),
+  },
+  {
+    id: "demo-24",
+    publicRef: "0045858",
+    title: "Assam Tea Estate Harvest (2024)",
+    kind: "general",
+    status: "archived",
+    listOnMarketplace: false,
+    groupSize: 12,
+    groupSizing: "flexible",
+    maxParallelGroups: null,
+    durationDays: 3,
+    durationNights: 2,
+    location: ["Assam"],
+    nextAvailableOn: null,
+    basePriceMinor: 1500000,
+    currency: "INR",
+    updatedAt: daysAgo(287),
+  },
+  {
+    id: "demo-25",
+    publicRef: "0045859",
+    title: "Brahmaputra Cruise Pilot (2023)",
+    kind: "super",
+    status: "archived",
+    listOnMarketplace: false,
+    groupSize: 20,
+    groupSizing: "fixed",
+    maxParallelGroups: null,
+    durationDays: 5,
+    durationNights: 4,
+    location: ["Assam"],
+    nextAvailableOn: null,
+    basePriceMinor: 5500000,
+    currency: "INR",
+    updatedAt: daysAgo(512),
   },
 ];
 

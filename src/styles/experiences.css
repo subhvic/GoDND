@@ -1,0 +1,144 @@
+/* ============================================================================
+   GoDND · EXPERIENCES — the lifecycle board
+   Six lanes, one per state, scrolling horizontally on a desktop and stacking
+   on a phone. Lanes are wells, not cards: the cards are the only card layer,
+   so nothing here nests a card inside a card.
+   Every value resolves through tokens.css.
+   ============================================================================ */
+@layer components {
+  .xp-board-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 12px; }
+  .xp-board-count { margin: 0; font-size: 11.5px; color: var(--text-muted); }
+
+  /* ============ BOARD ============ */
+  /* align-items: start so a lane is only as tall as its own cards — with ten
+     Active and two Drafts, stretching would draw an eight-card-tall empty
+     box beside the drafts. */
+  /* The board is the scroll area, not the page: the search and the count
+     above it stay where the operator left them.
+     It scrolls sideways only. Lanes are full height and each lane's cards
+     scroll inside it, so ten Active cards never drag the four-card Drafts
+     lane off the screen with them — the columns stay side by side, which is
+     the whole point of a board. */
+  .xp-board {
+    flex: 1; min-height: 0; min-width: 0;
+    display: flex; align-items: stretch; gap: 10px;
+    overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+    padding-bottom: 2px; scroll-snap-type: x proximity;
+  }
+  /* A scrollable region is operable, so it takes focus and shows it. */
+  .xp-board:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: var(--radius-md); }
+
+  .xp-lane {
+    flex: 0 0 248px; max-height: 100%; scroll-snap-align: start;
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 0 0 10px;
+    background: var(--panel); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+  }
+  /* Arrived here from a ?tab= link: say which lane the board scrolled to. */
+  .xp-lane[data-focused] { border-color: var(--brand); background: var(--brand-muted); }
+
+  .xp-lane-head {
+    flex: 0 0 auto;
+    display: flex; align-items: center; gap: 7px;
+    padding: 9px 11px 8px;
+  }
+  .xp-lane-title {
+    flex: 1; min-width: 0; margin: 0;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    font-size: 11.5px; font-weight: 600; color: var(--text-secondary);
+  }
+  .xp-lane-count {
+    flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+    min-width: 20px; height: 17px; padding: 0 6px; border-radius: 99px;
+    background: var(--panel-2); color: var(--text-muted);
+    font-size: 10.5px; font-weight: 600; font-variant-numeric: tabular-nums;
+  }
+  /* Only when something is actually sitting there — a red nought is a lie. */
+  .xp-lane[data-attention] .xp-lane-count { background: var(--critical-tint); color: var(--critical-fg); }
+
+  /* The lane's own scroll. It holds the card buttons, so a keyboard reaches
+     every card through them and the browser scrolls to follow — no extra tab
+     stop needed on the region itself. */
+  .xp-lane-body {
+    flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain;
+    list-style: none; margin: 0; padding: 0 8px 2px;
+    display: flex; flex-direction: column; gap: 7px;
+  }
+
+  /* Teaches what the lane is for rather than reporting that it is empty. */
+  .xp-lane-empty {
+    margin: 0 8px; padding: 13px 11px;
+    border: 1px dashed var(--border-panel); border-radius: var(--radius-md);
+    font-size: 11.5px; line-height: 1.45; color: var(--text-muted);
+  }
+
+  /* ============ CARD ============ */
+  .xp-card {
+    display: flex; flex-direction: column; gap: 6px; padding: 10px;
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: var(--radius-md); cursor: pointer;
+    transition:
+      border-color .16s cubic-bezier(.22, 1, .36, 1),
+      box-shadow .16s cubic-bezier(.22, 1, .36, 1),
+      transform .16s cubic-bezier(.22, 1, .36, 1);
+  }
+  .xp-card:hover { border-color: var(--border-strong); box-shadow: 0 1px 3px rgba(15, 23, 42, .08); transform: translateY(-1px); }
+  .xp-card.is-selected { border-color: var(--brand); background: var(--brand-muted); }
+  .xp-card.is-selected:hover { box-shadow: none; transform: none; }
+
+  .xp-card-title { margin: 0; font-size: 12.5px; font-weight: 500; line-height: 1.35; color: var(--text-primary); }
+  .xp-card-open {
+    width: 100%; background: none; border: none; padding: 0; font: inherit; color: inherit;
+    text-align: left; cursor: pointer;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .xp-card-open:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 3px; }
+
+  .xp-card-meta {
+    margin: 0; min-width: 0; display: flex; flex-wrap: wrap; align-items: center;
+    gap: 3px 9px; font-size: 11px; color: var(--text-muted);
+  }
+  .xp-card-where { display: inline-flex; align-items: center; gap: 3px; min-width: 0; }
+  .xp-card-where svg { width: 11px; height: 11px; flex-shrink: 0; }
+
+  .xp-card-signals { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+  .xp-signal { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; line-height: 1.35; }
+  .xp-signal svg { width: 11px; height: 11px; flex-shrink: 0; }
+  .xp-signal.critical { color: var(--critical-fg); }
+  .xp-signal.warning { color: var(--warning-fg); }
+  .xp-signal.healthy { color: var(--healthy-fg); }
+  .xp-signal.info { color: var(--info-fg); }
+  .xp-signal.neutral { color: var(--text-muted); font-weight: 400; }
+
+  .xp-card-foot {
+    margin: 0; min-width: 0; display: flex; align-items: center; gap: 6px;
+    padding-top: 7px; border-top: 1px solid var(--border-subtle);
+    font-size: 10.5px; color: var(--text-muted);
+  }
+  .xp-card-kind {
+    flex-shrink: 0; padding: 1px 5px; border-radius: var(--radius-xs);
+    background: var(--panel-2); color: var(--text-secondary);
+    font-size: 9.5px; font-weight: 600;
+  }
+  .xp-card-ref { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .xp-card-price { flex-shrink: 0; font-size: 11.5px; font-weight: 600; color: var(--text-primary); }
+
+  /* ============ PHONE ============ */
+  /* Lanes stack rather than staying a swipe strip. Six columns behind a
+     horizontal swipe would hide five of them behind a gesture with no
+     affordance, which is the problem the board exists to fix. */
+  @media (max-width: 719px) {
+    .xp-board { flex: 0 0 auto; flex-direction: column; align-items: stretch; overflow: visible; gap: 12px; padding-bottom: 0; }
+    /* Stacked, the page does the scrolling: a lane is as tall as its cards
+       and nothing scrolls inside anything. */
+    .xp-lane { flex: 0 0 auto; width: 100%; max-height: none; }
+    .xp-lane-body { overflow-y: visible; flex: 0 0 auto; }
+    .xp-card-title { font-size: 13px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .xp-card { transition: border-color .16s linear; }
+    .xp-card:hover { transform: none; }
+  }
+}

@@ -146,7 +146,7 @@ export const ATOMIC: [string, string, string, string][] = [
   ["Tokens", "Foundation", "Three-tier CSS custom properties mirrored by the Tailwind theme — the vocabulary every atom is built from.", "--brand · --card-border · --critical-tint · --brand-solid · radius · type scale"],
   ["Atoms", "Indivisible", "The smallest units — one element, one job.", "StatusDot · Badge · Button · TextInput · Select · Checkbox · TokenChip · Avatar · Sparkline"],
   ["Molecules", "Small groups", "A handful of atoms bound into a reusable unit.", "StatusBadge · KpiCard · PillTabs · Field · AffixInput · ChipSelect · Notice · SearchInput"],
-  ["Organisms", "Sections", "Standalone, composed regions of the interface.", "ExperiencesTable · Panel · Sidebar · PageBar · RecordDrawer · WizardRail · DropdownMenu · Toast"],
+  ["Organisms", "Sections", "Standalone, composed regions of the interface.", "ExperiencesBoard · Panel · Sidebar · PageBar · RecordDrawer · WizardRail · DropdownMenu · Toast"],
   ["Templates", "Layout", "Page skeletons — arrangement without real data.", "AppShell (nav + one floating surface card) · list + record drawer · rail + step form"],
   ["Pages", "Instances", "Templates filled with an operator's real data.", "Experiences · Experience detail · New experience (7 steps) · Design system"],
 ];

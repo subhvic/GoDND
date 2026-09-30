@@ -1,22 +1,13 @@
 import Link from "next/link";
-import { Archive, EyeOff, FileText, Globe, Eye, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 
-import { ExperiencesTable } from "@/components/experiences/experiences-table";
+import { ExperiencesBoard } from "@/components/experiences/experiences-board";
 import { buttonClass } from "@/components/ui/button";
 import { PageBar } from "@/components/ui/page-bar";
-import { Pagination } from "@/components/ui/pagination";
-import { PillTabs } from "@/components/ui/pill-tabs";
 import { SearchInput } from "@/components/ui/search-input";
-import { listExperiences } from "@/lib/data/experiences";
-import { EXPERIENCE_TABS, type ExperienceTabKey } from "@/lib/types";
-
-const EXPERIENCE_TAB_ICONS: Record<ExperienceTabKey, React.ReactNode> = {
-  active: <Globe size={13} aria-hidden />,
-  under_review: <Eye size={13} aria-hidden />,
-  draft: <FileText size={13} aria-hidden />,
-  disabled: <EyeOff size={13} aria-hidden />,
-  archived: <Archive size={13} aria-hidden />,
-};
+import { listExperienceBoard } from "@/lib/data/experiences";
+import { toBoardCards } from "@/lib/experiences/board";
+import { EXPERIENCE_LANES, type ExperienceLaneKey } from "@/lib/types";
 
 export const metadata = { title: "Experiences" };
 
@@ -25,19 +16,16 @@ export default async function ExperiencesPage(
 ) {
   const params = await props.searchParams;
 
-  const tab = parseTab(params.tab);
   const search = typeof params.q === "string" ? params.q : "";
-  const page = parsePage(params.page);
+  const focus = parseFocus(params.tab);
 
-  const { rows, counts, page: current, pageCount, total } =
-    await listExperiences({ tab, search, page });
+  const { lanes, total } = await listExperienceBoard({ search });
 
-  const tabHref = (key: ExperienceTabKey) => {
-    const next = new URLSearchParams();
-    next.set("tab", key);
-    if (search) next.set("q", search);
-    return `/dashboard/experiences?${next.toString()}`;
-  };
+  // Signals are worked out here rather than in the client component: they
+  // depend on today's date, and a card that renders "Departs in 3 days" on
+  // the server and "in 2 days" after hydration is a mismatch waiting for a
+  // midnight deploy.
+  const cards = toBoardCards(lanes);
 
   return (
     <>
@@ -47,7 +35,7 @@ export default async function ExperiencesPage(
           <>
             <SearchInput
               label="Search experiences"
-              placeholder="Search experiences…"
+              placeholder="Search title or region…"
               className="hidden w-[280px] md:block"
             />
             <Link
@@ -63,52 +51,36 @@ export default async function ExperiencesPage(
       />
 
       <div className="surface-card">
-      <div className="card-scroll">
-        {/* Search stays reachable on phones, where the page bar has no room. */}
-        <SearchInput
-          label="Search experiences"
-          placeholder="Search experiences…"
-          className="mb-[14px] w-full md:hidden"
-        />
-
-        <div className="mb-[14px] flex flex-wrap items-center justify-between gap-[10px]">
-          <PillTabs
-            label="Experience status"
-            active={tab}
-            tabs={EXPERIENCE_TABS.map((item) => ({
-              id: item.key,
-              label: item.label,
-              count: counts[item.key] ?? 0,
-              href: tabHref(item.key),
-              icon: EXPERIENCE_TAB_ICONS[item.key],
-            }))}
-          />
-          <p className="text-[11.5px] text-text-muted" aria-live="polite">
-            {total === 0 ? "No experiences" : `Showing ${rows.length} of ${total}`}
-          </p>
-        </div>
-
-        <ExperiencesTable rows={rows} tab={tab} search={search} />
-
-        {pageCount > 1 ? (
-          <div className="mt-[14px] flex justify-end">
-            <Pagination page={current} pageCount={pageCount} />
+        <div className="card-scroll">
+          {/* Search stays reachable on phones, where the page bar has no room. */}
+          <div className="xp-board-bar">
+            <SearchInput
+              label="Search experiences"
+              placeholder="Search title or region…"
+              className="w-full md:hidden"
+            />
+            <p className="xp-board-count" aria-live="polite">
+              {search
+                ? `${total} ${total === 1 ? "experience matches" : "experiences match"} “${search}”`
+                : `${total} ${total === 1 ? "experience" : "experiences"}`}
+            </p>
           </div>
-        ) : null}
-      </div>
+
+          <ExperiencesBoard lanes={cards} search={search} focus={focus} />
+        </div>
       </div>
     </>
   );
 }
 
-function parseTab(value: unknown): ExperienceTabKey {
-  const keys = EXPERIENCE_TABS.map((tab) => tab.key) as string[];
+/**
+ * ?tab= is what the old five tabs used, and links elsewhere in the portal
+ * still carry it. There is no tab to select now, so it picks the lane the
+ * board scrolls to instead — the link still means "show me that state".
+ */
+function parseFocus(value: unknown): ExperienceLaneKey | null {
+  const keys = EXPERIENCE_LANES.map((lane) => lane.key) as string[];
   return typeof value === "string" && keys.includes(value)
-    ? (value as ExperienceTabKey)
-    : "active";
-}
-
-function parsePage(value: unknown): number {
-  const parsed = Number.parseInt(String(value ?? "1"), 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+    ? (value as ExperienceLaneKey)
+    : null;
 }

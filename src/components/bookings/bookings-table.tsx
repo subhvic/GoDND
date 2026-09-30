@@ -23,7 +23,7 @@ const TAB_LABELS = Object.fromEntries(BOOKING_TABS.map((entry) => [entry.key, en
 >;
 
 /**
- * The Bookings list (mirrors ExperiencesTable). Seven columns, all
+ * The Bookings list. Seven columns, all
  * associated to headers so a screen reader reads the row correctly, and the
  * row-name button opens the drawer through a real focusable control rather
  * than a fake <tr onClick>. Numerics right-align so amounts compare down the
