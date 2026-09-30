@@ -64,4 +64,40 @@
   .cell-sub-inline { font-size: 11px; color: var(--text-muted); }
   .insights-link { color: var(--text-primary); text-decoration: none; min-width: 0; }
   .insights-link:hover { color: var(--brand); text-decoration: underline; text-underline-offset: 2px; }
+
+  /* ============ REVIEWS ============ */
+  .reviews { container-type: inline-size; display: flex; flex-direction: column; gap: 16px; padding-top: 4px; }
+  .reviews-filters { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+  .reviews-selects { display: flex; flex-wrap: wrap; gap: 8px; }
+  .reviews-count { margin: -4px 0 0; font-size: 11.5px; color: var(--text-muted); }
+  .reviews-list { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+
+  .review-card {
+    display: flex; flex-direction: column; gap: 9px; padding: 14px 16px;
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-lg);
+  }
+  /* A poor rating nobody has answered is the one urgent thing here. */
+  .review-card.is-urgent { border-color: color-mix(in srgb, var(--critical) 32%, var(--card-border)); box-shadow: inset 3px 0 0 var(--critical); }
+  .review-card-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+  .review-card-title { margin: 0; font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
+  .review-card-body { margin: 0; font-size: 12.5px; line-height: 1.6; color: var(--text-secondary); }
+  .review-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 7px; margin: 0; font-size: 11.5px; color: var(--text-muted); }
+  .review-card-guest { font-weight: 600; color: var(--text-secondary); }
+  .review-card-ref { font-variant-numeric: tabular-nums; }
+  .review-card-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+
+  .stars { display: inline-flex; gap: 2px; flex-shrink: 0; }
+  .star { width: 14px; height: 14px; color: var(--border-strong); }
+  .star.is-on { color: var(--warning); fill: currentColor; }
+
+  /* The reply is the operator speaking in public, so it reads as a quote
+     rather than as another paragraph of the review. */
+  .review-reply {
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 10px 12px; border-left: 2px solid var(--brand); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: var(--panel);
+  }
+  .review-reply-head { margin: 0; font-size: 10.5px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; color: var(--brand-on-muted); }
+  .review-reply-body { margin: 0; font-size: 12.5px; line-height: 1.6; color: var(--text-secondary); }
+  .review-reply-form { display: flex; flex-direction: column; gap: 6px; }
 }

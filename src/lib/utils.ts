@@ -19,6 +19,12 @@ export function formatMoney(minor: number | null | undefined, currency = "INR", 
   }).format(minor / 100);
 }
 
+/**
+ * India time, whatever zone the code runs in — the same rule
+ * formatDateTimeParts follows, and for the same reason: these screens
+ * render on a UTC server and are read in India, so an unpinned formatter
+ * shows a settlement dated the 16th as the 15th.
+ */
 export function formatDate(value: string | Date | null | undefined) {
   if (!value) return "—";
   const date = typeof value === "string" ? new Date(value) : value;
@@ -26,6 +32,7 @@ export function formatDate(value: string | Date | null | undefined) {
     day: "numeric",
     month: "short",
     year: "numeric",
+    timeZone: "Asia/Kolkata",
   }).format(date);
 }
 
