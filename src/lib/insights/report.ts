@@ -419,7 +419,7 @@ function deriveActions(
       severity: "warning",
       title: `${unanswered.count} review${unanswered.count === 1 ? " is" : "s are"} waiting for a reply`,
       evidence: `The oldest arrived on ${unanswered.oldest ? fullDay(at(unanswered.oldest)) : "—"}. Replies show on your listing, and travellers read them before they book.`,
-      action: { label: "Reply from Bookings", href: "/dashboard/bookings?tab=completed" },
+      action: { label: "Reply to them", href: "/dashboard/insights/reviews" },
     });
   }
 
@@ -430,6 +430,7 @@ function deriveActions(
         severity: "warning",
         title: `“${line.title}” is rated ${line.rating.toFixed(1)}`,
         evidence: `Across ${line.reviews} reviews in the ${periodName}, against ${report.reviews.average?.toFixed(1) ?? "—"} for the business as a whole.`,
+        action: { label: "Read them", href: `/dashboard/insights/reviews?view=all&experience=${line.id}` },
       });
     }
   }

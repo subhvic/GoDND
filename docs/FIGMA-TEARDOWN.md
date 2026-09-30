@@ -312,3 +312,64 @@ the sample data is pinned to Home's own figures where the two overlap.
 
 It sits under **Website** in the nav, as asked; its content is about bookings
 and experiences, so Dashboard may be the more natural home.
+
+---
+
+## 8. Reviews and Transactions (built)
+
+Both were built without a readable frame: the Figma MCP's Starter-plan
+allowance (20 reads a month) was still exhausted. They follow the product's
+own system and the schema already in `0003_commerce.sql`, and need
+reconciling against their frames when the allowance resets.
+
+### Reviews — `/dashboard/insights/reviews`
+
+Insights' review panel used to link to `/dashboard/bookings?tab=completed`,
+which is where the reply flow happened to live, not a reviews screen. It now
+leads here.
+
+Opens on the reviews still owed a reply, longest wait first — the same rule
+the enquiries inbox follows. Above the list, the rating breakdown covers
+every review ever left, not the period Insights was showing. Filters by
+view, experience and rating, all URL-driven. A reply is published from here,
+straight onto `reviews.agency_reply` under the existing
+`reviews_agency_reply` policy, so no migration was needed.
+
+### Transactions — `/dashboard/transactions`
+
+Two money paths run through this screen and they answer different
+questions, so the summary keeps them apart:
+
+- **Marketplace** — GoDND collects, keeps commission, settles the rest on a
+  cycle. The question is *when does GoDND pay me, and does it match my bank
+  statement?*
+- **Direct** — the operator collected it themselves. No commission, no
+  payout. The question is *who still owes me?*
+
+Four headline figures, in the order a small operator needs them: settled to
+your bank (with the commission it came after), awaiting payout (with the
+date, or what is blocking it), due from guests (with what is overdue), and
+refunds you owe. When bank details aren't verified, payouts are held and the
+screen says so and links at Settings › Financial Details.
+
+Four tabs: **Payouts** (fortnightly settlement batches — click one for the
+arithmetic, the UTR and the bookings it covers), **Payments** (every
+movement, saying who collected it), **Invoices**, **Refunds** (owed first).
+Each tab exports to CSV; the invoice columns are the ones a GSTR-1 return is
+built from.
+
+**The tax invoice** at `/dashboard/transactions/invoices/[id]` is a document,
+not a record: supplier and recipient with GSTINs, a number consecutive
+inside the financial year, SAC 9985, the CGST+SGST or IGST split decided by
+place of supply, the total in words, and a signature block. It prints to PDF
+from the browser rather than being rendered twice.
+
+**Assumptions that need finance sign-off:** 5% GST without input tax credit
+(tour operator, SAC 9985); 12% commission; a 1st–15th / 16th–month-end
+settlement cycle releasing five days after the trip ends. TCS under section
+52 and TDS under 194-O are **not** modelled — both affect what actually
+reaches the bank and should be decided before this goes near real money.
+
+The sample data for all three screens is derived from one seeded set of
+bookings, so Insights, Reviews and Transactions cannot disagree about the
+same business.

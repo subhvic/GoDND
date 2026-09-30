@@ -272,8 +272,11 @@ function Reviews({ report, unanswered }: { report: PeriodReport; unanswered: num
           ) : (
             "Every review has a reply."
           )}
-          <Link href="/dashboard/bookings?tab=completed" className="see-all ml-auto">
-            Completed trips
+          <Link
+            href={unanswered > 0 ? "/dashboard/insights/reviews" : "/dashboard/insights/reviews?view=all"}
+            className="see-all ml-auto"
+          >
+            All reviews
             <ArrowRight aria-hidden />
           </Link>
         </p>

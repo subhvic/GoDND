@@ -1,0 +1,106 @@
+/* ============================================================================
+   GoDND · TRANSACTIONS — payouts, payments, invoices, refunds
+   Built on the component layer (KPI card, panel, data table, record drawer);
+   every value resolves through tokens.css.
+   ============================================================================ */
+@layer components {
+  .money { container-type: inline-size; display: flex; flex-direction: column; gap: 16px; padding-top: 4px; }
+  .money-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+  .money-kpis .val { font-size: clamp(19px, 4.6cqi, 26px); font-variant-numeric: proportional-nums; letter-spacing: -.4px; }
+  .money-status { display: inline-flex; align-items: center; gap: 6px; }
+  /* A deduction is still a number to read, not a warning to act on. */
+  .data-table td.val-muted { color: var(--text-muted); }
+
+  /* ============ PAYOUT DRAWER ============ */
+  .payout-hero { padding: 16px; border-bottom: 1px solid var(--border-subtle); }
+  .payout-hero-label { margin: 0; font-size: 11.5px; color: var(--text-muted); }
+  .payout-hero-value {
+    margin: 4px 0 0; font-size: 30px; font-weight: 600; line-height: 1.05; letter-spacing: -.6px;
+    color: var(--text-primary); font-variant-numeric: proportional-nums;
+  }
+  .payout-hero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px 0 0; font-size: 11.5px; color: var(--text-muted); }
+
+  .payout-utr {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); background: var(--panel);
+  }
+  .payout-utr-label { margin: 0; font-size: 10.5px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; color: var(--text-muted); }
+  .payout-utr-value { margin: 3px 0 0; font-size: 13px; font-weight: 500; color: var(--text-primary); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+  /* The arithmetic, shown even when obvious: it is the question that would
+     otherwise become a support ticket. */
+  .payout-maths { padding: 14px 16px; border-bottom: 1px solid var(--border-subtle); }
+  .payout-maths dl { display: flex; flex-direction: column; gap: 7px; margin: 0; }
+  .payout-maths dl > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: 12.5px; }
+  .payout-maths dt { color: var(--text-secondary); display: flex; align-items: baseline; gap: 6px; }
+  .payout-maths dd { margin: 0; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+  .payout-maths dd.is-negative { color: var(--text-muted); }
+  .payout-maths .is-total { padding-top: 7px; border-top: 1px solid var(--border-subtle); font-weight: 600; }
+  .payout-maths .is-total dt, .payout-maths .is-total dd { color: var(--text-primary); }
+  .payout-rate { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 99px; background: var(--panel-2); color: var(--text-muted); }
+
+  .payout-bank { display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); }
+  .payout-bank > svg { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; margin-top: 2px; }
+  .payout-bank-name { margin: 0; font-size: 12.5px; font-weight: 600; color: var(--text-primary); }
+  .payout-bank-meta { margin: 2px 0 0; font-size: 11.5px; color: var(--text-muted); overflow-wrap: anywhere; }
+
+  .payout-lines-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 14px 16px 6px; }
+  .payout-lines-head h3 { margin: 0; font-size: 10.5px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--text-muted); }
+  .payout-lines-head span { font-size: 11.5px; color: var(--text-muted); }
+
+  /* ============ TAX INVOICE ============ */
+  .invoice-doc {
+    max-width: 880px; margin: 0 auto 32px; padding: 28px;
+    background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-lg);
+  }
+  .invoice-doc-head { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-panel); }
+  .invoice-doc-kind { margin: 0; font-size: 10.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--brand); }
+  .invoice-doc-title { margin: 6px 0 0; font-size: 19px; font-weight: 600; letter-spacing: -.2px; color: var(--text-primary); }
+  .invoice-doc-address { display: flex; flex-direction: column; gap: 1px; margin-top: 8px; font-style: normal; font-size: 11.5px; line-height: 1.55; color: var(--text-secondary); }
+  .invoice-doc-ids { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 10px 0 0; }
+  .invoice-doc-ids > div { display: flex; gap: 6px; font-size: 11.5px; }
+  .invoice-doc-ids dt { color: var(--text-muted); font-weight: 600; }
+  .invoice-doc-ids dd { margin: 0; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+
+  .invoice-doc-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; margin: 0; align-self: start; }
+  .invoice-doc-meta dt { font-size: 10.5px; font-weight: 600; letter-spacing: .3px; text-transform: uppercase; color: var(--text-muted); }
+  .invoice-doc-meta dd { margin: 3px 0 0; font-size: 12.5px; color: var(--text-primary); }
+  .invoice-doc-meta dd.is-strong { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .invoice-doc-party { padding: 18px 0; border-bottom: 1px solid var(--border-subtle); }
+  .invoice-doc-party h3 { margin: 0 0 6px; font-size: 10.5px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--text-muted); }
+  .invoice-doc-party p { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+  .invoice-doc-party-name { font-size: 13.5px !important; font-weight: 600; color: var(--text-primary) !important; }
+
+  .invoice-doc-lines { margin-top: 4px; }
+  .invoice-doc-totals { display: flex; justify-content: flex-end; padding-top: 14px; }
+  .invoice-doc-totals dl { width: min(320px, 100%); display: flex; flex-direction: column; gap: 7px; margin: 0; }
+  .invoice-doc-totals dl > div { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; font-size: 12.5px; }
+  .invoice-doc-totals dt { color: var(--text-secondary); }
+  .invoice-doc-totals dd { margin: 0; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+  .invoice-doc-totals .is-total { padding-top: 8px; border-top: 1px solid var(--border-panel); font-size: 14px; font-weight: 600; }
+  .invoice-doc-totals .is-due dt, .invoice-doc-totals .is-due dd { color: var(--critical-fg); font-weight: 600; }
+
+  .invoice-doc-words {
+    display: flex; flex-direction: column; gap: 3px; margin: 18px 0 0; padding: 11px 13px;
+    background: var(--panel); border-radius: var(--radius-sm); font-size: 12.5px; color: var(--text-primary);
+  }
+  .invoice-doc-words > span { font-size: 10.5px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; color: var(--text-muted); }
+
+  .invoice-doc-foot { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border-subtle); }
+  .invoice-doc-foot p { margin: 0; max-width: 48ch; font-size: 11px; line-height: 1.55; color: var(--text-muted); }
+  .invoice-doc-sign { display: flex; flex-direction: column; gap: 34px; text-align: right; font-size: 11.5px !important; color: var(--text-secondary) !important; }
+  .invoice-doc-sign > span { padding-top: 6px; border-top: 1px solid var(--border-strong); color: var(--text-muted); }
+
+  @media (min-width: 720px) {
+    .invoice-doc-head { grid-template-columns: minmax(0, 1fr) auto; }
+  }
+
+  /* Printing an invoice prints the invoice, not the portal around it. */
+  @media print {
+    .nav, .mobile-bar, .card-crumbs, .no-print { display: none !important; }
+    .app, .main, .surface-card, .card-scroll { display: block !important; overflow: visible !important; height: auto !important; background: #fff !important; box-shadow: none !important; padding: 0 !important; }
+    .invoice-doc { max-width: none; margin: 0; padding: 0; border: 0; }
+    .data-table tbody tr:hover { background: none !important; }
+  }
+}
