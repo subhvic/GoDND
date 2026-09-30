@@ -130,6 +130,26 @@ test("a card opens the same drawer the table opened", async ({ page }) => {
   await expect(drawer).toContainText("EXP-");
 });
 
+test("Home and the board agree on how many experiences are active", async ({ page }) => {
+  // Two screens describing one business. Home's funnel states the figure;
+  // the board counts the rows. When they drift apart one of them is lying
+  // to the operator, and the screen gives no way to tell which.
+  await page.goto("/dashboard");
+  const tile = page.locator(".stat-tile", { hasText: "Active experiences" });
+  const stated = Number(
+    ((await tile.locator(".stat-tile-value").textContent()) ?? "").replace(/\D/g, ""),
+  );
+  expect(stated).toBeGreaterThan(0);
+
+  await page.goto("/dashboard/experiences");
+  const counted = Number.parseInt(
+    (await page.locator('[data-lane="active"] .xp-lane-count').textContent()) ?? "",
+    10,
+  );
+
+  expect(counted).toBe(stated);
+});
+
 test.describe("phone", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 

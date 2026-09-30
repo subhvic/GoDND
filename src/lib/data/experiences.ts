@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createServerSupabase } from "@/lib/supabase/server";
+import { addDays, dayKey } from "@/lib/time";
 import type {
   ExperienceDetail,
   ExperienceLaneKey,
@@ -371,11 +372,17 @@ function toExperienceRow(record: ExperienceRecord): ExperienceRow {
 /**
  * Fixture departures are relative to today. Hardcoded dates go stale and the
  * table ends up offering a next availability that has already passed.
+ *
+ * "Today" is the operator's day, via dayKey — not toISOString(), which is
+ * UTC. The bookings fixture already dates its departures in IST, and the Ads
+ * page pairs a booking with an experience by comparing the two day strings
+ * for equality. With one fixture on UTC and the other on IST, the pair stops
+ * matching every night between 18:30 UTC and midnight, which is the small
+ * hours in India: seats-sold reads zero and the unpromoted-departure insight
+ * silently disappears for five and a half hours a day.
  */
 function inDays(offset: number): string {
-  const date = new Date();
-  date.setDate(date.getDate() + offset);
-  return date.toISOString().slice(0, 10);
+  return addDays(dayKey(new Date()), offset);
 }
 
 /**
@@ -558,10 +565,17 @@ const DEMO: ExperienceRow[] = [
     updatedAt: daysAgo(3),
   },
   /* The rows above are the handoff file's. Those below fill the board out
-     to something an operator would recognise — twenty-five experiences
+     to something an operator would recognise — twenty-seven experiences
      across all six lanes, including the three states the table could not
      express: live with nothing bookable, live but off-marketplace, and a
-     draft stopped before it had a price. */
+     draft stopped before it had a price.
+
+     Twelve of them are active, which is not a round number picked at
+     random. DEMO_FUNNEL in data/insights.ts states twelve as the handoff
+     file's own figure and the conversion graph's last bucket ends there
+     too, so twelve is what Home tells the operator. Home and this board
+     describe one business; they cannot disagree about how much of it is
+     live. */
   {
     id: "demo-10",
     publicRef: "0045844",
@@ -856,6 +870,42 @@ const DEMO: ExperienceRow[] = [
     basePriceMinor: 5500000,
     currency: "INR",
     updatedAt: daysAgo(512),
+  },
+  {
+    id: "demo-26",
+    publicRef: "0045860",
+    title: "Phawngpui Blue Mountain Trek",
+    kind: "general",
+    status: "active",
+    listOnMarketplace: true,
+    groupSize: 8,
+    groupSizing: "flexible",
+    maxParallelGroups: null,
+    durationDays: 4,
+    durationNights: 3,
+    location: ["Mizoram"],
+    nextAvailableOn: inDays(22),
+    basePriceMinor: 1680000,
+    currency: "INR",
+    updatedAt: daysAgo(15),
+  },
+  {
+    id: "demo-27",
+    publicRef: "0045861",
+    title: "Khonoma Green Village Stay",
+    kind: "general",
+    status: "active",
+    listOnMarketplace: true,
+    groupSize: 10,
+    groupSizing: "flexible",
+    maxParallelGroups: 2,
+    durationDays: 2,
+    durationNights: 1,
+    location: ["Nagaland"],
+    nextAvailableOn: inDays(12),
+    basePriceMinor: 940000,
+    currency: "INR",
+    updatedAt: daysAgo(7),
   },
 ];
 
