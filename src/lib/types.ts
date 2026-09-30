@@ -25,6 +25,52 @@ export const EXPERIENCE_TABS = [
 
 export type ExperienceTabKey = (typeof EXPERIENCE_TABS)[number]["key"];
 
+/**
+ * The board's lanes, left to right in the order an experience moves through
+ * them: you write it, GoDND may send it back, GoDND checks it, it trades,
+ * you retire it.
+ *
+ * Unlike EXPERIENCE_TABS this includes `rejected`. There was never a tab for
+ * it, and the list queried one status at a time, so an experience the GoDND
+ * team sent back for changes vanished from Experiences entirely — reachable
+ * only through Home's "recently created" strip. It is the one state where the
+ * operator is blocked, so on the board it gets a lane of its own.
+ */
+export const EXPERIENCE_LANES = [
+  {
+    key: "draft",
+    label: "Drafts",
+    empty: "Start an experience and save at any step — it waits here.",
+  },
+  {
+    key: "rejected",
+    label: "Changes requested",
+    empty: "Nothing has been sent back for edits.",
+  },
+  {
+    key: "under_review",
+    label: "Under review",
+    empty: "Submit a draft and it sits here while GoDND checks it.",
+  },
+  {
+    key: "active",
+    label: "Active",
+    empty: "Approved experiences land here, ready to take bookings.",
+  },
+  {
+    key: "disabled",
+    label: "Disabled",
+    empty: "Disabling hides an experience without losing its history.",
+  },
+  {
+    key: "archived",
+    label: "Archived",
+    empty: "Archived experiences stay here for your records.",
+  },
+] as const satisfies readonly { key: ExperienceStatus; label: string; empty: string }[];
+
+export type ExperienceLaneKey = (typeof EXPERIENCE_LANES)[number]["key"];
+
 export type ExperienceKind = "general" | "quick" | "super" | "general_joinee";
 
 export const EXPERIENCE_KIND_LABELS: Record<ExperienceKind, string> = {
@@ -53,6 +99,12 @@ export type ExperienceRow = {
   nextAvailableOn: string | null;
   basePriceMinor: number | null;
   currency: string;
+  /**
+   * Last touched. The list already ordered by it; the board also reads it,
+   * because "how long has this been with GoDND?" is the question a card in
+   * the review lane has to answer.
+   */
+  updatedAt: string | null;
 };
 
 /** Everything the detail drawer renders. */
